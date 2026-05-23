@@ -1,0 +1,179 @@
+name: publish-nuget
+
+# Manual-trigger only. Run from the Actions tab → "publish-nuget" → "Run workflow".
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Package version (e.g. 0.3.0). Leave blank to use the <Version> in the csproj."
+        required: false
+        type: string
+      dry_run:
+        description: "Pack only, do not push to nuget.org."
+        required: false
+        type: boolean
+        default: false
+      create_release:
+        description: "Tag v<version> and create a GitHub release with the .nupkg attached."
+        required: false
+        type: boolean
+        default: true
+      prerelease:
+        description: "Mark the GitHub release as a pre-release."
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # only used when create_release == true (tag + release)
+
+concurrency:
+  group: publish-nuget
+  cancel-in-progress: false   # never cancel an in-flight publish
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+jobs:
+  publish:
+    name: pack & publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history so we can tag
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          input="${{ inputs.version }}"
+          if [[ -z "$input" ]]; then
+            # Pull <Version> from the csproj as the fallback.
+            input=$(grep -oE '<Version>[^<]+</Version>' src/Skills.Cli/Skills.Cli.csproj \
+              | head -n1 | sed -E 's|</?Version>||g')
+          fi
+          if [[ -z "$input" ]]; then
+            echo "::error::Could not resolve a version (no input and no <Version> in csproj)."
+            exit 1
+          fi
+          echo "value=$input" >> "$GITHUB_OUTPUT"
+          echo "Version: $input" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Restore
+        run: dotnet restore Skills.sln
+
+      - name: Build (Release)
+        run: dotnet build Skills.sln --configuration Release --no-restore
+
+      - name: Test (net8.0 + net10.0)
+        run: dotnet test Skills.sln --configuration Release --no-build --verbosity normal
+
+      - name: Pack
+        run: |
+          dotnet pack src/Skills.Cli/Skills.Cli.csproj \
+            --configuration Release \
+            --no-build \
+            -p:Version=${{ steps.version.outputs.value }} \
+            -o ./artifacts
+
+      - name: Inspect package
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -lh ./artifacts
+          # Confirm both TFM folders shipped.
+          unzip -l ./artifacts/Skills.${{ steps.version.outputs.value }}.nupkg \
+            | grep -E 'tools/(net8|net10)\.0/any/skills\.dll' || {
+              echo "::error::Multi-TFM payload missing from the .nupkg"
+              exit 1
+            }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Skills.${{ steps.version.outputs.value }}.nupkg
+          path: ./artifacts/Skills.${{ steps.version.outputs.value }}.nupkg
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Push to nuget.org
+        if: ${{ inputs.dry_run != true }}
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [[ -z "${NUGET_API_KEY:-}" ]]; then
+            echo "::error::NUGET_API_KEY secret is not set on this repo."
+            exit 1
+          fi
+          dotnet nuget push ./artifacts/Skills.${{ steps.version.outputs.value }}.nupkg \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key "$NUGET_API_KEY" \
+            --skip-duplicate
+
+      - name: Tag and release
+        if: ${{ inputs.dry_run != true && inputs.create_release == true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists; skipping tag creation."
+          else
+            git tag -a "v$VERSION" -m "v$VERSION"
+            git push origin "v$VERSION"
+          fi
+
+          notes_arg=()
+          if [[ -f CHANGELOG.md ]]; then
+            notes_arg=(--notes-file CHANGELOG.md)
+          else
+            notes_arg=(--generate-notes)
+          fi
+
+          prerelease_arg=()
+          if [[ "${{ inputs.prerelease }}" == "true" ]]; then
+            prerelease_arg=(--prerelease)
+          fi
+
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            "${notes_arg[@]}" \
+            "${prerelease_arg[@]}" \
+            ./artifacts/Skills.${VERSION}.nupkg
+
+      - name: Summary
+        shell: bash
+        run: |
+          {
+            echo "### Publish summary"
+            echo ""
+            echo "- **Version:** \`${{ steps.version.outputs.value }}\`"
+            echo "- **Dry run:** \`${{ inputs.dry_run }}\`"
+            echo "- **Released:** \`${{ inputs.create_release && inputs.dry_run != true }}\`"
+            echo "- **Package:** \`Skills.${{ steps.version.outputs.value }}.nupkg\` (downloadable from this run's Artifacts)"
+          } >> "$GITHUB_STEP_SUMMARY"

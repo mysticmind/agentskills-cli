@@ -1,0 +1,12 @@
+bin/
+obj/
+artifacts/
+local-feed/
+*.nupkg
+*.user
+.vs/
+.idea/
+.DS_Store
+TestResults/
+.nuget/
+

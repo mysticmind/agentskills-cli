@@ -1,0 +1,772 @@
+# skills-net
+
+`dnx skills` - install agent skills from **GitHub**, **NuGet**, **npm**, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and friends. A .NET 10 port of [vercel-labs/skills](https://github.com/vercel-labs/skills) following the open [Agent Skills spec](https://agentskills.io).
+
+A *skill* is a folder containing a `SKILL.md` (YAML frontmatter + markdown body) plus optional supporting files. `skills-net` installs those folders into the right place for whichever coding agent you use (Claude Code, Cursor, Codex, OpenCode, …) so the agent can read and apply them.
+
+Both the `SKILL.md` format and the well-known discovery endpoint follow the open **[Agent Skills specification](https://agentskills.io)**, so skills published for the upstream npm tool, the broader ecosystem, or any other spec-compliant client work here too.
+
+This port keeps every source the upstream npm tool supports (local folders, GitHub, GitLab, any git URL, well-known endpoints) and adds two more:
+
+- **NuGet packages** - public *and* private feeds, using your existing `NuGet.Config` and credential providers.
+- **npm packages** - public *and* private registries, using your existing `~/.npmrc` and project `.npmrc` (scoped registries and `_authToken`/`_auth` honored).
+
+---
+
+## Table of contents
+
+- [Install](#install)
+- [Concepts](#concepts)
+- [Commands](#commands)
+  - [`add`](#add)
+  - [`list`](#list)
+  - [`remove`](#remove)
+  - [`init`](#init)
+  - [`find`](#find)
+  - [`update`](#update)
+- [Source formats](#source-formats)
+- [Authoring skills](#authoring-skills)
+- [Publishing skills as a NuGet package](#publishing-skills-as-a-nuget-package)
+- [Agents](#agents)
+- [Where files land](#where-files-land)
+- [Lock files](#lock-files)
+- [Environment variables](#environment-variables)
+- [Common workflows](#common-workflows)
+- [Building from source](#building-from-source)
+- [Troubleshooting](#troubleshooting)
+- [Related](#related)
+- [License](#license)
+
+---
+
+## Install
+
+### Option A - one-shot via `dnx` (.NET 10+)
+
+No install step required. `dnx` downloads the tool from NuGet on first use and caches it.
+
+```bash
+dnx skills --help
+dnx skills add ./my-skill -a claude-code
+```
+
+### Option B - global tool
+
+```bash
+dotnet tool install --global Skills
+skills --help
+```
+
+Update or uninstall:
+
+```bash
+dotnet tool update --global Skills
+dotnet tool uninstall --global Skills
+```
+
+### Requirements
+
+- **.NET 8 LTS** or **.NET 10** runtime (the tool is multi-targeted; `dotnet tool install` picks the right build for whichever runtime you have).
+- **`dnx skills` requires .NET 10** specifically - `dnx` itself ships only with the .NET 10 SDK. On .NET 8 use `dotnet tool install --global Skills` and call `skills` directly.
+- `git` on `PATH` (only when installing from git URLs / GitHub / GitLab).
+- Building from source requires the **.NET 10 SDK** (it can build both TFM outputs; the .NET 8 SDK cannot build the net10 output).
+
+---
+
+## Concepts
+
+**Skill** - a folder with a `SKILL.md` at the root:
+
+```
+my-skill/
+├── SKILL.md          # required, with YAML frontmatter
+├── reference.md      # optional, anything else the skill needs
+└── prompts/...
+```
+
+`SKILL.md` frontmatter must include `name` and `description`:
+
+```markdown
+---
+name: my-skill
+description: One-line hint that helps an agent decide when to use this skill.
+---
+# my-skill
+
+Body markdown. This is what the agent reads.
+```
+
+**Source** - where a skill comes from: a local folder, a git repo, a NuGet package, or an HTTPS endpoint that follows the well-known discovery convention.
+
+**Agent** - a target tool (Claude Code, Cursor, Codex, OpenCode, …). Each agent reads skills from a specific directory. `skills-net` knows where each agent looks and copies the skill there.
+
+**Scope** - *project* installs land in the current directory (`./.agents/skills/…`); *global* installs (`-g`) land in your home (`~/.agents/skills/…`).
+
+**Universal vs per-agent agents** - Cursor, Codex, OpenCode and the "universal" target share a single canonical `.agents/skills` directory that they all read directly. Claude Code has its own `.claude/skills` directory; on supported filesystems we symlink it to the canonical copy, otherwise we copy.
+
+---
+
+## Commands
+
+Every command supports `--help`:
+
+```bash
+skills --help
+skills add --help
+```
+
+### `add`
+
+Install one or more skills from a source.
+
+```
+skills add <source> [-g] [-a agent...] [-s skill...] [-y] [--copy|--symlink] [--nuget-source URL] [--npm-registry URL]
+```
+
+| Flag | Meaning |
+|---|---|
+| `<source>` | Local path, GitHub shorthand, URL, or NuGet package id (see [Source formats](#source-formats)). |
+| `-g`, `--global` | Install to the user-wide directory (`~/.agents/skills/…`) instead of the project. |
+| `-a`, `--agent <NAME>` | Target a specific agent. Pass multiple times for multiple agents. Omit to auto-detect installed agents and (interactively) prompt. |
+| `-s`, `--skill <NAME>` | Install specific skill(s) by name from the source. Use `'*'` to mean "all". Omit to install everything (with a multi-select prompt unless `-y`). |
+| `-y`, `--yes` | Non-interactive. Skip all prompts and accept defaults: install all discovered skills, target all detected agents. Required for scripts/CI. |
+| `--copy` | Materialize files into each agent's directory (default - cross-platform safe). |
+| `--symlink` | Symlink each agent's directory to the canonical copy. Falls back to copy on filesystems that don't support it (Windows without dev mode, restricted volumes). |
+| `--nuget-source <URL>` | One-shot override for the NuGet feed. By default `NuGet.Protocol` uses every enabled feed in your `NuGet.Config`. |
+| `--npm-registry <URL>` | One-shot override for the default npm registry. By default `~/.npmrc` + project `.npmrc` + per-scope rules apply. |
+| `--path <PATH>` | Restrict discovery to a subdirectory of the source. Overrides any subpath the source string carried. Use when a package puts its skills somewhere non-standard (e.g. `ai/prompts/` instead of `skills/`). Rejected if the path contains `..` or doesn't exist inside the staged source. |
+
+**Examples:**
+
+```bash
+# Install one specific skill from a repo for Claude Code, non-interactive
+skills add vercel-labs/agent-skills -a claude-code -s web-design-guidelines -y
+
+# Install everything in a NuGet package into the project, all detected agents
+skills add MyOrg.AgentSkills -y
+
+# Install all skills from a private NuGet feed at a pinned version, globally
+skills add MyOrg.AgentSkills@1.2.3 -g -y \
+  --nuget-source https://pkgs.contoso.com/v3/index.json
+
+# Install from a GitHub branch with a subpath
+skills add https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines
+
+# Install a local skill into the current project for Cursor
+skills add ./my-local-skill -a cursor
+
+# Source uses a non-conventional layout - point at it explicitly
+skills add MyOrg.AgentSkills --path ai/prompts -y
+skills add @my-org/agent-skills --path src/skills -y
+skills add anthropics/skills --path docs/skills -y
+```
+
+**Discovery, briefly.** Without `--path`, skills are found via three layered passes: (1) source-type conventions (`contentFiles/any/any/skills/` for NuGet, `package/skills/` then `package/contentFiles/...` for npm, the upstream priority dir list for git), then (2) recursive scan up to 5 levels deep, skipping `node_modules`, `.git`, `dist`, `build`, `__pycache__`. With `--path`, the scan is restricted to that one subdirectory of the staged source.
+
+**Output.** After a successful install, the result table includes a `Path` column with the exact file location for every `(skill, agent)` pair, followed by an `Installed under …` summary listing the distinct directory roots:
+
+```
+╭─────────────┬─────────────┬────────┬─────────────────────────────────────────╮
+│ Skill       │ Agent       │ Result │ Path                                    │
+├─────────────┼─────────────┼────────┼─────────────────────────────────────────┤
+│ hello-skill │ Universal   │ copied │ /path/to/project/.agents/skills/hello-… │
+│ hello-skill │ Claude Code │ copied │ /path/to/project/.claude/skills/hello-… │
+╰─────────────┴─────────────┴────────┴─────────────────────────────────────────╯
+Installed under /path/to/project/.agents/skills, /path/to/project/.claude/skills
+Done.
+```
+
+After the fact you can recover the same paths any time with `skills list --paths` (see below) or by reading the rules in [Where files land](#where-files-land).
+
+### `list`
+
+Inspect installed skills.
+
+```
+skills list [<target>...] [-g] [-a agent...] [--by package|path|agent|scope] [--paths]
+```
+
+| Argument | Meaning |
+|---|---|
+| `<target>` | Optional filter. Each argument is matched first as a skill name, then as a source. "Source" accepts **any** shape `add` accepts: local paths, GitHub `owner/repo` shorthand or URL (with or without `/tree/<ref>/<path>`), GitLab URLs, NuGet package id, npm package id (`@scope/name`, bare, or `npm:`-prefixed), arbitrary git URL. Version suffix ignored. Repeatable; the match is a union. Omit to list everything. |
+
+| Flag | Meaning |
+|---|---|
+| `-g`, `--global` | Show only globally installed skills. Default shows both project and global. |
+| `-a`, `--agent <NAME>` | Limit the view to specific agents. |
+| `--by <KEY>` | Group the output. Values: `package`, `path`, `agent`, `scope`. Default is a single flat table. |
+| `--paths` | Add a column with each skill's on-disk install path. |
+
+Default output is a flat Spectre table: skill name, scope (`project` / `global`), the agents that have it installed, the package source (from the lock file, with the source-type tag), and the description.
+
+**Examples:**
+
+```bash
+# Filter by skill name
+skills list hello-skill
+
+# Filter by source - same parsing as `skills add`
+skills list @jasperfx/ai-skills                          # npm scoped
+skills list npm:left-pad                                 # npm unscoped
+skills list MyOrg.AgentSkills                            # NuGet
+skills list anthropics/skills                            # GitHub shorthand
+skills list https://github.com/anthropics/skills         # GitHub URL - same lock entries
+skills list https://gitlab.com/group/sub/repo            # GitLab
+skills list /abs/path/to/local/skill                     # local path
+
+# Mix skill names and sources - the union is shown
+skills list hello-skill anthropics/skills MyOrg.AgentSkills
+
+# Group by package (one mini-table per source)
+skills list --by package
+
+# Group by install directory + show the full path on each row
+skills list --by path --paths
+
+# Group by agent or scope
+skills list --by agent
+skills list --by scope
+```
+
+Skills not tracked in any lock (installed manually, or before lock tracking) appear under `(untracked)` when `--by package` is set, and with a `-` in the Source column otherwise.
+
+**Versions** - for NuGet and npm targets, dropping the `@version` matches any installed version; pinning a version (`@jasperfx/ai-skills@1.5.0`) requires an exact match. If the requested version isn't installed but a different version is, the command prints a hint:
+
+```
+$ skills list npm:@jasperfx/ai-skills@1.5.0
+No installed skills matched npm:@jasperfx/ai-skills@1.5.0.
+hint: @jasperfx/ai-skills is installed at version(s) 1.4.0; drop the @version to list anyway.
+```
+
+GitHub refs (`anthropics/skills#main`) are not version constraints - the lock tracks them separately, so they're ignored when matching.
+
+### `remove`
+
+Remove installed skills.
+
+```
+skills remove [<target>...] [-g] [-a agent...] [-y]
+```
+
+| Argument | Meaning |
+|---|---|
+| `<target>` | Skills to remove. Each argument is matched first as a skill name, then as a source - **any** shape `add` accepts works (GitHub `owner/repo` or URL, GitLab URL, NuGet package id, npm package id, local path). Repeatable; the match is a union. Omit to be prompted with a multi-select of everything installed. |
+
+| Flag | Meaning |
+|---|---|
+| `-g`, `--global` | Remove from the global scope. Default removes from both scopes. |
+| `-a`, `--agent <NAME>` | Limit removal to specific agents. By default all agents that have the skill get cleaned. |
+| `-y`, `--yes` | Skip the "Remove N skill(s)?" confirmation. |
+
+After removal, the canonical `.agents/skills/<name>` directory is also cleaned up, and lock entries are dropped.
+
+**Examples:**
+
+```bash
+# Remove by skill name
+skills remove hello-skill -y
+
+# Remove every skill installed from a package - same parsing as `skills add`
+skills remove MyOrg.AgentSkills -y                  # NuGet
+skills remove @jasperfx/ai-skills -y                # npm
+skills remove anthropics/skills -y                  # GitHub
+skills remove https://gitlab.com/group/repo -y      # GitLab
+
+# Mix skill names and sources, narrow to one agent
+skills remove some-extra-skill MyOrg.AgentSkills -a claude-code -y
+```
+
+**Versions** behave the same as in `list`: a bare package id (`MyOrg.AgentSkills`) matches every installed version - useful for upgrades where you don't remember which version is live. Pinning a version (`MyOrg.AgentSkills@1.2.3`) strict-matches, and if nothing matches the command prints a hint with the installed version(s). Scoped npm names are handled correctly: in `@jasperfx/ai-skills@1.0.0` the leading `@` is the scope marker, only the trailing `@1.0.0` is the version.
+
+### `init`
+
+Scaffold a new `SKILL.md` template in a directory.
+
+```
+skills init [PATH] [-y]
+```
+
+| Flag | Meaning |
+|---|---|
+| `PATH` | Directory to scaffold in. Defaults to the current directory. Created if missing. |
+| `-y`, `--yes` | Overwrite an existing `SKILL.md` without asking. |
+
+The skill's `name` defaults to a kebab-case derivation of the directory name.
+
+### `find`
+
+Search [skills.sh](https://skills.sh) for community skills.
+
+```
+skills find [QUERY] [-g] [-y]
+```
+
+| Flag | Meaning |
+|---|---|
+| `QUERY` | Search terms. Omit in an interactive shell to be prompted. |
+| `-g`, `--global` | When picking a result, install it globally. |
+| `-y`, `--yes` | Non-interactive output only: print the result table and exit (no install prompt). |
+
+In an interactive shell, results render as a table and then a `SelectionPrompt` lets you pick one to install via the regular `add` pipeline.
+
+### `update`
+
+Detect upstream changes for tracked GitHub skills and reinstall them.
+
+```
+skills update [<name>...] [-g] [-p] [--check] [-y]
+```
+
+| Flag | Meaning |
+|---|---|
+| `<name>` | Limit the check to specific skill names. Omit to check everything tracked. |
+| `-g`, `--global` | Only the global scope. |
+| `-p`, `--project` | Only the project scope. |
+| Both / neither | Both scopes (auto-detected based on the presence of `skills-lock.json` or `.agents/skills/`). |
+| `--check` | Report drift only - do **not** install. Exit code is always 0; use the table output to decide. |
+| `-y`, `--yes` | Skip the install confirmation. |
+
+**How it works:** `add` records the GitHub tree SHA (`skillFolderHash`) and skill folder path (`skillPath`) for every skill installed from a git source. `update` groups the lock by `owner/repo`, calls the GitHub Trees API once per repo, looks up each skill's current tree SHA, and reinstalls any that have drifted.
+
+**GitHub auth** is lazy and mirrors upstream:
+
+1. Try unauthenticated (sufficient for most personal use - 60 req/h per IP).
+2. On a rate-limit 403, try `GITHUB_TOKEN`.
+3. Then `GH_TOKEN`.
+4. Then `gh auth token` (prints a one-time stderr note so you know).
+
+Sources that can't be checked automatically (local paths, generic git URLs, GitLab, NuGet, well-known endpoints, or skills installed before tree-SHA tracking) appear in a separate **Skipped** table with an explanation.
+
+---
+
+## Source formats
+
+Detection is order-sensitive - the first rule that matches wins. This list mirrors upstream's `source-parser.ts` plus a new NuGet branch.
+
+### Local
+
+```bash
+skills add .                     # current directory
+skills add ./my-skill
+skills add ../shared/skill
+skills add /abs/path/to/skill
+skills add C:\skills\my-skill    # Windows
+```
+
+### NuGet
+
+```bash
+skills add MyOrg.AgentSkills              # latest stable from configured feeds
+skills add MyOrg.AgentSkills@1.2.3        # specific version
+skills add nuget:MyOrg.AgentSkills@1.2.3  # explicit prefix (forces NuGet)
+```
+
+`skills-net` uses `NuGet.Protocol` with `Settings.LoadDefaultSettings()`, so every feed listed in your machine / user / per-project `NuGet.Config` is searched in order. Credential providers (Azure Artifacts, GitHub Packages, etc.) are honored automatically - no flag needed.
+
+Override the feed list for a single command with `--nuget-source <URL>`.
+
+### npm
+
+```bash
+skills add @my-org/agent-skills                # scoped - auto-detected as npm
+skills add @my-org/agent-skills@1.2.3          # pinned version
+skills add @my-org/agent-skills@next           # dist-tag
+skills add npm:left-pad                        # unscoped - requires npm: prefix
+skills add npm:left-pad@1.3.0
+```
+
+> Why the prefix for unscoped? A bare `lodash.merge` matches the NuGet shorthand
+> (this *is* a .NET tool), so unscoped npm names need `npm:` to disambiguate.
+> Scoped names (`@scope/name`) start with `@` and are unambiguous.
+
+Registry, auth, and scope routing are read from your `.npmrc` files in this order
+(later wins): `~/.npmrc`, then the project's `./.npmrc`.
+
+| `.npmrc` key | What it does |
+|---|---|
+| `registry=https://registry.npmjs.org/` | Default registry. |
+| `@my-org:registry=https://npm.contoso.com/team/` | Use a different registry for one scope. |
+| `//npm.contoso.com/team/:_authToken=…` | Bearer token sent to that registry/path. |
+| `//npm.contoso.com/:_auth=base64(user:pass)` | Basic auth (legacy). |
+| `${ENV_VAR}` anywhere in a value | Expanded from process env at load time. |
+
+The token is matched against the registry URL by host + longest path prefix, so a
+token configured under `//npm.contoso.com/team/` is used for the `team/` registry
+but not for `//npm.contoso.com/other/`.
+
+Override the default registry for a single command with `--npm-registry <URL>`.
+
+**Package layout:** the tarball roots at `package/` per the npm spec. We look for
+`package/skills/` first, then `package/contentFiles/any/any/skills/`, then fall
+back to a recursive scan. Mirrors how a multi-skill GitHub repo or `.nupkg` works:
+
+```
+@my-org/agent-skills-1.2.3.tgz
+└─ package/
+   ├─ package.json
+   └─ skills/
+      ├─ skill-one/SKILL.md
+      └─ skill-two/SKILL.md
+```
+
+### GitHub shorthand (`owner/repo`)
+
+```bash
+skills add vercel-labs/agent-skills
+skills add vercel-labs/agent-skills/skills/web-design-guidelines   # subpath
+skills add vercel-labs/agent-skills#main                            # ref
+skills add vercel-labs/agent-skills@web-design-guidelines          # single-skill filter
+skills add vercel-labs/agent-skills#main@web-design-guidelines     # both
+```
+
+### Full GitHub URL
+
+```bash
+skills add https://github.com/vercel-labs/agent-skills
+skills add https://github.com/vercel-labs/agent-skills.git
+skills add https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines
+```
+
+### GitLab
+
+```bash
+skills add gitlab:group/repo
+skills add https://gitlab.com/group/repo
+skills add https://gitlab.com/group/subgroup/repo                    # subgroups supported
+skills add https://gitlab.com/group/repo/-/tree/main/skills/foo      # subpath + ref
+```
+
+### Arbitrary git URL
+
+```bash
+skills add git@github.com:vercel-labs/agent-skills.git
+skills add https://git.example.com/team/skills.git
+skills add ssh://git@git.example.com/team/skills.git
+```
+
+### Well-known endpoint (RFC 8615-style)
+
+```bash
+skills add https://skills.example.com
+skills add https://skills.example.com/team
+```
+
+The endpoint must serve `/.well-known/agent-skills/index.json` (the modern path) or `/.well-known/skills/index.json` (legacy fallback). Both schemas are supported:
+
+- **v0.2.0** ([spec](https://agentskills.io), [JSON schema](https://schemas.agentskills.io/discovery/0.2.0/schema.json)): index entries declare `$schema`, `type: skill-md|archive`, `url`, and mandatory `digest: sha256:…`. The digest is verified after download. Archives may be `.zip` or `.tar.gz` (caps: 50 MB unpacked, 1000 files, no symlinks).
+- **v0.1.0 (legacy)**: index entries with `name`, `description`, `files: [...]`, where files are fetched individually from `<base>/<wellknown>/<name>/<file>`.
+
+The schema URL acts as the version marker: an index with `"$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json"` is parsed as v0.2.0, an index with no `$schema` is parsed as v0.1.0, and any other `$schema` value is rejected (so future schema bumps don't get silently misinterpreted).
+
+---
+
+## Authoring skills
+
+A skill is just a folder with a `SKILL.md`. Run `skills init` to scaffold one.
+
+`SKILL.md` schema:
+
+```yaml
+---
+name: <slug>             # required, string. Used as the install directory name (kebab-case).
+description: <one line>  # required, string. Shown in lists and to agents at discovery time.
+metadata:                # optional, free-form object.
+  internal: false        # if true, hidden unless INSTALL_INTERNAL_SKILLS=1 or the user names it explicitly.
+  any: thing             # arbitrary fields passed through to the installer.
+---
+# Markdown body the agent reads.
+```
+
+**Multi-skill repos.** Place each skill in its own folder. By default the discovery scan prefers well-known subdirectories (`skills/`, `.agents/skills/`, `.claude/skills/`, …) before recursing. Up to 5 levels of recursion. `node_modules/`, `.git/`, `dist/`, `build/`, and `__pycache__/` are skipped.
+
+**Excluded from copy** (mirrors upstream): `metadata.json`, `.git/`, `__pycache__/`, `__pypackages__/`. Broken symlinks are skipped without aborting the install.
+
+---
+
+## Publishing skills as a NuGet package
+
+`skills-net` uses the standard NuGet `contentFiles` layout. A minimal package looks like:
+
+```
+my-skills.csproj
+contentFiles/
+└── any/
+    └── any/
+        └── skills/
+            ├── skill-one/
+            │   ├── SKILL.md
+            │   └── reference.md
+            └── skill-two/
+                └── SKILL.md
+```
+
+A working `.csproj`:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoWarn>$(NoWarn);NU5128;NU5127</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <PackageId>MyOrg.AgentSkills</PackageId>
+    <Version>1.0.0</Version>
+    <Description>Our team's curated agent skills.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="contentFiles\any\any\skills\**\*">
+      <Pack>true</Pack>
+      <PackagePath>contentFiles\any\any\skills\</PackagePath>
+      <BuildAction>None</BuildAction>
+      <CopyToOutput>false</CopyToOutput>
+    </Content>
+  </ItemGroup>
+</Project>
+```
+
+Build and push:
+
+```bash
+dotnet pack -o ./out
+dotnet nuget push ./out/MyOrg.AgentSkills.1.0.0.nupkg \
+  --source https://pkgs.contoso.com/v3/index.json \
+  --api-key $API_KEY
+```
+
+A complete example lives in [`samples/sample-nuget-package`](samples/sample-nuget-package).
+
+> If you don't follow the `contentFiles/any/any/skills/` convention, `skills-net` still falls back to a recursive scan inside the extracted `.nupkg`. The convention is just the fast path.
+
+---
+
+## Agents
+
+v1 ships five agent targets:
+
+| `-a` name | Display | Project dir | Global dir | Universal? |
+|---|---|---|---|---|
+| `claude-code` | Claude Code | `.claude/skills` | `$CLAUDE_CONFIG_DIR/skills` or `~/.claude/skills` | no |
+| `codex` | Codex | `.agents/skills` | `$CODEX_HOME/skills` or `~/.codex/skills` | yes |
+| `cursor` | Cursor | `.agents/skills` | `~/.cursor/skills` | yes |
+| `opencode` | OpenCode | `.agents/skills` | `$XDG_CONFIG_HOME/opencode/skills` or `~/.config/opencode/skills` | yes |
+| `universal` | Universal | `.agents/skills` | `$XDG_CONFIG_HOME/agents/skills` or `~/.config/agents/skills` | yes |
+
+Universal agents share the canonical `.agents/skills` directory - installing for one of them is effectively installing for all of them.
+
+If you don't pass `-a`, `skills-net` auto-detects agents installed on the system and (in interactive mode) prompts you to pick.
+
+---
+
+## Where files land
+
+A skill folder is always copied (or symlinked, with `--symlink`) into one of two locations, derived deterministically from the `(scope, agent)` pair.
+
+**Project scope** (default - no `-g`), with `$PROJECT` = current working directory:
+
+| Agent | Install path |
+|---|---|
+| `claude-code` | `$PROJECT/.claude/skills/<skill-name>/` |
+| `codex`, `cursor`, `opencode`, `universal` | `$PROJECT/.agents/skills/<skill-name>/` (shared canonical dir) |
+
+**Global scope** (`-g`), with `$HOME` = user home (and the listed env vars taking precedence if set):
+
+| Agent | Install path |
+|---|---|
+| `claude-code` | `$CLAUDE_CONFIG_DIR/skills/<skill-name>/` or `$HOME/.claude/skills/<skill-name>/` |
+| `codex` | `$CODEX_HOME/skills/<skill-name>/` or `$HOME/.codex/skills/<skill-name>/` |
+| `cursor` | `$HOME/.cursor/skills/<skill-name>/` |
+| `opencode` | `$XDG_CONFIG_HOME/opencode/skills/<skill-name>/` or `$HOME/.config/opencode/skills/<skill-name>/` |
+| `universal` | `$XDG_CONFIG_HOME/agents/skills/<skill-name>/` or `$HOME/.config/agents/skills/<skill-name>/` |
+
+The `<skill-name>` is the kebab-case-sanitized form of the SKILL.md `name` field (lowercased, runs of non `[a-z0-9._]` collapsed to `-`, leading/trailing dots and hyphens stripped, capped at 255 chars).
+
+**Three ways to see the paths for skills already on disk:**
+
+1. `skills add …` prints them in the result table's `Path` column and in the `Installed under …` summary.
+2. `skills list --paths` re-renders the same `Path` column for everything installed.
+3. `skills list --by path --paths` groups skills by install directory - handy for a "what's actually in `~/.claude/skills/`?" view.
+
+---
+
+## Lock files
+
+`skills-net` writes two lock files so installs are reproducible and `update` has something to diff against.
+
+### Global lock - `~/.agents/.skill-lock.json` (or `$XDG_STATE_HOME/skills/.skill-lock.json`)
+
+Schema v3, sorted by skill name, one entry per globally-installed skill:
+
+```json
+{
+  "version": 3,
+  "skills": {
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "skillFolderHash": "3116f3e62dbd02b44a598b1aa690d2a8938e8f89",
+      "installedAt": "2026-05-23T14:24:05.96Z",
+      "updatedAt": "2026-05-23T14:24:05.96Z"
+    }
+  }
+}
+```
+
+- `sourceType` is one of `local`, `github`, `gitlab`, `git`, `nuget`, `well-known`.
+- `skillFolderHash` is the git tree SHA of the skill's folder - captured via `git rev-parse HEAD:<path>` on the staged clone. Empty for non-git sources.
+- `update` reads this file to know what to check.
+
+### Project lock - `./skills-lock.json`
+
+Schema v1, sorted alphabetically (for clean diffs), commit it to your repo:
+
+```json
+{
+  "version": 1,
+  "skills": {
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
+    }
+  }
+}
+```
+
+- `computedHash` is a SHA-256 over the installed skill folder (relative path + bytes), independent of git.
+- Written on every project install. Useful for CI to verify the on-disk state matches what's tracked.
+
+---
+
+## Environment variables
+
+| Variable | Effect |
+|---|---|
+| `CLAUDE_CONFIG_DIR` | Override Claude home (default `~/.claude`). |
+| `CODEX_HOME` | Override Codex home (default `~/.codex`). |
+| `XDG_CONFIG_HOME` | XDG base used for OpenCode and Universal global dirs (default `~/.config`). |
+| `XDG_STATE_HOME` | If set, the global lock lives at `$XDG_STATE_HOME/skills/.skill-lock.json` instead of `~/.agents/.skill-lock.json`. |
+| `SKILLS_CLONE_TIMEOUT_MS` | Hard timeout for `git clone` in milliseconds (default `300000` = 5 min). |
+| `INSTALL_INTERNAL_SKILLS` | Set to `1` or `true` to include skills with `metadata.internal: true` in scans. |
+| `SKILLS_API_URL` | Override the search backend used by `find` (default `https://skills.sh`). |
+| `GITHUB_TOKEN` / `GH_TOKEN` | Used by `update` only after a rate-limit 403. Silent. |
+
+`git clone` is invoked with `GIT_TERMINAL_PROMPT=0` and `GIT_LFS_SKIP_SMUDGE=1` so it never blocks for a credential prompt or pulls LFS objects.
+
+---
+
+## Common workflows
+
+### Bootstrap a fresh project with a curated skill set
+
+```bash
+cd my-app
+skills add MyOrg.CuratedSkills -y
+git add .agents/ skills-lock.json
+git commit -m "chore: pin agent skills"
+```
+
+Teammates run `skills add <same source> -y` (or, once `install-from-lock` lands, just `skills install`) to reproduce.
+
+### Add a single skill globally so it's available to every project
+
+```bash
+skills add vercel-labs/agent-skills -g -s web-design-guidelines -y
+```
+
+### Try out everything in a NuGet package, then prune
+
+```bash
+skills add MyOrg.AgentSkills -y                # installs all
+skills list MyOrg.AgentSkills --paths          # what landed, with paths
+skills remove unused-skill -y                  # drop one
+skills remove MyOrg.AgentSkills -y             # …or roll the whole package back
+```
+
+### Drive `dnx` from CI without ever installing the tool
+
+```bash
+dnx skills -y -- add ./my-skill -a claude-code -y --copy
+```
+
+### Refresh everything from upstream
+
+```bash
+skills update --check                    # dry-run table
+skills update -g -y                      # actually update globals
+```
+
+---
+
+## Building from source
+
+```bash
+dotnet build
+dotnet test                              # 41+ unit & integration tests
+dotnet pack src/Skills.Cli -o ./artifacts
+
+# Try the freshly-packed tool without installing
+dnx skills --source ./artifacts -y -- add ./samples/hello-skill -a universal -y --copy
+
+# Or install it locally
+dotnet tool install --global --add-source ./artifacts Skills
+skills --help
+```
+
+Project layout:
+
+```
+src/Skills.Cli/
+├── Commands/         # add, list, remove, init, find, update
+├── Sources/          # local, git, NuGet, well-known, parser, GitHub API
+├── Skills/           # SKILL.md parser, discovery, sanitizer, path safety
+├── Agents/           # the 5-agent registry
+├── Install/          # installer, copy/symlink, lock files
+└── Ui/               # banner, prompts, spinners (Spectre.Console)
+
+tests/Skills.Cli.Tests/
+├── SourceParserTests.cs
+├── SkillCoreTests.cs
+├── InstallerTests.cs
+├── WellKnownSourceTests.cs   # spins a local HttpListener
+└── GitHubApiTests.cs
+
+samples/
+├── hello-skill/              # minimal local skill
+└── sample-nuget-package/     # demonstrates the contentFiles layout
+```
+
+---
+
+## Troubleshooting
+
+**`dnx: command not found`** - `dnx` ships with .NET 10 only. Either install the .NET 10 SDK, or use the global-tool path instead: `dotnet tool install --global Skills && skills …` (works on .NET 8+).
+
+**`The framework 'Microsoft.NETCore.App', version '10.0.0' was not found`** when invoking `skills` - your installed tool is the net10 build but only .NET 8 is present. Reinstall with `dotnet tool uninstall -g Skills && dotnet tool install -g Skills` and NuGet will pick the net8 build for you, or install the .NET 10 runtime side-by-side.
+
+**`git: command not found`** during `skills add owner/repo`** - install git and put it on `PATH`. Local and NuGet sources don't need git.
+
+**`NuGet sources: No enabled NuGet sources found`** - your `NuGet.Config` lists no enabled feeds. Run `dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org` or pass `--nuget-source <URL>`.
+
+**Private NuGet feed asks for credentials** - make sure the appropriate credential provider is installed for your feed (Azure Artifacts Credential Provider, GitHub Packages PAT in your `NuGet.Config`, etc.). `skills-net` doesn't add any new auth surface; if `dotnet restore` works against your feed, `skills add` will too.
+
+**`update` shows "Could not fetch tree (rate-limited, private, or moved)"** - set `GITHUB_TOKEN` (or `GH_TOKEN`) and re-run. GitHub allows 60 unauthenticated requests per hour per IP.
+
+**Symlinks failing on Windows** - pass `--copy` or enable Developer Mode. The installer falls back to copy automatically when symlink creation fails.
+
+**Tests can't bind to a TCP port** - the well-known tests start a short-lived `HttpListener`. Re-run if a port races; the tests pick a free port each time.
+
+---
+
+## Related
+
+- **[Agent Skills specification](https://agentskills.io)** - the open spec for the `SKILL.md` format, well-known discovery endpoint, and v0.2.0 schema this CLI implements.
+- **[`schemas.agentskills.io`](https://schemas.agentskills.io/)** - canonical JSON schemas (currently `discovery/0.2.0/schema.json`).
+- **[vercel-labs/skills](https://github.com/vercel-labs/skills)** - the upstream npm CLI this project ports. Skills published for `npx skills` work with `dnx skills` and vice-versa.
+- **[skills.sh](https://skills.sh)** - community directory powering `skills find`.
+
+## License
+
+MIT. Portions derived from [vercel-labs/skills](https://github.com/vercel-labs/skills) (MIT). See `LICENSE` and `NOTICE`.

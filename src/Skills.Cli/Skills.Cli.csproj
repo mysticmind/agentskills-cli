@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!--
+      Multi-targeted so the published tool works on .NET 8 LTS as well as .NET 10.
+      `dnx skills` still requires .NET 10 (the dnx command itself ships with the 10 SDK),
+      but `dotnet tool install` succeeds on either runtime.
+    -->
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <RootNamespace>Skills</RootNamespace>
+    <AssemblyName>skills</AssemblyName>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>skills</ToolCommandName>
+    <PackageType>DotnetTool</PackageType>
+    <!-- PackageId == ToolCommandName so users can invoke `dnx skills`.
+         If you fork this project, rename PackageId to avoid colliding on nuget.org. -->
+    <PackageId>Skills</PackageId>
+    <Version>0.2.0</Version>
+    <Authors>skills-net contributors</Authors>
+    <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx skills`. A .NET port of vercel-labs/skills implementing the open Agent Skills spec.</Description>
+    <PackageProjectUrl>https://github.com/skills-net/skills-net</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>skills;ai;agents;claude;cursor;codex;opencode;dnx</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" />
+    <PackageReference Include="Spectre.Console.Cli" />
+    <PackageReference Include="YamlDotNet" />
+    <PackageReference Include="NuGet.Protocol" />
+    <PackageReference Include="NuGet.Configuration" />
+    <PackageReference Include="NuGet.Packaging" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

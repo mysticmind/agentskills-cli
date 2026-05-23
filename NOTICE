@@ -1,0 +1,2 @@
+skills-net is a .NET 10 port of vercel-labs/skills (https://github.com/vercel-labs/skills),
+licensed under the MIT License. Behavioral parity is intentional. See LICENSE.

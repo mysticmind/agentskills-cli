@@ -1,0 +1,110 @@
+root = true
+
+[*]
+indent_style = space
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{md,yml,yaml,json}]
+indent_size = 2
+
+[*.{cs,csproj,props,targets}]
+indent_size = 4
+
+[*.cs]
+# ─── Language conventions ────────────────────────────────────────────────────
+csharp_using_directive_placement = outside_namespace:warning
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_prefer_braces = true:silent
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_prefer_method_group_conversion = true:silent
+csharp_style_prefer_top_level_statements = true:silent
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_prefer_readonly_struct = true:suggestion
+csharp_style_prefer_readonly_struct_member = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+csharp_style_expression_bodied_lambdas = true:silent
+csharp_style_expression_bodied_local_functions = false:silent
+csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+csharp_style_throw_expression = true:suggestion
+csharp_style_conditional_delegate_call = true:suggestion
+csharp_style_inlined_variable_declaration = true:suggestion
+
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+dotnet_style_qualification_for_field = false:silent
+dotnet_style_qualification_for_property = false:silent
+dotnet_style_qualification_for_method = false:silent
+dotnet_style_qualification_for_event = false:silent
+dotnet_style_predefined_type_for_locals_parameters_members = true:silent
+dotnet_style_predefined_type_for_member_access = true:silent
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
+dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
+dotnet_style_explicit_tuple_names = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+dotnet_style_coalesce_expression = true:suggestion
+
+# ─── Diagnostic severity overrides ───────────────────────────────────────────
+# CA1054/CA1056: URIs as string. We treat string URLs as a deliberate choice; users pass them as args.
+dotnet_diagnostic.CA1054.severity = none
+dotnet_diagnostic.CA1056.severity = none
+# CA1303: Localize string literals. Not relevant for a CLI tool.
+dotnet_diagnostic.CA1303.severity = none
+# CA1822: Members marked static. Useful but noisy on virtual extension points.
+dotnet_diagnostic.CA1822.severity = suggestion
+# CA1031: Generic catch. Sometimes correct (best-effort cleanup); judged per-site.
+dotnet_diagnostic.CA1031.severity = suggestion
+# Meziantou: MA0048 file name must match type. We have multiple types per file in some places.
+dotnet_diagnostic.MA0048.severity = none
+# Meziantou: MA0051 method too long. We enforce via review, not the analyzer.
+dotnet_diagnostic.MA0051.severity = suggestion
+# Meziantou: MA0006 use string.Equals over ==. Noisy in tests/asserts.
+dotnet_diagnostic.MA0006.severity = none
+# Meziantou: MA0002 IComparer overloads. We pass them deliberately when ordering matters.
+dotnet_diagnostic.MA0002.severity = suggestion
+# Meziantou: MA0004 ConfigureAwait(false). We add it in library code by convention; analyzer is noisy on commands.
+dotnet_diagnostic.MA0004.severity = suggestion
+# Meziantou: MA0011 IFormatProvider. Not relevant for the CLI's invariant string formatting.
+dotnet_diagnostic.MA0011.severity = none
+# Meziantou: MA0015 ArgumentException with paramName. Useful; treat as warning so we fix during refactor.
+dotnet_diagnostic.MA0015.severity = warning
+# Meziantou: MA0016 abstraction over concrete collection. Concrete types are deliberate at boundaries.
+dotnet_diagnostic.MA0016.severity = none
+# Meziantou: MA0074 StringComparison on StartsWith/IndexOf. Ordinal is the right answer; address on the fly.
+dotnet_diagnostic.MA0074.severity = suggestion
+# Meziantou: MA0009 regex DoS. Audit per-site, not block the build globally.
+dotnet_diagnostic.MA0009.severity = suggestion
+# Meziantou: MA0001 StringComparison.Ordinal. Same as MA0074.
+dotnet_diagnostic.MA0001.severity = suggestion
+# Meziantou: MA0023 RegexOptions.ExplicitCapture. We use positional captures by design in some places.
+dotnet_diagnostic.MA0023.severity = suggestion
+# Meziantou: MA0140 if/else identical. Useful; fix on the fly when truly accidental.
+dotnet_diagnostic.MA0140.severity = warning
+# Meziantou: MA0007 Comma after last enum/object initializer member. Style preference, off.
+dotnet_diagnostic.MA0007.severity = none
+# CA1310 string.StartsWith with StringComparison. Same MA0074 reasoning, address per-site.
+dotnet_diagnostic.CA1310.severity = suggestion
+# CA1062 validate args; we rely on NRT instead of runtime checks except at public boundaries.
+dotnet_diagnostic.CA1062.severity = suggestion
+# CA1305 IFormatProvider. Same reasoning as MA0011.
+dotnet_diagnostic.CA1305.severity = none
+# CA1848 LoggerMessage source generator. Low value for a CLI; perf is dominated by IO.
+dotnet_diagnostic.CA1848.severity = none
+# CA1859 Concrete types for perf. Interfaces at boundaries are deliberate.
+dotnet_diagnostic.CA1859.severity = none
+# CA1863 CompositeFormat caching. Micro-optimization; URL formatting is not hot.
+dotnet_diagnostic.CA1863.severity = none
+# CA1014 CLSCompliant. Not relevant for an end-user CLI assembly.
+dotnet_diagnostic.CA1014.severity = none
+
+[tests/**/*.cs]
+# Tests are allowed to use simpler conventions.
+dotnet_diagnostic.CA1707.severity = none      # Underscores in test method names.
+dotnet_diagnostic.CA1861.severity = none      # Avoid constant arrays as args; tests use them deliberately.
+dotnet_diagnostic.MA0011.severity = none      # IFormatProvider in tests.

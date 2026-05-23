@@ -54,7 +54,7 @@ dnx AgentSkills add ./my-skill -a claude-code
 
 ```bash
 dotnet tool install --global AgentSkills
-skills --help
+agentskills --help
 ```
 
 Update or uninstall:
@@ -67,7 +67,7 @@ dotnet tool uninstall --global AgentSkills
 ### Requirements
 
 - **.NET 8 LTS** or **.NET 10** runtime (the tool is multi-targeted; `dotnet tool install` picks the right build for whichever runtime you have).
-- **`dnx AgentSkills` requires .NET 10** specifically - `dnx` itself ships only with the .NET 10 SDK. On .NET 8 use `dotnet tool install --global AgentSkills` and call `skills` directly.
+- **`dnx AgentSkills` requires .NET 10** specifically - `dnx` itself ships only with the .NET 10 SDK. On .NET 8 use `dotnet tool install --global AgentSkills` and call `agentskills` directly.
 - `git` on `PATH` (only when installing from git URLs / GitHub / GitLab).
 - Building from source requires the **.NET 10 SDK** (it can build both TFM outputs; the .NET 8 SDK cannot build the net10 output).
 
@@ -111,8 +111,8 @@ Body markdown. This is what the agent reads.
 Every command supports `--help`:
 
 ```bash
-skills --help
-skills add --help
+agentskills --help
+agentskills add --help
 ```
 
 ### `add`
@@ -120,7 +120,7 @@ skills add --help
 Install one or more skills from a source.
 
 ```
-skills add <source> [-g] [-a agent...] [-s skill...] [-y] [--copy|--symlink] [--nuget-source URL] [--npm-registry URL]
+agentskills add <source> [-g] [-a agent...] [-s skill...] [-y] [--copy|--symlink] [--nuget-source URL] [--npm-registry URL]
 ```
 
 | Flag | Meaning |
@@ -140,25 +140,25 @@ skills add <source> [-g] [-a agent...] [-s skill...] [-y] [--copy|--symlink] [--
 
 ```bash
 # Install one specific skill from a repo for Claude Code, non-interactive
-skills add vercel-labs/agent-skills -a claude-code -s web-design-guidelines -y
+agentskills add vercel-labs/agent-skills -a claude-code -s web-design-guidelines -y
 
 # Install everything in a NuGet package into the project, all detected agents
-skills add MyOrg.AgentSkills -y
+agentskills add MyOrg.AgentSkills -y
 
 # Install all skills from a private NuGet feed at a pinned version, globally
-skills add MyOrg.AgentSkills@1.2.3 -g -y \
+agentskills add MyOrg.AgentSkills@1.2.3 -g -y \
   --nuget-source https://pkgs.contoso.com/v3/index.json
 
 # Install from a GitHub branch with a subpath
-skills add https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines
+agentskills add https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines
 
 # Install a local skill into the current project for Cursor
-skills add ./my-local-skill -a cursor
+agentskills add ./my-local-skill -a cursor
 
 # Source uses a non-conventional layout - point at it explicitly
-skills add MyOrg.AgentSkills --path ai/prompts -y
-skills add @my-org/agent-skills --path src/skills -y
-skills add anthropics/skills --path docs/skills -y
+agentskills add MyOrg.AgentSkills --path ai/prompts -y
+agentskills add @my-org/agent-skills --path src/skills -y
+agentskills add anthropics/skills --path docs/skills -y
 ```
 
 **Discovery, briefly.** Without `--path`, skills are found via three layered passes: (1) source-type conventions (`contentFiles/any/any/skills/` for NuGet, `package/skills/` then `package/contentFiles/...` for npm, the upstream priority dir list for git), then (2) recursive scan up to 5 levels deep, skipping `node_modules`, `.git`, `dist`, `build`, `__pycache__`. With `--path`, the scan is restricted to that one subdirectory of the staged source.
@@ -176,14 +176,14 @@ Installed under /path/to/project/.agents/skills, /path/to/project/.claude/skills
 Done.
 ```
 
-After the fact you can recover the same paths any time with `skills list --paths` (see below) or by reading the rules in [Where files land](#where-files-land).
+After the fact you can recover the same paths any time with `agentskills list --paths` (see below) or by reading the rules in [Where files land](#where-files-land).
 
 ### `list`
 
 Inspect installed skills.
 
 ```
-skills list [<target>...] [-g] [-a agent...] [--by package|path|agent|scope] [--paths]
+agentskills list [<target>...] [-g] [-a agent...] [--by package|path|agent|scope] [--paths]
 ```
 
 | Argument | Meaning |
@@ -203,29 +203,29 @@ Default output is a flat Spectre table: skill name, scope (`project` / `global`)
 
 ```bash
 # Filter by skill name
-skills list hello-skill
+agentskills list hello-skill
 
-# Filter by source - same parsing as `skills add`
-skills list @acme/sample-skills                          # npm scoped
-skills list npm:left-pad                                 # npm unscoped
-skills list MyOrg.AgentSkills                            # NuGet
-skills list anthropics/skills                            # GitHub shorthand
-skills list https://github.com/anthropics/skills         # GitHub URL - same lock entries
-skills list https://gitlab.com/group/sub/repo            # GitLab
-skills list /abs/path/to/local/skill                     # local path
+# Filter by source - same parsing as `agentskills add`
+agentskills list @acme/sample-skills                          # npm scoped
+agentskills list npm:left-pad                                 # npm unscoped
+agentskills list MyOrg.AgentSkills                            # NuGet
+agentskills list anthropics/skills                            # GitHub shorthand
+agentskills list https://github.com/anthropics/skills         # GitHub URL - same lock entries
+agentskills list https://gitlab.com/group/sub/repo            # GitLab
+agentskills list /abs/path/to/local/skill                     # local path
 
 # Mix skill names and sources - the union is shown
-skills list hello-skill anthropics/skills MyOrg.AgentSkills
+agentskills list hello-skill anthropics/skills MyOrg.AgentSkills
 
 # Group by package (one mini-table per source)
-skills list --by package
+agentskills list --by package
 
 # Group by install directory + show the full path on each row
-skills list --by path --paths
+agentskills list --by path --paths
 
 # Group by agent or scope
-skills list --by agent
-skills list --by scope
+agentskills list --by agent
+agentskills list --by scope
 ```
 
 Skills not tracked in any lock (installed manually, or before lock tracking) appear under `(untracked)` when `--by package` is set, and with a `-` in the Source column otherwise.
@@ -233,7 +233,7 @@ Skills not tracked in any lock (installed manually, or before lock tracking) app
 **Versions** - for NuGet and npm targets, dropping the `@version` matches any installed version; pinning a version (`@acme/sample-skills@1.5.0`) requires an exact match. If the requested version isn't installed but a different version is, the command prints a hint:
 
 ```
-$ skills list npm:@acme/sample-skills@1.5.0
+$ agentskills list npm:@acme/sample-skills@1.5.0
 No installed skills matched npm:@acme/sample-skills@1.5.0.
 hint: @acme/sample-skills is installed at version(s) 1.4.0; drop the @version to list anyway.
 ```
@@ -245,7 +245,7 @@ GitHub refs (`anthropics/skills#main`) are not version constraints - the lock tr
 Remove installed skills.
 
 ```
-skills remove [<target>...] [-g] [-a agent...] [-y]
+agentskills remove [<target>...] [-g] [-a agent...] [-y]
 ```
 
 | Argument | Meaning |
@@ -264,16 +264,16 @@ After removal, the canonical `.agents/skills/<name>` directory is also cleaned u
 
 ```bash
 # Remove by skill name
-skills remove hello-skill -y
+agentskills remove hello-skill -y
 
-# Remove every skill installed from a package - same parsing as `skills add`
-skills remove MyOrg.AgentSkills -y                  # NuGet
-skills remove @acme/sample-skills -y                # npm
-skills remove anthropics/skills -y                  # GitHub
-skills remove https://gitlab.com/group/repo -y      # GitLab
+# Remove every skill installed from a package - same parsing as `agentskills add`
+agentskills remove MyOrg.AgentSkills -y                  # NuGet
+agentskills remove @acme/sample-skills -y                # npm
+agentskills remove anthropics/skills -y                  # GitHub
+agentskills remove https://gitlab.com/group/repo -y      # GitLab
 
 # Mix skill names and sources, narrow to one agent
-skills remove some-extra-skill MyOrg.AgentSkills -a claude-code -y
+agentskills remove some-extra-skill MyOrg.AgentSkills -a claude-code -y
 ```
 
 **Versions** behave the same as in `list`: a bare package id (`MyOrg.AgentSkills`) matches every installed version - useful for upgrades where you don't remember which version is live. Pinning a version (`MyOrg.AgentSkills@1.2.3`) strict-matches, and if nothing matches the command prints a hint with the installed version(s). Scoped npm names are handled correctly: in `@acme/sample-skills@1.0.0` the leading `@` is the scope marker, only the trailing `@1.0.0` is the version.
@@ -283,7 +283,7 @@ skills remove some-extra-skill MyOrg.AgentSkills -a claude-code -y
 Scaffold a new `SKILL.md` template in a directory.
 
 ```
-skills init [PATH] [-y]
+agentskills init [PATH] [-y]
 ```
 
 | Flag | Meaning |
@@ -298,7 +298,7 @@ The skill's `name` defaults to a kebab-case derivation of the directory name.
 Search [skills.sh](https://skills.sh) for community skills.
 
 ```
-skills find [QUERY] [-g] [-y]
+agentskills find [QUERY] [-g] [-y]
 ```
 
 | Flag | Meaning |
@@ -314,7 +314,7 @@ In an interactive shell, results render as a table and then a `SelectionPrompt` 
 Detect upstream changes for tracked GitHub skills and reinstall them.
 
 ```
-skills update [<name>...] [-g] [-p] [--check] [-y]
+agentskills update [<name>...] [-g] [-p] [--check] [-y]
 ```
 
 | Flag | Meaning |
@@ -346,19 +346,19 @@ Detection is order-sensitive - the first rule that matches wins. This list mirro
 ### Local
 
 ```bash
-skills add .                     # current directory
-skills add ./my-skill
-skills add ../shared/skill
-skills add /abs/path/to/skill
-skills add C:\skills\my-skill    # Windows
+agentskills add .                     # current directory
+agentskills add ./my-skill
+agentskills add ../shared/skill
+agentskills add /abs/path/to/skill
+agentskills add C:\skills\my-skill    # Windows
 ```
 
 ### NuGet
 
 ```bash
-skills add MyOrg.AgentSkills              # latest stable from configured feeds
-skills add MyOrg.AgentSkills@1.2.3        # specific version
-skills add nuget:MyOrg.AgentSkills@1.2.3  # explicit prefix (forces NuGet)
+agentskills add MyOrg.AgentSkills              # latest stable from configured feeds
+agentskills add MyOrg.AgentSkills@1.2.3        # specific version
+agentskills add nuget:MyOrg.AgentSkills@1.2.3  # explicit prefix (forces NuGet)
 ```
 
 `AgentSkills` uses `NuGet.Protocol` with `Settings.LoadDefaultSettings()`, so every feed listed in your machine / user / per-project `NuGet.Config` is searched in order. Credential providers (Azure Artifacts, GitHub Packages, etc.) are honored automatically - no flag needed.
@@ -368,11 +368,11 @@ Override the feed list for a single command with `--nuget-source <URL>`.
 ### npm
 
 ```bash
-skills add @my-org/agent-skills                # scoped - auto-detected as npm
-skills add @my-org/agent-skills@1.2.3          # pinned version
-skills add @my-org/agent-skills@next           # dist-tag
-skills add npm:left-pad                        # unscoped - requires npm: prefix
-skills add npm:left-pad@1.3.0
+agentskills add @my-org/agent-skills                # scoped - auto-detected as npm
+agentskills add @my-org/agent-skills@1.2.3          # pinned version
+agentskills add @my-org/agent-skills@next           # dist-tag
+agentskills add npm:left-pad                        # unscoped - requires npm: prefix
+agentskills add npm:left-pad@1.3.0
 ```
 
 > Why the prefix for unscoped? A bare `lodash.merge` matches the NuGet shorthand
@@ -412,43 +412,43 @@ back to a recursive scan. Mirrors how a multi-skill GitHub repo or `.nupkg` work
 ### GitHub shorthand (`owner/repo`)
 
 ```bash
-skills add vercel-labs/agent-skills
-skills add vercel-labs/agent-skills/skills/web-design-guidelines   # subpath
-skills add vercel-labs/agent-skills#main                            # ref
-skills add vercel-labs/agent-skills@web-design-guidelines          # single-skill filter
-skills add vercel-labs/agent-skills#main@web-design-guidelines     # both
+agentskills add vercel-labs/agent-skills
+agentskills add vercel-labs/agent-skills/skills/web-design-guidelines   # subpath
+agentskills add vercel-labs/agent-skills#main                            # ref
+agentskills add vercel-labs/agent-skills@web-design-guidelines          # single-skill filter
+agentskills add vercel-labs/agent-skills#main@web-design-guidelines     # both
 ```
 
 ### Full GitHub URL
 
 ```bash
-skills add https://github.com/vercel-labs/agent-skills
-skills add https://github.com/vercel-labs/agent-skills.git
-skills add https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines
+agentskills add https://github.com/vercel-labs/agent-skills
+agentskills add https://github.com/vercel-labs/agent-skills.git
+agentskills add https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines
 ```
 
 ### GitLab
 
 ```bash
-skills add gitlab:group/repo
-skills add https://gitlab.com/group/repo
-skills add https://gitlab.com/group/subgroup/repo                    # subgroups supported
-skills add https://gitlab.com/group/repo/-/tree/main/skills/foo      # subpath + ref
+agentskills add gitlab:group/repo
+agentskills add https://gitlab.com/group/repo
+agentskills add https://gitlab.com/group/subgroup/repo                    # subgroups supported
+agentskills add https://gitlab.com/group/repo/-/tree/main/skills/foo      # subpath + ref
 ```
 
 ### Arbitrary git URL
 
 ```bash
-skills add git@github.com:vercel-labs/agent-skills.git
-skills add https://git.example.com/team/skills.git
-skills add ssh://git@git.example.com/team/skills.git
+agentskills add git@github.com:vercel-labs/agent-skills.git
+agentskills add https://git.example.com/team/skills.git
+agentskills add ssh://git@git.example.com/team/skills.git
 ```
 
 ### Well-known endpoint (RFC 8615-style)
 
 ```bash
-skills add https://skills.example.com
-skills add https://skills.example.com/team
+agentskills add https://skills.example.com
+agentskills add https://skills.example.com/team
 ```
 
 The endpoint must serve `/.well-known/agent-skills/index.json` (the modern path) or `/.well-known/skills/index.json` (legacy fallback). Both schemas are supported:
@@ -462,7 +462,7 @@ The schema URL acts as the version marker: an index with `"$schema": "https://sc
 
 ## Authoring skills
 
-A skill is just a folder with a `SKILL.md`. Run `skills init` to scaffold one.
+A skill is just a folder with a `SKILL.md`. Run `agentskills init` to scaffold one.
 
 `SKILL.md` schema:
 
@@ -582,9 +582,9 @@ The `<skill-name>` is the kebab-case-sanitized form of the SKILL.md `name` field
 
 **Three ways to see the paths for skills already on disk:**
 
-1. `skills add …` prints them in the result table's `Path` column and in the `Installed under …` summary.
-2. `skills list --paths` re-renders the same `Path` column for everything installed.
-3. `skills list --by path --paths` groups skills by install directory - handy for a "what's actually in `~/.claude/skills/`?" view.
+1. `agentskills add …` prints them in the result table's `Path` column and in the `Installed under …` summary.
+2. `agentskills list --paths` re-renders the same `Path` column for everything installed.
+3. `agentskills list --by path --paths` groups skills by install directory - handy for a "what's actually in `~/.claude/skills/`?" view.
 
 ---
 
@@ -663,26 +663,26 @@ Schema v1, sorted alphabetically (for clean diffs), commit it to your repo:
 
 ```bash
 cd my-app
-skills add MyOrg.CuratedSkills -y
+agentskills add MyOrg.CuratedSkills -y
 git add .agents/ skills-lock.json
 git commit -m "chore: pin agent skills"
 ```
 
-Teammates run `skills add <same source> -y` (or, once `install-from-lock` lands, just `skills install`) to reproduce.
+Teammates run `agentskills add <same source> -y` (or, once `install-from-lock` lands, just `skills install`) to reproduce.
 
 ### Add a single skill globally so it's available to every project
 
 ```bash
-skills add vercel-labs/agent-skills -g -s web-design-guidelines -y
+agentskills add vercel-labs/agent-skills -g -s web-design-guidelines -y
 ```
 
 ### Try out everything in a NuGet package, then prune
 
 ```bash
-skills add MyOrg.AgentSkills -y                # installs all
-skills list MyOrg.AgentSkills --paths          # what landed, with paths
-skills remove unused-skill -y                  # drop one
-skills remove MyOrg.AgentSkills -y             # …or roll the whole package back
+agentskills add MyOrg.AgentSkills -y                # installs all
+agentskills list MyOrg.AgentSkills --paths          # what landed, with paths
+agentskills remove unused-skill -y                  # drop one
+agentskills remove MyOrg.AgentSkills -y             # …or roll the whole package back
 ```
 
 ### Drive `dnx` from CI without ever installing the tool
@@ -694,8 +694,8 @@ dnx AgentSkills -y -- add ./my-skill -a claude-code -y --copy
 ### Refresh everything from upstream
 
 ```bash
-skills update --check                    # dry-run table
-skills update -g -y                      # actually update globals
+agentskills update --check                    # dry-run table
+agentskills update -g -y                      # actually update globals
 ```
 
 ---
@@ -712,7 +712,7 @@ dnx AgentSkills --source ./artifacts -y -- add ./samples/hello-skill -a universa
 
 # Or install it locally
 dotnet tool install --global --add-source ./artifacts AgentSkills
-skills --help
+agentskills --help
 ```
 
 Project layout:
@@ -746,11 +746,11 @@ samples/
 
 **`The framework 'Microsoft.NETCore.App', version '10.0.0' was not found`** when invoking `skills` - your installed tool is the net10 build but only .NET 8 is present. Reinstall with `dotnet tool uninstall -g Skills && dotnet tool install -g Skills` and NuGet will pick the net8 build for you, or install the .NET 10 runtime side-by-side.
 
-**`git: command not found`** during `skills add owner/repo`** - install git and put it on `PATH`. Local and NuGet sources don't need git.
+**`git: command not found`** during `agentskills add owner/repo`** - install git and put it on `PATH`. Local and NuGet sources don't need git.
 
 **`NuGet sources: No enabled NuGet sources found`** - your `NuGet.Config` lists no enabled feeds. Run `dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org` or pass `--nuget-source <URL>`.
 
-**Private NuGet feed asks for credentials** - make sure the appropriate credential provider is installed for your feed (Azure Artifacts Credential Provider, GitHub Packages PAT in your `NuGet.Config`, etc.). `AgentSkills` doesn't add any new auth surface; if `dotnet restore` works against your feed, `skills add` will too.
+**Private NuGet feed asks for credentials** - make sure the appropriate credential provider is installed for your feed (Azure Artifacts Credential Provider, GitHub Packages PAT in your `NuGet.Config`, etc.). `AgentSkills` doesn't add any new auth surface; if `dotnet restore` works against your feed, `agentskills add` will too.
 
 **`update` shows "Could not fetch tree (rate-limited, private, or moved)"** - set `GITHUB_TOKEN` (or `GH_TOKEN`) and re-run. GitHub allows 60 unauthenticated requests per hour per IP.
 
@@ -765,7 +765,7 @@ samples/
 - **[Agent Skills specification](https://agentskills.io)** - the open spec for the `SKILL.md` format, well-known discovery endpoint, and v0.2.0 schema this CLI implements.
 - **[`schemas.agentskills.io`](https://schemas.agentskills.io/)** - canonical JSON schemas (currently `discovery/0.2.0/schema.json`).
 - **[vercel-labs/skills](https://github.com/vercel-labs/skills)** - the upstream npm CLI this project ports. Skills published for `npx skills` work with `dnx AgentSkills` and vice-versa.
-- **[skills.sh](https://skills.sh)** - community directory powering `skills find`.
+- **[skills.sh](https://skills.sh)** - community directory powering `agentskills find`.
 
 ## License
 

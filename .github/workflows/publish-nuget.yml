@@ -104,7 +104,7 @@ jobs:
           ls -lh ./artifacts
           # Confirm both TFM folders shipped.
           unzip -l ./artifacts/AgentSkills.${{ steps.version.outputs.value }}.nupkg \
-            | grep -E 'tools/(net8|net10)\.0/any/skills\.dll' || {
+            | grep -E 'tools/(net8|net10)\.0/any/AgentSkills\.dll' || {
               echo "::error::Multi-TFM payload missing from the .nupkg"
               exit 1
             }

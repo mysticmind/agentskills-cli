@@ -4,24 +4,22 @@
     <OutputType>Exe</OutputType>
     <!--
       Multi-targeted so the published tool works on .NET 8 LTS as well as .NET 10.
-      `dnx skills` still requires .NET 10 (the dnx command itself ships with the 10 SDK),
-      but `dotnet tool install` succeeds on either runtime.
+      `dnx AgentSkills` still requires .NET 10 (the dnx command itself ships with the
+      10 SDK), but `dotnet tool install` succeeds on either runtime.
     -->
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <RootNamespace>AgentSkills</RootNamespace>
-    <AssemblyName>skills</AssemblyName>
+    <AssemblyName>AgentSkills</AssemblyName>
 
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>skills</ToolCommandName>
+    <!-- Shell command is lowercase by Unix convention (gh, docfx, dotnet-ef, ...).
+         To require literal PascalCase typing, change to <ToolCommandName>AgentSkills</ToolCommandName>. -->
+    <ToolCommandName>agentskills</ToolCommandName>
     <PackageType>DotnetTool</PackageType>
-    <!-- PackageId is the nuget.org identifier; ToolCommandName is the shell command
-         users actually type after `dotnet tool install`. They are intentionally
-         different here: `Skills` was squatted on nuget.org, but the binary still
-         installs as `skills` so day-to-day usage is unchanged. -->
     <PackageId>AgentSkills</PackageId>
     <Version>0.2.0</Version>
-    <Authors>skills-net contributors</Authors>
-    <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx skills`. A .NET port of vercel-labs/skills implementing the open Agent Skills spec.</Description>
+    <Authors>AgentSkills contributors</Authors>
+    <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx AgentSkills`. A .NET port of vercel-labs/skills implementing the open Agent Skills spec.</Description>
     <PackageProjectUrl>https://github.com/mysticmind/agent-skills</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>skills;ai;agents;claude;cursor;codex;opencode;dnx</PackageTags>

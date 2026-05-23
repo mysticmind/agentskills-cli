@@ -54,6 +54,10 @@ public static class SkillsServices
         services.AddSingleton<ISourceResolver, SourceResolver>();
         services.AddSingleton<IInstallService, InstallService>();
 
+        // Search providers: the extension point for `find`. Register additional
+        // ones with services.AddSingleton<ISkillSearchProvider, MyProvider>().
+        services.AddSingleton<ISkillSearchProvider, SkillsShSearchProvider>();
+
         // Commands. Spectre.Console.Cli resolves these via the TypeRegistrar.
         services.AddTransient<AddCommand>();
         services.AddTransient<ListCommand>();

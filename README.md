@@ -246,7 +246,7 @@ agentskills list hello-skill
 
 # Filter by source - same parsing as `agentskills add`
 agentskills list @acme/sample-skills                          # npm scoped
-agentskills list npm:left-pad                                 # npm unscoped
+agentskills list npm:sample-pkg                                 # npm unscoped
 agentskills list nuget:MyOrg.AgentSkills                      # NuGet (explicit; the bare 'MyOrg.AgentSkills' also works)
 agentskills list anthropics/skills                            # GitHub shorthand
 agentskills list https://github.com/anthropics/skills         # GitHub URL - same lock entries
@@ -410,8 +410,8 @@ Override the feed list for a single command with `--nuget-source <URL>`.
 agentskills add @my-org/agent-skills                # scoped - auto-detected as npm
 agentskills add @my-org/agent-skills@1.2.3          # pinned version
 agentskills add @my-org/agent-skills@next           # dist-tag
-agentskills add npm:left-pad                        # unscoped - requires npm: prefix
-agentskills add npm:left-pad@1.3.0
+agentskills add npm:sample-pkg                        # unscoped - requires npm: prefix
+agentskills add npm:sample-pkg@1.3.0
 ```
 
 > Why the prefix for unscoped? A bare `lodash.merge` matches the NuGet shorthand

@@ -25,7 +25,7 @@ A few places where AgentSkills goes further than `npx skills` today:
 | **`--by package\|path\|agent\|scope`** grouping on `list` | yes | flat output |
 | **Install paths surfaced everywhere** - `Path` column on `add` output, `Installed under …` summary, `--paths` on `list` | yes | success status without paths |
 | **Multi-targeted runtime** - LTS .NET 8 *and* latest .NET 10 from one .nupkg | yes | Node 18+ (single ecosystem) |
-| **DI extension point** - register your own `ISkillSourceFactory` to add new source types (cargo, oci, conda, ...) with no core changes | yes | procedural, no public extension contract |
+| **DI extension points** - register `ISkillSourceFactory` for new source types (cargo, oci, conda, ...) and `ISkillSearchProvider` for new search backends (internal registries, GitHub topic search, ...) with no core changes | yes | procedural, no public extension contract |
 | **Typed exception hierarchy** with carried `ExitCode` - clean single-line errors, no stack-trace spam | yes | ad-hoc throws |
 | **Verbosity control** - `-v` / `-q` / `--trace` route through `Microsoft.Extensions.Logging` to a Spectre logger | yes | console writes only |
 | **0 build warnings**, `TreatWarningsAsErrors`, NetAnalyzers + Meziantou.Analyzer at Recommended | yes | not enforced |
@@ -54,6 +54,7 @@ A few places where AgentSkills goes further than `npx skills` today:
 - [Publishing skills as a NuGet package](#publishing-skills-as-a-nuget-package)
 - [Agents](#agents)
 - [Where files land](#where-files-land)
+- [Search providers (extension point)](#search-providers-extension-point)
 - [Lock files](#lock-files)
 - [Environment variables](#environment-variables)
 - [Common workflows](#common-workflows)
@@ -334,10 +335,10 @@ The skill's `name` defaults to a kebab-case derivation of the directory name.
 
 ### `find`
 
-Search [skills.sh](https://skills.sh) for community skills.
+Search registered providers for skills. Out of the box that's [skills.sh](https://skills.sh); add more by registering an `ISkillSearchProvider` (see [Search providers](#search-providers-extension-point)).
 
 ```
-agentskills find [QUERY] [-g] [-y]
+agentskills find [QUERY] [-g] [-y] [--provider NAME...] [--list-providers]
 ```
 
 | Flag | Meaning |
@@ -345,8 +346,28 @@ agentskills find [QUERY] [-g] [-y]
 | `QUERY` | Search terms. Omit in an interactive shell to be prompted. |
 | `-g`, `--global` | When picking a result, install it globally. |
 | `-y`, `--yes` | Non-interactive output only: print the result table and exit (no install prompt). |
+| `--provider <NAME>` | Restrict the fan-out to specific providers. Repeatable; the search runs against the union. Unknown name errors with the available-providers list. Omit to query every enabled provider. |
+| `--list-providers` | Print the registered providers (name, enabled/disabled, implementing type) and exit. |
+
+By default `find` **fans out across every enabled provider in parallel**, applies a 10-second timeout to each, dedupes results by `(source, skill name)`, and sorts by installs. A failing or slow provider is dropped from that run - the rest still render. Each result row is tagged with its origin in a `Provider` column.
 
 In an interactive shell, results render as a table and then a `SelectionPrompt` lets you pick one to install via the regular `add` pipeline.
+
+**Examples:**
+
+```bash
+# All enabled providers (default)
+agentskills find react
+
+# One specific provider
+agentskills find react --provider skills.sh
+
+# Union of two named providers
+agentskills find react --provider skills.sh --provider contoso
+
+# What's wired up?
+agentskills find --list-providers
+```
 
 ### `update`
 
@@ -624,6 +645,46 @@ The `<skill-name>` is the kebab-case-sanitized form of the SKILL.md `name` field
 1. `agentskills add …` prints them in the result table's `Path` column and in the `Installed under …` summary.
 2. `agentskills list --paths` re-renders the same `Path` column for everything installed.
 3. `agentskills list --by path --paths` groups skills by install directory - handy for a "what's actually in `~/.claude/skills/`?" view.
+
+---
+
+## Search providers (extension point)
+
+`find` discovers skills through one or more **search providers**. AgentSkills ships one out of the box (`skills.sh`); you can register more without forking.
+
+A provider implements `ISkillSearchProvider`:
+
+```csharp
+public interface ISkillSearchProvider
+{
+    string Name { get; }            // dedup + filter key, shown in the result table
+    bool IsEnabled { get; }         // skip when false (auth missing, feature flag off, ...)
+    Task<IReadOnlyList<SearchHit>> SearchAsync(string query, CancellationToken ct);
+}
+```
+
+Then register it after `AddAgentSkillsRuntime`:
+
+```csharp
+services
+    .AddAgentSkillsRuntime()
+    .AddSingleton<ISkillSearchProvider, ContosoInternalSearchProvider>();
+```
+
+`find` calls every enabled provider in parallel (10-second timeout each), merges by `(source, name)`, sorts by installs, and tags each row with the provider it came from. A failing provider is dropped from that run; the rest still render.
+
+**Conceptually**:
+
+| Extension point | Role | Example implementations |
+|---|---|---|
+| `ISkillSourceFactory` | *where you install from* | `LocalSourceFactory`, `GitSourceFactory`, `NuGetSourceFactory`, `NpmSourceFactory`, `WellKnownSourceFactory` |
+| `ISkillSearchProvider` | *where you discover from* | `SkillsShSearchProvider` (built-in), plus anything you register |
+
+Use cases that justify a custom provider:
+
+- **Internal corporate registry** - "find" results should include team-owned skills published behind your VPN.
+- **GitHub topic search** - rank repos tagged `agent-skills` directly from the GitHub API.
+- **Offline / installed-only** - cheap local provider that searches your lock files when you're disconnected.
 
 ---
 

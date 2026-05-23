@@ -103,8 +103,8 @@ jobs:
           set -euo pipefail
           ls -lh ./artifacts
           # Confirm both TFM folders shipped.
-          unzip -l ./artifacts/AgentSkills.${{ steps.version.outputs.value }}.nupkg \
-            | grep -E 'tools/(net8|net10)\.0/any/AgentSkills\.dll' || {
+          unzip -l ./artifacts/agentskills.${{ steps.version.outputs.value }}.nupkg \
+            | grep -E 'tools/(net8|net10)\.0/any/agentskills\.dll' || {
               echo "::error::Multi-TFM payload missing from the .nupkg"
               exit 1
             }
@@ -112,8 +112,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AgentSkills.${{ steps.version.outputs.value }}.nupkg
-          path: ./artifacts/AgentSkills.${{ steps.version.outputs.value }}.nupkg
+          name: agentskills.${{ steps.version.outputs.value }}.nupkg
+          path: ./artifacts/agentskills.${{ steps.version.outputs.value }}.nupkg
           if-no-files-found: error
           retention-days: 30
 
@@ -126,7 +126,7 @@ jobs:
             echo "::error::NUGET_API_KEY secret is not set on this repo."
             exit 1
           fi
-          dotnet nuget push ./artifacts/AgentSkills.${{ steps.version.outputs.value }}.nupkg \
+          dotnet nuget push ./artifacts/agentskills.${{ steps.version.outputs.value }}.nupkg \
             --source https://api.nuget.org/v3/index.json \
             --api-key "$NUGET_API_KEY" \
             --skip-duplicate
@@ -164,7 +164,7 @@ jobs:
             --title "v$VERSION" \
             "${notes_arg[@]}" \
             "${prerelease_arg[@]}" \
-            ./artifacts/AgentSkills.${VERSION}.nupkg
+            ./artifacts/agentskills.${VERSION}.nupkg
 
       - name: Summary
         shell: bash
@@ -175,5 +175,5 @@ jobs:
             echo "- **Version:** \`${{ steps.version.outputs.value }}\`"
             echo "- **Dry run:** \`${{ inputs.dry_run }}\`"
             echo "- **Released:** \`${{ inputs.create_release && inputs.dry_run != true }}\`"
-            echo "- **Package:** \`AgentSkills.${{ steps.version.outputs.value }}.nupkg\` (downloadable from this run's Artifacts)"
+            echo "- **Package:** \`agentskills.${{ steps.version.outputs.value }}.nupkg\` (downloadable from this run's Artifacts)"
           } >> "$GITHUB_STEP_SUMMARY"

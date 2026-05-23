@@ -1,6 +1,6 @@
 # AgentSkills
 
-`dnx AgentSkills` - install agent skills from **GitHub**, **NuGet**, **npm**, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and friends. A .NET 10 port of [vercel-labs/skills](https://github.com/vercel-labs/skills) following the open [Agent Skills spec](https://agentskills.io).
+`dnx agentskills` - install agent skills from **GitHub**, **NuGet**, **npm**, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and friends. A .NET 10 port of [vercel-labs/skills](https://github.com/vercel-labs/skills) following the open [Agent Skills spec](https://agentskills.io).
 
 A *skill* is a folder containing a `SKILL.md` (YAML frontmatter + markdown body) plus optional supporting files. `AgentSkills` installs those folders into the right place for whichever coding agent you use (Claude Code, Cursor, Codex, OpenCode, …) so the agent can read and apply them.
 
@@ -46,28 +46,28 @@ This port keeps every source the upstream npm tool supports (local folders, GitH
 No install step required. `dnx` downloads the tool from NuGet on first use and caches it.
 
 ```bash
-dnx AgentSkills --help
-dnx AgentSkills add ./my-skill -a claude-code
+dnx agentskills --help
+dnx agentskills add ./my-skill -a claude-code
 ```
 
 ### Option B - global tool
 
 ```bash
-dotnet tool install --global AgentSkills
+dotnet tool install --global agentskills
 agentskills --help
 ```
 
 Update or uninstall:
 
 ```bash
-dotnet tool update --global AgentSkills
-dotnet tool uninstall --global AgentSkills
+dotnet tool update --global agentskills
+dotnet tool uninstall --global agentskills
 ```
 
 ### Requirements
 
 - **.NET 8 LTS** or **.NET 10** runtime (the tool is multi-targeted; `dotnet tool install` picks the right build for whichever runtime you have).
-- **`dnx AgentSkills` requires .NET 10** specifically - `dnx` itself ships only with the .NET 10 SDK. On .NET 8 use `dotnet tool install --global AgentSkills` and call `agentskills` directly.
+- **`dnx agentskills` requires .NET 10** specifically - `dnx` itself ships only with the .NET 10 SDK. On .NET 8 use `dotnet tool install --global agentskills` and call `agentskills` directly.
 - `git` on `PATH` (only when installing from git URLs / GitHub / GitLab).
 - Building from source requires the **.NET 10 SDK** (it can build both TFM outputs; the .NET 8 SDK cannot build the net10 output).
 
@@ -688,7 +688,7 @@ agentskills remove MyOrg.AgentSkills -y             # …or roll the whole packa
 ### Drive `dnx` from CI without ever installing the tool
 
 ```bash
-dnx AgentSkills -y -- add ./my-skill -a claude-code -y --copy
+dnx agentskills -y -- add ./my-skill -a claude-code -y --copy
 ```
 
 ### Refresh everything from upstream
@@ -708,10 +708,10 @@ dotnet test                              # 41+ unit & integration tests
 dotnet pack src/AgentSkills -o ./artifacts
 
 # Try the freshly-packed tool without installing
-dnx AgentSkills --source ./artifacts -y -- add ./samples/hello-skill -a universal -y --copy
+dnx agentskills --source ./artifacts -y -- add ./samples/hello-skill -a universal -y --copy
 
 # Or install it locally
-dotnet tool install --global --add-source ./artifacts AgentSkills
+dotnet tool install --global --add-source ./artifacts agentskills
 agentskills --help
 ```
 
@@ -742,7 +742,7 @@ samples/
 
 ## Troubleshooting
 
-**`dnx: command not found`** - `dnx` ships with .NET 10 only. Either install the .NET 10 SDK, or use the global-tool path instead: `dotnet tool install --global AgentSkills && skills …` (works on .NET 8+).
+**`dnx: command not found`** - `dnx` ships with .NET 10 only. Either install the .NET 10 SDK, or use the global-tool path instead: `dotnet tool install --global agentskills && skills …` (works on .NET 8+).
 
 **`The framework 'Microsoft.NETCore.App', version '10.0.0' was not found`** when invoking `skills` - your installed tool is the net10 build but only .NET 8 is present. Reinstall with `dotnet tool uninstall -g Skills && dotnet tool install -g Skills` and NuGet will pick the net8 build for you, or install the .NET 10 runtime side-by-side.
 
@@ -764,7 +764,7 @@ samples/
 
 - **[Agent Skills specification](https://agentskills.io)** - the open spec for the `SKILL.md` format, well-known discovery endpoint, and v0.2.0 schema this CLI implements.
 - **[`schemas.agentskills.io`](https://schemas.agentskills.io/)** - canonical JSON schemas (currently `discovery/0.2.0/schema.json`).
-- **[vercel-labs/skills](https://github.com/vercel-labs/skills)** - the upstream npm CLI this project ports. Skills published for `npx skills` work with `dnx AgentSkills` and vice-versa.
+- **[vercel-labs/skills](https://github.com/vercel-labs/skills)** - the upstream npm CLI this project ports. Skills published for `npx skills` work with `dnx agentskills` and vice-versa.
 - **[skills.sh](https://skills.sh)** - community directory powering `agentskills find`.
 
 ## License

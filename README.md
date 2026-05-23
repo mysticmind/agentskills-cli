@@ -244,7 +244,7 @@ agentskills list hello-skill
 # Filter by source - same parsing as `agentskills add`
 agentskills list @acme/sample-skills                          # npm scoped
 agentskills list npm:left-pad                                 # npm unscoped
-agentskills list MyOrg.AgentSkills                            # NuGet
+agentskills list nuget:MyOrg.AgentSkills                      # NuGet (explicit; the bare 'MyOrg.AgentSkills' also works)
 agentskills list anthropics/skills                            # GitHub shorthand
 agentskills list https://github.com/anthropics/skills         # GitHub URL - same lock entries
 agentskills list https://gitlab.com/group/sub/repo            # GitLab
@@ -303,7 +303,7 @@ After removal, the canonical `.agents/skills/<name>` directory is also cleaned u
 agentskills remove hello-skill -y
 
 # Remove every skill installed from a package - same parsing as `agentskills add`
-agentskills remove MyOrg.AgentSkills -y                  # NuGet
+agentskills remove nuget:MyOrg.AgentSkills -y            # NuGet (bare 'MyOrg.AgentSkills' also works)
 agentskills remove @acme/sample-skills -y                # npm
 agentskills remove anthropics/skills -y                  # GitHub
 agentskills remove https://gitlab.com/group/repo -y      # GitLab

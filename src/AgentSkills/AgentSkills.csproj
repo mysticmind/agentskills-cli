@@ -19,7 +19,7 @@
     <PackageType>DotnetTool</PackageType>
     <PackageId>agentskills</PackageId>
     <Version>0.2.0</Version>
-    <Authors>AgentSkills contributors</Authors>
+    <Authors>Babu Annamalai</Authors>
     <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx agentskills`. A .NET port of vercel-labs/skills implementing the open Agent Skills spec.</Description>
     <PackageProjectUrl>https://github.com/mysticmind/agent-skills</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

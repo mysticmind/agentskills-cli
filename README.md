@@ -118,7 +118,21 @@ description: One-line hint that helps an agent decide when to use this skill.
 Body markdown. This is what the agent reads.
 ```
 
-**Source** - where a skill comes from: a local folder, a git repo, a NuGet package, or an HTTPS endpoint that follows the well-known discovery convention.
+**Skill collection** - a source can carry one skill or many. Each child folder with a `SKILL.md` is its own skill:
+
+```
+my-skills-repo/                    # a single source (git repo, .nupkg, .tgz, …)
+└── skills/
+    ├── skill-one/SKILL.md         # installed independently
+    ├── skill-two/SKILL.md
+    └── skill-three/
+        ├── SKILL.md
+        └── reference.md
+```
+
+`agentskills add <source>` discovers every skill in the source and (by default) installs all of them. Narrow the set with `-s <name>` for a specific skill, `-s '*'` to be explicit about "all", or drop the flag and pick interactively with the multi-select prompt. Use `--path <subdir>` when the skills live somewhere non-standard inside the source.
+
+**Source** - where a skill collection comes from: a local folder, a git repo, a NuGet package, an npm package, or an HTTPS endpoint that follows the well-known discovery convention.
 
 **Agent** - a target tool (Claude Code, Cursor, Codex, OpenCode, …). Each agent reads skills from a specific directory. `AgentSkills` knows where each agent looks and copies the skill there.
 

@@ -70,7 +70,7 @@ jobs:
           input="${{ inputs.version }}"
           if [[ -z "$input" ]]; then
             # Pull <Version> from the csproj as the fallback.
-            input=$(grep -oE '<Version>[^<]+</Version>' src/AgentSkills.Cli/AgentSkills.Cli.csproj \
+            input=$(grep -oE '<Version>[^<]+</Version>' src/AgentSkills/AgentSkills.csproj \
               | head -n1 | sed -E 's|</?Version>||g')
           fi
           if [[ -z "$input" ]]; then
@@ -91,7 +91,7 @@ jobs:
 
       - name: Pack
         run: |
-          dotnet pack src/AgentSkills.Cli/AgentSkills.Cli.csproj \
+          dotnet pack src/AgentSkills/AgentSkills.csproj \
             --configuration Release \
             --no-build \
             -p:Version=${{ steps.version.outputs.value }} \

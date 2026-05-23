@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AgentSkills.Cli\AgentSkills.Cli.csproj" />
+    <ProjectReference Include="..\..\src\AgentSkills\AgentSkills.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,11 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentSkills.Cli", "src\AgentSkills.Cli\AgentSkills.Cli.csproj", "{EE560380-A93A-4CE7-A4DC-12D7F96622D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentSkills", "src\AgentSkills\AgentSkills.csproj", "{EE560380-A93A-4CE7-A4DC-12D7F96622D2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentSkills.Cli.Tests", "tests\AgentSkills.Cli.Tests\AgentSkills.Cli.Tests.csproj", "{D2EC710D-96DD-4344-BCE9-BA9181EE7798}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentSkills.Tests", "tests\AgentSkills.Tests\AgentSkills.Tests.csproj", "{D2EC710D-96DD-4344-BCE9-BA9181EE7798}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{5D20AA90-6969-D8BD-9DCD-8634F4692FDA}"
 EndProject

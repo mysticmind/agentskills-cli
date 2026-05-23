@@ -705,7 +705,7 @@ skills update -g -y                      # actually update globals
 ```bash
 dotnet build
 dotnet test                              # 41+ unit & integration tests
-dotnet pack src/AgentSkills.Cli -o ./artifacts
+dotnet pack src/AgentSkills -o ./artifacts
 
 # Try the freshly-packed tool without installing
 dnx AgentSkills --source ./artifacts -y -- add ./samples/hello-skill -a universal -y --copy
@@ -718,7 +718,7 @@ skills --help
 Project layout:
 
 ```
-src/AgentSkills.Cli/
+src/AgentSkills/
 ├── Commands/         # add, list, remove, init, find, update
 ├── Sources/          # local, git, NuGet, well-known, parser, GitHub API
 ├── Skills/           # SKILL.md parser, discovery, sanitizer, path safety
@@ -726,7 +726,7 @@ src/AgentSkills.Cli/
 ├── Install/          # installer, copy/symlink, lock files
 └── Ui/               # banner, prompts, spinners (Spectre.Console)
 
-tests/AgentSkills.Cli.Tests/
+tests/AgentSkills.Tests/
 ├── SourceParserTests.cs
 ├── SkillCoreTests.cs
 ├── InstallerTests.cs

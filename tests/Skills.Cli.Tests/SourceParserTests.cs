@@ -26,11 +26,11 @@ public class SourceParserTests
     }
 
     [Theory]
-    [InlineData("vercel-labs/agent-skills", "https://github.com/vercel-labs/agent-skills.git", null, null, null)]
-    [InlineData("vercel-labs/agent-skills/skills/foo", "https://github.com/vercel-labs/agent-skills.git", "skills/foo", null, null)]
-    [InlineData("vercel-labs/agent-skills#main", "https://github.com/vercel-labs/agent-skills.git", null, "main", null)]
-    [InlineData("vercel-labs/agent-skills@web-design", "https://github.com/vercel-labs/agent-skills.git", null, null, "web-design")]
-    [InlineData("vercel-labs/agent-skills#main@web-design", "https://github.com/vercel-labs/agent-skills.git", null, "main", "web-design")]
+    [InlineData("acme/sample-skills", "https://github.com/acme/sample-skills.git", null, null, null)]
+    [InlineData("acme/sample-skills/skills/foo", "https://github.com/acme/sample-skills.git", "skills/foo", null, null)]
+    [InlineData("acme/sample-skills#main", "https://github.com/acme/sample-skills.git", null, "main", null)]
+    [InlineData("acme/sample-skills@example-skill", "https://github.com/acme/sample-skills.git", null, null, "example-skill")]
+    [InlineData("acme/sample-skills#main@example-skill", "https://github.com/acme/sample-skills.git", null, "main", "example-skill")]
     public void GithubShorthand(string input, string expectedUrl, string? subpath, string? @ref, string? filter)
     {
         var parsed = SourceParser.Parse(input);
@@ -44,9 +44,9 @@ public class SourceParserTests
     [Fact]
     public void GithubTreeUrlWithSubpath()
     {
-        var parsed = SourceParser.Parse("https://github.com/vercel-labs/agent-skills/tree/main/skills/foo");
+        var parsed = SourceParser.Parse("https://github.com/acme/sample-skills/tree/main/skills/foo");
         Assert.Equal(SourceType.GitHub, parsed.Type);
-        Assert.Equal("https://github.com/vercel-labs/agent-skills.git", parsed.Url);
+        Assert.Equal("https://github.com/acme/sample-skills.git", parsed.Url);
         Assert.Equal("main", parsed.Ref);
         Assert.Equal("skills/foo", parsed.Subpath);
     }
@@ -75,10 +75,10 @@ public class SourceParserTests
     }
 
     [Theory]
-    [InlineData("nuget:Sample.SkillPackage", "Sample.SkillPackage", null)]
-    [InlineData("nuget:Sample.SkillPackage@1.2.3", "Sample.SkillPackage", "1.2.3")]
-    [InlineData("Sample.SkillPackage", "Sample.SkillPackage", null)]
-    [InlineData("Sample.SkillPackage@1.2.3", "Sample.SkillPackage", "1.2.3")]
+    [InlineData("nuget:Acme.SampleSkills", "Acme.SampleSkills", null)]
+    [InlineData("nuget:Acme.SampleSkills@1.2.3", "Acme.SampleSkills", "1.2.3")]
+    [InlineData("Acme.SampleSkills", "Acme.SampleSkills", null)]
+    [InlineData("Acme.SampleSkills@1.2.3", "Acme.SampleSkills", "1.2.3")]
     public void NuGetShorthand(string input, string expectedId, string? expectedVersion)
     {
         var parsed = SourceParser.Parse(input);
@@ -109,41 +109,41 @@ public class SourceParserTests
     }
 
     /// <summary>
-    /// Equivalent of the upstream invocation <c>npx skills add anthropics/skills</c>:
+    /// Equivalent of the upstream-style invocation <c>npx skills add &lt;owner/repo&gt;</c>:
     /// the GitHub shorthand must parse to a GitHub source (canonicalized to the .git URL)
-    /// with no ref/subpath/skillFilter, and - because no <c>--skill</c> flag is supplied -
+    /// with no ref/subpath/skillFilter, and, because no <c>--skill</c> flag is supplied,
     /// every skill discovered in the repo is kept for install.
     /// </summary>
     [Fact]
-    public void UpstreamEquivalent_AnthropicsSkills_ParsesAndKeepsEveryDiscoveredSkill()
+    public void UpstreamEquivalent_GithubShorthand_ParsesAndKeepsEveryDiscoveredSkill()
     {
-        var parsed = SourceParser.Parse("anthropics/skills");
+        var parsed = SourceParser.Parse("acme/sample-skills");
 
         Assert.Equal(SourceType.GitHub, parsed.Type);
-        Assert.Equal("https://github.com/anthropics/skills.git", parsed.Url);
+        Assert.Equal("https://github.com/acme/sample-skills.git", parsed.Url);
         Assert.Null(parsed.Ref);
         Assert.Null(parsed.Subpath);
         Assert.Null(parsed.SkillFilter);
-        Assert.Equal("anthropics/skills", SourceParser.GetOwnerRepo(parsed));
+        Assert.Equal("acme/sample-skills", SourceParser.GetOwnerRepo(parsed));
 
         // No --skill flag → AddCommand.FilterByName keeps every discovered skill so the
         // installer (or the interactive multi-select prompt) sees the full set.
         var discovered = new List<Skills.SkillModel.Skill>
         {
-            FakeSkill("artifacts-builder"),
-            FakeSkill("pdf"),
-            FakeSkill("slack-app-development"),
+            FakeSkill("alpha-skill"),
+            FakeSkill("beta-skill"),
+            FakeSkill("gamma-skill"),
         };
         var kept = Skills.Commands.AddCommand.FilterByName(discovered, []);
         Assert.Equal(3, kept.Count);
 
-        // --skill '*' is the explicit "all" shorthand - same result.
+        // --skill '*' is the explicit "all" shorthand → same result.
         Assert.Equal(3, Skills.Commands.AddCommand.FilterByName(discovered, ["*"]).Count);
 
         // Single --skill narrows the set deterministically.
-        var single = Skills.Commands.AddCommand.FilterByName(discovered, ["pdf"]);
+        var single = Skills.Commands.AddCommand.FilterByName(discovered, ["beta-skill"]);
         Assert.Single(single);
-        Assert.Equal("pdf", single[0].Name);
+        Assert.Equal("beta-skill", single[0].Name);
     }
 
     private static Skills.SkillModel.Skill FakeSkill(string name) =>

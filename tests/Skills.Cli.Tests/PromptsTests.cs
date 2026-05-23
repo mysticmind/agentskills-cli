@@ -8,10 +8,10 @@ namespace Skills.Tests;
 public class PromptsTests
 {
     /// <summary>
-    /// Regression for the <c>./skills add npm:@jasperfx/ai-skills</c> crash:
-    /// a SKILL.md description containing <c>[Entity]</c> was being interpolated raw
-    /// into a Spectre markup string, which then tried to parse <c>[Entity]</c> as a
-    /// color name and threw <c>Could not find color or style 'Entity'</c>.
+    /// Regression: a SKILL.md description containing literal square brackets
+    /// (e.g. <c>[Entity]</c>) was being interpolated raw into a Spectre markup
+    /// string, which then tried to parse the bracketed token as a color name
+    /// and threw <c>Could not find color or style 'Entity'</c>.
     /// </summary>
     [Theory]
     [InlineData("Use [Entity] to auto-load entities before handlers run.")]

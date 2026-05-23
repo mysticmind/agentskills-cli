@@ -12,8 +12,8 @@ namespace Skills.Tests;
 public class NpmSourceParserTests
 {
     [Theory]
-    [InlineData("npm:left-pad", "left-pad", null)]
-    [InlineData("npm:left-pad@1.3.0", "left-pad", "1.3.0")]
+    [InlineData("npm:sample-pkg", "sample-pkg", null)]
+    [InlineData("npm:sample-pkg@1.3.0", "sample-pkg", "1.3.0")]
     [InlineData("npm:@scope/name", "@scope/name", null)]
     [InlineData("npm:@scope/name@2.0.0-beta.1", "@scope/name", "2.0.0-beta.1")]
     [InlineData("@my-org/skills", "@my-org/skills", null)]

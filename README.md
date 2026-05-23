@@ -1,8 +1,8 @@
-# skills-net
+# AgentSkills
 
 `dnx AgentSkills` - install agent skills from **GitHub**, **NuGet**, **npm**, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and friends. A .NET 10 port of [vercel-labs/skills](https://github.com/vercel-labs/skills) following the open [Agent Skills spec](https://agentskills.io).
 
-A *skill* is a folder containing a `SKILL.md` (YAML frontmatter + markdown body) plus optional supporting files. `skills-net` installs those folders into the right place for whichever coding agent you use (Claude Code, Cursor, Codex, OpenCode, …) so the agent can read and apply them.
+A *skill* is a folder containing a `SKILL.md` (YAML frontmatter + markdown body) plus optional supporting files. `AgentSkills` installs those folders into the right place for whichever coding agent you use (Claude Code, Cursor, Codex, OpenCode, …) so the agent can read and apply them.
 
 Both the `SKILL.md` format and the well-known discovery endpoint follow the open **[Agent Skills specification](https://agentskills.io)**, so skills published for the upstream npm tool, the broader ecosystem, or any other spec-compliant client work here too.
 
@@ -98,7 +98,7 @@ Body markdown. This is what the agent reads.
 
 **Source** - where a skill comes from: a local folder, a git repo, a NuGet package, or an HTTPS endpoint that follows the well-known discovery convention.
 
-**Agent** - a target tool (Claude Code, Cursor, Codex, OpenCode, …). Each agent reads skills from a specific directory. `skills-net` knows where each agent looks and copies the skill there.
+**Agent** - a target tool (Claude Code, Cursor, Codex, OpenCode, …). Each agent reads skills from a specific directory. `AgentSkills` knows where each agent looks and copies the skill there.
 
 **Scope** - *project* installs land in the current directory (`./.agents/skills/…`); *global* installs (`-g`) land in your home (`~/.agents/skills/…`).
 
@@ -361,7 +361,7 @@ skills add MyOrg.AgentSkills@1.2.3        # specific version
 skills add nuget:MyOrg.AgentSkills@1.2.3  # explicit prefix (forces NuGet)
 ```
 
-`skills-net` uses `NuGet.Protocol` with `Settings.LoadDefaultSettings()`, so every feed listed in your machine / user / per-project `NuGet.Config` is searched in order. Credential providers (Azure Artifacts, GitHub Packages, etc.) are honored automatically - no flag needed.
+`AgentSkills` uses `NuGet.Protocol` with `Settings.LoadDefaultSettings()`, so every feed listed in your machine / user / per-project `NuGet.Config` is searched in order. Credential providers (Azure Artifacts, GitHub Packages, etc.) are honored automatically - no flag needed.
 
 Override the feed list for a single command with `--nuget-source <URL>`.
 
@@ -485,7 +485,7 @@ metadata:                # optional, free-form object.
 
 ## Publishing skills as a NuGet package
 
-`skills-net` uses the standard NuGet `contentFiles` layout. A minimal package looks like:
+`AgentSkills` uses the standard NuGet `contentFiles` layout. A minimal package looks like:
 
 ```
 my-skills.csproj
@@ -535,7 +535,7 @@ dotnet nuget push ./out/MyOrg.AgentSkills.1.0.0.nupkg \
 
 A complete example lives in [`samples/sample-nuget-package`](samples/sample-nuget-package).
 
-> If you don't follow the `contentFiles/any/any/skills/` convention, `skills-net` still falls back to a recursive scan inside the extracted `.nupkg`. The convention is just the fast path.
+> If you don't follow the `contentFiles/any/any/skills/` convention, `AgentSkills` still falls back to a recursive scan inside the extracted `.nupkg`. The convention is just the fast path.
 
 ---
 
@@ -553,7 +553,7 @@ v1 ships five agent targets:
 
 Universal agents share the canonical `.agents/skills` directory - installing for one of them is effectively installing for all of them.
 
-If you don't pass `-a`, `skills-net` auto-detects agents installed on the system and (in interactive mode) prompts you to pick.
+If you don't pass `-a`, `AgentSkills` auto-detects agents installed on the system and (in interactive mode) prompts you to pick.
 
 ---
 
@@ -590,7 +590,7 @@ The `<skill-name>` is the kebab-case-sanitized form of the SKILL.md `name` field
 
 ## Lock files
 
-`skills-net` writes two lock files so installs are reproducible and `update` has something to diff against.
+`AgentSkills` writes two lock files so installs are reproducible and `update` has something to diff against.
 
 ### Global lock - `~/.agents/.skill-lock.json` (or `$XDG_STATE_HOME/skills/.skill-lock.json`)
 
@@ -705,7 +705,7 @@ skills update -g -y                      # actually update globals
 ```bash
 dotnet build
 dotnet test                              # 41+ unit & integration tests
-dotnet pack src/Skills.Cli -o ./artifacts
+dotnet pack src/AgentSkills.Cli -o ./artifacts
 
 # Try the freshly-packed tool without installing
 dnx AgentSkills --source ./artifacts -y -- add ./samples/hello-skill -a universal -y --copy
@@ -718,7 +718,7 @@ skills --help
 Project layout:
 
 ```
-src/Skills.Cli/
+src/AgentSkills.Cli/
 ├── Commands/         # add, list, remove, init, find, update
 ├── Sources/          # local, git, NuGet, well-known, parser, GitHub API
 ├── Skills/           # SKILL.md parser, discovery, sanitizer, path safety
@@ -726,7 +726,7 @@ src/Skills.Cli/
 ├── Install/          # installer, copy/symlink, lock files
 └── Ui/               # banner, prompts, spinners (Spectre.Console)
 
-tests/Skills.Cli.Tests/
+tests/AgentSkills.Cli.Tests/
 ├── SourceParserTests.cs
 ├── SkillCoreTests.cs
 ├── InstallerTests.cs
@@ -750,7 +750,7 @@ samples/
 
 **`NuGet sources: No enabled NuGet sources found`** - your `NuGet.Config` lists no enabled feeds. Run `dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org` or pass `--nuget-source <URL>`.
 
-**Private NuGet feed asks for credentials** - make sure the appropriate credential provider is installed for your feed (Azure Artifacts Credential Provider, GitHub Packages PAT in your `NuGet.Config`, etc.). `skills-net` doesn't add any new auth surface; if `dotnet restore` works against your feed, `skills add` will too.
+**Private NuGet feed asks for credentials** - make sure the appropriate credential provider is installed for your feed (Azure Artifacts Credential Provider, GitHub Packages PAT in your `NuGet.Config`, etc.). `AgentSkills` doesn't add any new auth surface; if `dotnet restore` works against your feed, `skills add` will too.
 
 **`update` shows "Could not fetch tree (rate-limited, private, or moved)"** - set `GITHUB_TOKEN` (or `GH_TOKEN`) and re-run. GitHub allows 60 unauthenticated requests per hour per IP.
 

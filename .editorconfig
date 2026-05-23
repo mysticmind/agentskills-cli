@@ -108,3 +108,5 @@ dotnet_diagnostic.CA1014.severity = none
 dotnet_diagnostic.CA1707.severity = none      # Underscores in test method names.
 dotnet_diagnostic.CA1861.severity = none      # Avoid constant arrays as args; tests use them deliberately.
 dotnet_diagnostic.MA0011.severity = none      # IFormatProvider in tests.
+dotnet_diagnostic.CA1307.severity = none      # StringComparison on Xunit Assert.Contains/EndsWith; noise.
+dotnet_diagnostic.CA1816.severity = none      # GC.SuppressFinalize in test Dispose; sealed test classes never finalize.

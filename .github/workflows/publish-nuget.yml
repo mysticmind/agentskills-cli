@@ -70,7 +70,7 @@ jobs:
           input="${{ inputs.version }}"
           if [[ -z "$input" ]]; then
             # Pull <Version> from the csproj as the fallback.
-            input=$(grep -oE '<Version>[^<]+</Version>' src/Skills.Cli/Skills.Cli.csproj \
+            input=$(grep -oE '<Version>[^<]+</Version>' src/AgentSkills.Cli/AgentSkills.Cli.csproj \
               | head -n1 | sed -E 's|</?Version>||g')
           fi
           if [[ -z "$input" ]]; then
@@ -81,17 +81,17 @@ jobs:
           echo "Version: $input" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Restore
-        run: dotnet restore Skills.sln
+        run: dotnet restore AgentSkills.sln
 
       - name: Build (Release)
-        run: dotnet build Skills.sln --configuration Release --no-restore
+        run: dotnet build AgentSkills.sln --configuration Release --no-restore
 
       - name: Test (net8.0 + net10.0)
-        run: dotnet test Skills.sln --configuration Release --no-build --verbosity normal
+        run: dotnet test AgentSkills.sln --configuration Release --no-build --verbosity normal
 
       - name: Pack
         run: |
-          dotnet pack src/Skills.Cli/Skills.Cli.csproj \
+          dotnet pack src/AgentSkills.Cli/AgentSkills.Cli.csproj \
             --configuration Release \
             --no-build \
             -p:Version=${{ steps.version.outputs.value }} \

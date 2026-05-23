@@ -2,7 +2,7 @@ using AgentSkills.Agents;
 using AgentSkills.SkillModel;
 using Spectre.Console;
 
-namespace AgentSkills.Ui;
+namespace AgentSkills.UI;
 
 public static class Prompts
 {

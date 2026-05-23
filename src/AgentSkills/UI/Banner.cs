@@ -1,6 +1,6 @@
 using Spectre.Console;
 
-namespace AgentSkills.Ui;
+namespace AgentSkills.UI;
 
 public static class Banner
 {

@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using AgentSkills.Ui;
+using AgentSkills.UI;
 using Spectre.Console;
 using Spectre.Console.Cli;
 

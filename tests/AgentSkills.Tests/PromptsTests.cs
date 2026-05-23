@@ -1,5 +1,5 @@
 using AgentSkills.SkillModel;
-using AgentSkills.Ui;
+using AgentSkills.UI;
 using Spectre.Console;
 using Xunit;
 

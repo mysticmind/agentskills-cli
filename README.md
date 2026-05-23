@@ -11,10 +11,32 @@ This port keeps every source the upstream npm tool supports (local folders, GitH
 - **NuGet packages** - public *and* private feeds, using your existing `NuGet.Config` and credential providers.
 - **npm packages** - public *and* private registries, using your existing `~/.npmrc` and project `.npmrc` (scoped registries and `_authToken`/`_auth` honored).
 
+## What this port does beyond upstream
+
+A few places where AgentSkills goes further than `npx skills` today:
+
+| Capability | AgentSkills | Upstream |
+|---|---|---|
+| **NuGet packages** as a first-class source (public + private feeds, NuGet.config + credential providers) | yes | no NuGet path |
+| **npm registry fetch** as a first-class source (public + private, `.npmrc` + scoped registries + `_authToken`) | yes | only `experimental_sync` from pre-installed `node_modules` |
+| **Version-aware target matching** - `remove Pkg@1.5.0` strict-matches; a "version 1.4.0 is installed" hint when the pin is wrong | yes | no concept of pinned matching |
+| **`--path` works across every source** (NuGet, npm, git, local) - overrides where discovery scans inside the staged source | yes | only `/tree/<ref>/<path>` in GitHub URLs |
+| **Unified positional targets** on `list` / `remove` - each arg matches as a skill name *or* any source format, union semantics | yes | separate positionals/flags |
+| **`--by package\|path\|agent\|scope`** grouping on `list` | yes | flat output |
+| **Install paths surfaced everywhere** - `Path` column on `add` output, `Installed under …` summary, `--paths` on `list` | yes | success status without paths |
+| **Multi-targeted runtime** - LTS .NET 8 *and* latest .NET 10 from one .nupkg | yes | Node 18+ (single ecosystem) |
+| **DI extension point** - register your own `ISkillSourceFactory` to add new source types (cargo, oci, conda, ...) with no core changes | yes | procedural, no public extension contract |
+| **Typed exception hierarchy** with carried `ExitCode` - clean single-line errors, no stack-trace spam | yes | ad-hoc throws |
+| **Verbosity control** - `-v` / `-q` / `--trace` route through `Microsoft.Extensions.Logging` to a Spectre logger | yes | console writes only |
+| **0 build warnings**, `TreatWarningsAsErrors`, NetAnalyzers + Meziantou.Analyzer at Recommended | yes | not enforced |
+
+**Not at parity yet** (will get there): 5 of upstream's 55 agents shipped, no telemetry, no live fzf-style `find` UI, no `experimental_install`/`experimental_sync` commands.
+
 ---
 
 ## Table of contents
 
+- [What this port does beyond upstream](#what-this-port-does-beyond-upstream)
 - [Install](#install)
 - [Concepts](#concepts)
 - [Commands](#commands)

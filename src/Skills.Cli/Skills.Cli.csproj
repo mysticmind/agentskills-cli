@@ -14,9 +14,11 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>skills</ToolCommandName>
     <PackageType>DotnetTool</PackageType>
-    <!-- PackageId == ToolCommandName so users can invoke `dnx skills`.
-         If you fork this project, rename PackageId to avoid colliding on nuget.org. -->
-    <PackageId>Skills</PackageId>
+    <!-- PackageId is the nuget.org identifier; ToolCommandName is the shell command
+         users actually type after `dotnet tool install`. They are intentionally
+         different here: `Skills` was squatted on nuget.org, but the binary still
+         installs as `skills` so day-to-day usage is unchanged. -->
+    <PackageId>AgentSkills</PackageId>
     <Version>0.2.0</Version>
     <Authors>skills-net contributors</Authors>
     <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx skills`. A .NET port of vercel-labs/skills implementing the open Agent Skills spec.</Description>

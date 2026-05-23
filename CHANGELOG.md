@@ -33,7 +33,7 @@ The first public release of `skills-net` - a .NET port of [vercel-labs/skills](h
 
 ### Runtime
 
-- **Multi-targeted: `net8.0` and `net10.0`** - `dotnet tool install --global Skills` works on either runtime; `dnx skills` is .NET 10 only (because `dnx` itself ships with the .NET 10 SDK).
+- **Multi-targeted: `net8.0` and `net10.0`** - `dotnet tool install --global AgentSkills` works on either runtime; `dnx AgentSkills` is .NET 10 only (because `dnx` itself ships with the .NET 10 SDK).
 
 ### Versioning of package targets
 

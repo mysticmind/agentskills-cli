@@ -1,6 +1,6 @@
 # skills-net
 
-`dnx skills` - install agent skills from **GitHub**, **NuGet**, **npm**, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and friends. A .NET 10 port of [vercel-labs/skills](https://github.com/vercel-labs/skills) following the open [Agent Skills spec](https://agentskills.io).
+`dnx AgentSkills` - install agent skills from **GitHub**, **NuGet**, **npm**, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and friends. A .NET 10 port of [vercel-labs/skills](https://github.com/vercel-labs/skills) following the open [Agent Skills spec](https://agentskills.io).
 
 A *skill* is a folder containing a `SKILL.md` (YAML frontmatter + markdown body) plus optional supporting files. `skills-net` installs those folders into the right place for whichever coding agent you use (Claude Code, Cursor, Codex, OpenCode, …) so the agent can read and apply them.
 
@@ -46,28 +46,28 @@ This port keeps every source the upstream npm tool supports (local folders, GitH
 No install step required. `dnx` downloads the tool from NuGet on first use and caches it.
 
 ```bash
-dnx skills --help
-dnx skills add ./my-skill -a claude-code
+dnx AgentSkills --help
+dnx AgentSkills add ./my-skill -a claude-code
 ```
 
 ### Option B - global tool
 
 ```bash
-dotnet tool install --global Skills
+dotnet tool install --global AgentSkills
 skills --help
 ```
 
 Update or uninstall:
 
 ```bash
-dotnet tool update --global Skills
-dotnet tool uninstall --global Skills
+dotnet tool update --global AgentSkills
+dotnet tool uninstall --global AgentSkills
 ```
 
 ### Requirements
 
 - **.NET 8 LTS** or **.NET 10** runtime (the tool is multi-targeted; `dotnet tool install` picks the right build for whichever runtime you have).
-- **`dnx skills` requires .NET 10** specifically - `dnx` itself ships only with the .NET 10 SDK. On .NET 8 use `dotnet tool install --global Skills` and call `skills` directly.
+- **`dnx AgentSkills` requires .NET 10** specifically - `dnx` itself ships only with the .NET 10 SDK. On .NET 8 use `dotnet tool install --global AgentSkills` and call `skills` directly.
 - `git` on `PATH` (only when installing from git URLs / GitHub / GitLab).
 - Building from source requires the **.NET 10 SDK** (it can build both TFM outputs; the .NET 8 SDK cannot build the net10 output).
 
@@ -206,7 +206,7 @@ Default output is a flat Spectre table: skill name, scope (`project` / `global`)
 skills list hello-skill
 
 # Filter by source - same parsing as `skills add`
-skills list @jasperfx/ai-skills                          # npm scoped
+skills list @acme/sample-skills                          # npm scoped
 skills list npm:left-pad                                 # npm unscoped
 skills list MyOrg.AgentSkills                            # NuGet
 skills list anthropics/skills                            # GitHub shorthand
@@ -230,12 +230,12 @@ skills list --by scope
 
 Skills not tracked in any lock (installed manually, or before lock tracking) appear under `(untracked)` when `--by package` is set, and with a `-` in the Source column otherwise.
 
-**Versions** - for NuGet and npm targets, dropping the `@version` matches any installed version; pinning a version (`@jasperfx/ai-skills@1.5.0`) requires an exact match. If the requested version isn't installed but a different version is, the command prints a hint:
+**Versions** - for NuGet and npm targets, dropping the `@version` matches any installed version; pinning a version (`@acme/sample-skills@1.5.0`) requires an exact match. If the requested version isn't installed but a different version is, the command prints a hint:
 
 ```
-$ skills list npm:@jasperfx/ai-skills@1.5.0
-No installed skills matched npm:@jasperfx/ai-skills@1.5.0.
-hint: @jasperfx/ai-skills is installed at version(s) 1.4.0; drop the @version to list anyway.
+$ skills list npm:@acme/sample-skills@1.5.0
+No installed skills matched npm:@acme/sample-skills@1.5.0.
+hint: @acme/sample-skills is installed at version(s) 1.4.0; drop the @version to list anyway.
 ```
 
 GitHub refs (`anthropics/skills#main`) are not version constraints - the lock tracks them separately, so they're ignored when matching.
@@ -268,7 +268,7 @@ skills remove hello-skill -y
 
 # Remove every skill installed from a package - same parsing as `skills add`
 skills remove MyOrg.AgentSkills -y                  # NuGet
-skills remove @jasperfx/ai-skills -y                # npm
+skills remove @acme/sample-skills -y                # npm
 skills remove anthropics/skills -y                  # GitHub
 skills remove https://gitlab.com/group/repo -y      # GitLab
 
@@ -276,7 +276,7 @@ skills remove https://gitlab.com/group/repo -y      # GitLab
 skills remove some-extra-skill MyOrg.AgentSkills -a claude-code -y
 ```
 
-**Versions** behave the same as in `list`: a bare package id (`MyOrg.AgentSkills`) matches every installed version - useful for upgrades where you don't remember which version is live. Pinning a version (`MyOrg.AgentSkills@1.2.3`) strict-matches, and if nothing matches the command prints a hint with the installed version(s). Scoped npm names are handled correctly: in `@jasperfx/ai-skills@1.0.0` the leading `@` is the scope marker, only the trailing `@1.0.0` is the version.
+**Versions** behave the same as in `list`: a bare package id (`MyOrg.AgentSkills`) matches every installed version - useful for upgrades where you don't remember which version is live. Pinning a version (`MyOrg.AgentSkills@1.2.3`) strict-matches, and if nothing matches the command prints a hint with the installed version(s). Scoped npm names are handled correctly: in `@acme/sample-skills@1.0.0` the leading `@` is the scope marker, only the trailing `@1.0.0` is the version.
 
 ### `init`
 
@@ -688,7 +688,7 @@ skills remove MyOrg.AgentSkills -y             # …or roll the whole package ba
 ### Drive `dnx` from CI without ever installing the tool
 
 ```bash
-dnx skills -y -- add ./my-skill -a claude-code -y --copy
+dnx AgentSkills -y -- add ./my-skill -a claude-code -y --copy
 ```
 
 ### Refresh everything from upstream
@@ -708,10 +708,10 @@ dotnet test                              # 41+ unit & integration tests
 dotnet pack src/Skills.Cli -o ./artifacts
 
 # Try the freshly-packed tool without installing
-dnx skills --source ./artifacts -y -- add ./samples/hello-skill -a universal -y --copy
+dnx AgentSkills --source ./artifacts -y -- add ./samples/hello-skill -a universal -y --copy
 
 # Or install it locally
-dotnet tool install --global --add-source ./artifacts Skills
+dotnet tool install --global --add-source ./artifacts AgentSkills
 skills --help
 ```
 
@@ -742,7 +742,7 @@ samples/
 
 ## Troubleshooting
 
-**`dnx: command not found`** - `dnx` ships with .NET 10 only. Either install the .NET 10 SDK, or use the global-tool path instead: `dotnet tool install --global Skills && skills …` (works on .NET 8+).
+**`dnx: command not found`** - `dnx` ships with .NET 10 only. Either install the .NET 10 SDK, or use the global-tool path instead: `dotnet tool install --global AgentSkills && skills …` (works on .NET 8+).
 
 **`The framework 'Microsoft.NETCore.App', version '10.0.0' was not found`** when invoking `skills` - your installed tool is the net10 build but only .NET 8 is present. Reinstall with `dotnet tool uninstall -g Skills && dotnet tool install -g Skills` and NuGet will pick the net8 build for you, or install the .NET 10 runtime side-by-side.
 
@@ -764,7 +764,7 @@ samples/
 
 - **[Agent Skills specification](https://agentskills.io)** - the open spec for the `SKILL.md` format, well-known discovery endpoint, and v0.2.0 schema this CLI implements.
 - **[`schemas.agentskills.io`](https://schemas.agentskills.io/)** - canonical JSON schemas (currently `discovery/0.2.0/schema.json`).
-- **[vercel-labs/skills](https://github.com/vercel-labs/skills)** - the upstream npm CLI this project ports. Skills published for `npx skills` work with `dnx skills` and vice-versa.
+- **[vercel-labs/skills](https://github.com/vercel-labs/skills)** - the upstream npm CLI this project ports. Skills published for `npx skills` work with `dnx AgentSkills` and vice-versa.
 - **[skills.sh](https://skills.sh)** - community directory powering `skills find`.
 
 ## License

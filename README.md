@@ -30,7 +30,10 @@ A few places where AgentSkills goes further than `npx skills` today:
 | **Verbosity control** - `-v` / `-q` / `--trace` route through `Microsoft.Extensions.Logging` to a Spectre logger | yes | console writes only |
 | **0 build warnings**, `TreatWarningsAsErrors`, NetAnalyzers + Meziantou.Analyzer at Recommended | yes | not enforced |
 
-**Not at parity yet** (will get there): 5 of upstream's 55 agents shipped, no telemetry, no live fzf-style `find` UI, no `experimental_install`/`experimental_sync` commands.
+**Not in v1.** None of these are blockers for daily use; the working set above covers the install / discover / update flow end-to-end.
+
+- *Maybe later, on demand*: additional agents from the upstream's 55-agent registry, live fzf-style `find` UI.
+- *Deliberately not shipped*: telemetry (privacy by default), `experimental_install` / `experimental_sync` (upstream-experimental, holding for stability).
 
 ---
 

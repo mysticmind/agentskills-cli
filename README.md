@@ -11,6 +11,8 @@ This port keeps every source the upstream npm tool supports (local folders, GitH
 - **NuGet packages** - public *and* private feeds, using your existing `NuGet.Config` and credential providers.
 - **npm packages** - public *and* private registries, using your existing `~/.npmrc` and project `.npmrc` (scoped registries and `_authToken`/`_auth` honored).
 
+**Ship skills with the libraries they describe, not just as standalone packages.** Add a `skills/` folder to your existing NuGet or npm package and it becomes a skill source automatically - the SDK and the agent guidance for using it travel together, version together, and discover together. Library authors can keep doing what they already do (`dotnet pack`, `npm publish`); users get skills for free with packages they were already going to install. The dedicated skills-only package is still an option when there's no library to co-ship with.
+
 ## What this port does beyond upstream
 
 A few places where AgentSkills goes further than `npx skills` today:
@@ -19,6 +21,7 @@ A few places where AgentSkills goes further than `npx skills` today:
 |---|---|---|
 | **NuGet packages** as a first-class source (public + private feeds, NuGet.config + credential providers) | yes | no NuGet path |
 | **npm registry fetch** as a first-class source (public + private, `.npmrc` + scoped registries + `_authToken`) | yes | only `experimental_sync` from pre-installed `node_modules` |
+| **Skills can ship inside existing library packages** (drop `skills/` into your `.nupkg` or `.tgz` - same package id, version-locked with the SDK, discoverable via standard package search) | yes | n/a - no NuGet path; npm only via experimental sync |
 | **Version-aware target matching** - `remove Pkg@1.5.0` strict-matches; a "version 1.4.0 is installed" hint when the pin is wrong | yes | no concept of pinned matching |
 | **`--path` works across every source** (NuGet, npm, git, local) - overrides where discovery scans inside the staged source | yes | only `/tree/<ref>/<path>` in GitHub URLs |
 | **Unified positional targets** on `list` / `remove` - each arg matches as a skill name *or* any source format, union semantics | yes | separate positionals/flags |
@@ -547,6 +550,10 @@ metadata:                # optional, free-form object.
 
 ## Publishing skills as a NuGet package
 
+> **Two patterns work, pick what fits.**
+> - **Skills-only package** - the package's only purpose is shipping skills. Examples: a team's curated prompts library, a consultancy's set of code-review skills. Use this when there's no underlying library to attach to.
+> - **Skills bundled into your existing library package** - just drop a `contentFiles/any/any/skills/<name>/SKILL.md` into the same `.nupkg` you already publish. The skills version-lock with the library (no drift between an SDK release and its agent guidance), live at the same package id users already depend on (zero discovery friction), and reuse the same publishing pipeline you already have. A `Wolverine.Skills.nupkg` is fine; a `Wolverine.nupkg` that *contains* skills is often better.
+
 `AgentSkills` uses the standard NuGet `contentFiles` layout. A minimal package looks like:
 
 ```
@@ -600,6 +607,8 @@ A complete example lives in [`samples/sample-nuget-package`](samples/sample-nuge
 > If you don't follow the `contentFiles/any/any/skills/` convention, `AgentSkills` still falls back to a recursive scan inside the extracted `.nupkg`. The convention is just the fast path.
 
 ### Publishing skills as an npm package
+
+Same dual-mode story as NuGet: ship a **skills-only package** when there's no library to attach to, or **add a `skills/` directory to your existing library package** so the SDK and its agent guidance travel as one artifact. A `@my-org/react-skills` package is fine; adding `skills/` to `@my-org/react-toolkit` is often better - users searching for the toolkit on npmjs.org get the skills for free, and the skills version-lock with the toolkit.
 
 For npm, the conventional layout is `package/skills/<name>/SKILL.md` (which is what `npm pack` produces from a top-level `skills/` directory):
 

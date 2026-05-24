@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace AgentSkills.Sources;
 
@@ -112,7 +113,7 @@ public static class GitHubApi
         return null;
     }
 
-    public static string? ResolveToken()
+    public static string? ResolveToken(Microsoft.Extensions.Logging.ILogger? logger = null)
     {
         var envToken = Environment.GetEnvironmentVariable("GITHUB_TOKEN")
             ?? Environment.GetEnvironmentVariable("GH_TOKEN");
@@ -136,10 +137,8 @@ public static class GitHubApi
             if (!_ghCliWarned)
             {
                 _ghCliWarned = true;
-                // Deliberate Console.Error: one-time courtesy note that gh CLI was invoked
-                // as a fallback. stderr keeps it out of pipes; ILogger would mean threading
-                // a logger through this static utility for one line.
-                Console.Error.WriteLine("note: using GitHub token from `gh auth token` (set GITHUB_TOKEN to silence).");
+                logger?.LogInformation(
+                    "using GitHub token from `gh auth token` (set GITHUB_TOKEN or GH_TOKEN to silence)");
             }
             return string.IsNullOrEmpty(token) ? null : token;
         }

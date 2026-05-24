@@ -3,6 +3,7 @@ using AgentSkills.Agents;
 using AgentSkills.Install;
 using AgentSkills.SkillModel;
 using AgentSkills.Sources;
+using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -11,11 +12,13 @@ namespace AgentSkills.Commands;
 public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
 {
     private readonly IInstallService _installer;
+    private readonly ILogger<UpdateCommand> _logger;
     private readonly AgentSkills.Hosting.CommandCancellation _cancellation;
 
-    public UpdateCommand(IInstallService installer, AgentSkills.Hosting.CommandCancellation cancellation)
+    public UpdateCommand(IInstallService installer, ILogger<UpdateCommand> logger, AgentSkills.Hosting.CommandCancellation cancellation)
     {
         _installer = installer ?? throw new ArgumentNullException(nameof(installer));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _cancellation = cancellation ?? throw new ArgumentNullException(nameof(cancellation));
     }
 
@@ -97,7 +100,7 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
             var tree = await AnsiConsole.Status()
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync($"GitHub Trees API for {group.Key}...",
-                    _ => GitHubApi.FetchTreeAsync(group.Key, group.First().Ref, GitHubApi.ResolveToken));
+                    _ => GitHubApi.FetchTreeAsync(group.Key, group.First().Ref, () => GitHubApi.ResolveToken(_logger)));
 
             if (tree is null)
             {

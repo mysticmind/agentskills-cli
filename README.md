@@ -842,11 +842,11 @@ samples/
 
 ## Troubleshooting
 
-**`dnx: command not found`** - `dnx` ships with .NET 10 only. Either install the .NET 10 SDK, or use the global-tool path instead: `dotnet tool install --global agentskills && skills …` (works on .NET 8+).
+**`dnx: command not found`** - `dnx` ships with .NET 10 only. Either install the .NET 10 SDK, or use the global-tool path instead: `dotnet tool install --global agentskills && agentskills …` (works on .NET 8+).
 
-**`The framework 'Microsoft.NETCore.App', version '10.0.0' was not found`** when invoking `skills` - your installed tool is the net10 build but only .NET 8 is present. Reinstall with `dotnet tool uninstall -g Skills && dotnet tool install -g Skills` and NuGet will pick the net8 build for you, or install the .NET 10 runtime side-by-side.
+**`The framework 'Microsoft.NETCore.App', version '10.0.0' was not found`** when invoking `agentskills` - your installed tool is the net10 build but only .NET 8 is present. Reinstall with `dotnet tool uninstall -g agentskills && dotnet tool install -g agentskills` and NuGet will pick the net8 build for you, or install the .NET 10 runtime side-by-side.
 
-**`git: command not found`** during `agentskills add owner/repo`** - install git and put it on `PATH`. Local and NuGet sources don't need git.
+**`git: command not found`** during `agentskills add owner/repo` - install git and put it on `PATH`. Local and NuGet sources don't need git.
 
 **`NuGet sources: No enabled NuGet sources found`** - your `NuGet.Config` lists no enabled feeds. Run `dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org` or pass `--nuget-source <URL>`.
 
@@ -857,6 +857,25 @@ samples/
 **Symlinks failing on Windows** - pass `--copy` or enable Developer Mode. The installer falls back to copy automatically when symlink creation fails.
 
 **Tests can't bind to a TCP port** - the well-known tests start a short-lived `HttpListener`. Re-run if a port races; the tests pick a free port each time.
+
+**Want a shorter command than `agentskills`?** Alias it in your shell rc. The tool deliberately ships under `agentskills` (not `skills`) so it doesn't shadow `npx skills` when both are installed, but you can pick any short name you like locally:
+
+```bash
+# bash / zsh - add to ~/.bashrc, ~/.zshrc, etc.
+alias as=agentskills
+
+# fish - add to ~/.config/fish/config.fish
+alias as agentskills
+```
+
+```powershell
+# PowerShell - add to $PROFILE
+Set-Alias -Name as -Value agentskills
+```
+
+After that: `as add ./my-skill -y`, `as list --by package`, etc.
+
+**`agentskills`/`skills` confusion** - if you previously installed the upstream `npx skills` and now also have `agentskills` installed, the two coexist by design: separate binaries (`skills` vs `agentskills`), but they share the same lock file (`~/.agents/.skill-lock.json`) and install directory (`.agents/skills/`), so installs done by either tool are visible to both.
 
 ---
 

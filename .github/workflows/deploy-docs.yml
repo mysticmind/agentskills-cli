@@ -1,0 +1,70 @@
+name: Deploy docs to GitHub Pages
+
+# Builds the VitePress site under docs/ and publishes it to GitHub Pages on
+# every push to main. Manual runs supported via workflow_dispatch.
+#
+# First-time setup (one-off, in repo Settings):
+#   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
+#
+# Site lives at: https://mysticmind.github.io/agentskills-cli/
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy-docs.yml'
+  workflow_dispatch:
+
+# Allow this workflow to publish to Pages and request the deployment token.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Cancel in-flight runs when a new commit lands; we only ever publish the
+# latest build.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history so VitePress' lastUpdated timestamps work
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Install dependencies
+        working-directory: docs
+        run: npm ci
+
+      - name: Build site
+        working-directory: docs
+        run: npm run build
+
+      - name: Disable Jekyll on the published artifact
+        run: touch docs/.vitepress/dist/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

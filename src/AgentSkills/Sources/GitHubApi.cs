@@ -214,7 +214,7 @@ public static class GitHubApi
     private static HttpClient CreateClient()
     {
         var client = new HttpClient();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("skills-net/0.1");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("agentskills/0.1");
         return client;
     }
 }

@@ -11,8 +11,8 @@ public sealed class StubCommand : Command<StubCommand.Settings>
     {
         var name = context.Data as string ?? "this command";
         AnsiConsole.MarkupLine(
-            $"[yellow]`{name}` is not implemented yet in skills-net v1.[/] " +
-            "Track progress at https://github.com/skills-net/skills-net.");
+            $"[yellow]`{name}` is not implemented yet in AgentSkills v1.[/] " +
+            "Track progress at https://github.com/mysticmind/agent-skills.");
         return 64;
     }
 }

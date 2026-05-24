@@ -44,7 +44,7 @@ public class NpmRegistryTests : IDisposable
 
     public NpmRegistryTests()
     {
-        _home = Path.Combine(Path.GetTempPath(), "skills-net-npmrc-" + Guid.NewGuid().ToString("N"));
+        _home = Path.Combine(Path.GetTempPath(), "agentskills-npmrc-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_home);
         _rcPath = Path.Combine(_home, ".npmrc");
         _origHome = Environment.GetEnvironmentVariable("HOME") ?? string.Empty;

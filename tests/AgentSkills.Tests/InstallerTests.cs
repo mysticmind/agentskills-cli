@@ -11,7 +11,7 @@ public class InstallerTests : IDisposable
 
     public InstallerTests()
     {
-        _root = Path.Combine(Path.GetTempPath(), "skills-net-tests-" + Guid.NewGuid().ToString("N"));
+        _root = Path.Combine(Path.GetTempPath(), "agentskills-tests-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_root);
     }
 

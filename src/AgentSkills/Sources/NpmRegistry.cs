@@ -122,7 +122,7 @@ public sealed class NpmRegistry
     public HttpClient CreateClient()
     {
         var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("skills-net/0.1 (+npm)");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("agentskills/0.1 (+npm)");
         client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
         return client;
     }

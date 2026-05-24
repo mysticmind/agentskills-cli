@@ -9,7 +9,7 @@
 
     <PackageId>Sample.SkillPackage</PackageId>
     <Version>0.1.0</Version>
-    <Authors>skills-net sample</Authors>
+    <Authors>AgentSkills sample</Authors>
     <Description>A sample NuGet package shipping a single Skill via contentFiles.</Description>
     <PackageTags>skills;sample</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>

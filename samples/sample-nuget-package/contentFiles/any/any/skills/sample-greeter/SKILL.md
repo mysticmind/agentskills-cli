@@ -1,7 +1,7 @@
 ---
 name: sample-greeter
-description: Sample skill packaged in a NuGet package for skills-net's smoke tests.
+description: Sample skill packaged in a NuGet package for AgentSkills smoke tests.
 ---
 # sample-greeter
 
-This skill was installed from a NuGet package via `skills add Sample.SkillPackage`.
+This skill was installed from a NuGet package via `agentskills add Sample.SkillPackage`.

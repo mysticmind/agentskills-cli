@@ -1,7 +1,7 @@
 namespace AgentSkills;
 
 /// <summary>
-/// Base type for every exception thrown intentionally by skills-net. The top-level
+/// Base type for every exception thrown intentionally by AgentSkills. The top-level
 /// handler in <c>Program.cs</c> recognizes this type and renders a clean one-line
 /// error to the console; anything else escapes as a stack trace.
 /// </summary>

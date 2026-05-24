@@ -13,12 +13,18 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
 {
     private readonly IInstallService _installer;
     private readonly ILogger<UpdateCommand> _logger;
+    private readonly IAnsiConsole _console;
     private readonly AgentSkills.Hosting.CommandCancellation _cancellation;
 
-    public UpdateCommand(IInstallService installer, ILogger<UpdateCommand> logger, AgentSkills.Hosting.CommandCancellation cancellation)
+    public UpdateCommand(
+        IInstallService installer,
+        ILogger<UpdateCommand> logger,
+        IAnsiConsole console,
+        AgentSkills.Hosting.CommandCancellation cancellation)
     {
         _installer = installer ?? throw new ArgumentNullException(nameof(installer));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _console = console ?? throw new ArgumentNullException(nameof(console));
         _cancellation = cancellation ?? throw new ArgumentNullException(nameof(cancellation));
     }
 
@@ -47,8 +53,9 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
+        ArgumentNullException.ThrowIfNull(settings);
         var scope = ResolveScope(settings);
-        AnsiConsole.MarkupLine($"[grey]Checking for updates ({scope})...[/]");
+        _console.MarkupLine($"[grey]Checking for updates ({scope})...[/]");
 
         var checks = new List<UpdateCheck>();
 
@@ -77,7 +84,7 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
 
         if (checks.Count == 0)
         {
-            AnsiConsole.MarkupLine("[grey]Nothing to check - no tracked skills found.[/]");
+            _console.MarkupLine("[grey]Nothing to check - no tracked skills found.[/]");
             return 0;
         }
 
@@ -97,7 +104,7 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
 
         foreach (var group in bySource)
         {
-            var tree = await AnsiConsole.Status()
+            var tree = await _console.Status()
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync($"GitHub Trees API for {group.Key}...",
                     _ => GitHubApi.FetchTreeAsync(group.Key, group.First().Ref, () => GitHubApi.ResolveToken(_logger)));
@@ -133,19 +140,19 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
 
         if (available.Count == 0 && projectRefreshable.Count == 0)
         {
-            AnsiConsole.MarkupLine("[green]All tracked skills are up to date.[/]");
+            _console.MarkupLine("[green]All tracked skills are up to date.[/]");
             return 0;
         }
 
         if (settings.CheckOnly)
         {
-            AnsiConsole.MarkupLine($"[yellow]{available.Count + projectRefreshable.Count} update(s) available - re-run without --check to install.[/]");
+            _console.MarkupLine($"[yellow]{available.Count + projectRefreshable.Count} update(s) available - re-run without --check to install.[/]");
             return 0;
         }
 
-        if (!settings.Yes && AnsiConsole.Profile.Capabilities.Interactive)
+        if (!settings.Yes && _console.Profile.Capabilities.Interactive)
         {
-            if (!AnsiConsole.Confirm("Install the updates above now?", defaultValue: true))
+            if (!_console.Confirm("Install the updates above now?", defaultValue: true))
             {
                 return 0;
             }
@@ -154,14 +161,14 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
         var failures = 0;
         foreach (var update in available)
         {
-            AnsiConsole.MarkupLine($"[cyan]Updating {Markup.Escape(update.Check.Name)} (global)...[/]");
+            _console.MarkupLine($"[cyan]Updating {Markup.Escape(update.Check.Name)} (global)...[/]");
             var ok = await ReinstallAsync(update.Check, global: true);
             if (!ok) failures++;
         }
 
         foreach (var refresh in projectRefreshable)
         {
-            AnsiConsole.MarkupLine($"[cyan]Refreshing {Markup.Escape(refresh.Name)} (project)...[/]");
+            _console.MarkupLine($"[cyan]Refreshing {Markup.Escape(refresh.Name)} (project)...[/]");
             var ok = await ReinstallAsync(refresh, global: false);
             if (!ok) failures++;
         }
@@ -219,7 +226,7 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
         _ => null,
     };
 
-    private static void Render(
+    private void Render(
         IReadOnlyList<UpdateAvailable> available,
         IReadOnlyList<UpdateCheck> projectRefreshable,
         IReadOnlyList<(UpdateCheck Check, string Reason)> skipped)
@@ -237,7 +244,7 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
                     $"[grey]{Markup.Escape(Short(u.Check.SkillFolderHash))}[/]",
                     $"[green]{Markup.Escape(Short(u.LatestHash))}[/]");
             }
-            AnsiConsole.Write(table);
+            _console.Write(table);
         }
 
         if (projectRefreshable.Count > 0)
@@ -248,7 +255,7 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
             {
                 t.AddRow(Markup.Escape(p.Name), Markup.Escape(p.Source), Markup.Escape(p.Ref ?? string.Empty));
             }
-            AnsiConsole.Write(t);
+            _console.Write(t);
         }
 
         if (skipped.Count > 0)
@@ -262,7 +269,7 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
                     check.Scope,
                     $"[grey]{Markup.Escape(reason)}[/]");
             }
-            AnsiConsole.Write(t);
+            _console.Write(t);
         }
     }
 
@@ -297,7 +304,7 @@ public sealed class UpdateCommand : AsyncCommand<UpdateCommand.Settings>
         }
         catch (SkillsException ex)
         {
-            AnsiConsole.MarkupLine($"  [red]failed:[/] {Markup.Escape(ex.Message)}");
+            _console.MarkupLine($"  [red]failed:[/] {Markup.Escape(ex.Message)}");
             return false;
         }
     }

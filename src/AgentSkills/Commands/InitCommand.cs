@@ -7,6 +7,13 @@ namespace AgentSkills.Commands;
 
 public sealed class InitCommand : Command<InitCommand.Settings>
 {
+    private readonly IAnsiConsole _console;
+
+    public InitCommand(IAnsiConsole console)
+    {
+        _console = console ?? throw new ArgumentNullException(nameof(console));
+    }
+
     public sealed class Settings : CommandSettings
     {
         [CommandArgument(0, "[PATH]")]
@@ -20,6 +27,8 @@ public sealed class InitCommand : Command<InitCommand.Settings>
 
     public override int Execute(CommandContext context, Settings settings)
     {
+        ArgumentNullException.ThrowIfNull(settings);
+
         var dir = settings.Path is null
             ? Directory.GetCurrentDirectory()
             : System.IO.Path.GetFullPath(settings.Path);
@@ -30,7 +39,7 @@ public sealed class InitCommand : Command<InitCommand.Settings>
         {
             if (!Prompts.Confirm($"{skillMd} exists. Overwrite?", false))
             {
-                AnsiConsole.MarkupLine("[grey]Aborted.[/]");
+                _console.MarkupLine("[grey]Aborted.[/]");
                 return 0;
             }
         }
@@ -55,7 +64,7 @@ public sealed class InitCommand : Command<InitCommand.Settings>
             """;
 
         File.WriteAllText(skillMd, template);
-        AnsiConsole.MarkupLine($"[green]Created[/] {Markup.Escape(skillMd)}");
+        _console.MarkupLine($"[green]Created[/] {Markup.Escape(skillMd)}");
         return 0;
     }
 }

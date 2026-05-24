@@ -9,6 +9,13 @@ namespace AgentSkills.Commands;
 
 public sealed class ListCommand : Command<ListCommand.Settings>
 {
+    private readonly IAnsiConsole _console;
+
+    public ListCommand(IAnsiConsole console)
+    {
+        _console = console ?? throw new ArgumentNullException(nameof(console));
+    }
+
     public sealed class Settings : CommandSettings
     {
         [CommandArgument(0, "[TARGETS]")]
@@ -37,6 +44,8 @@ public sealed class ListCommand : Command<ListCommand.Settings>
 
     public override int Execute(CommandContext context, Settings settings)
     {
+        ArgumentNullException.ThrowIfNull(settings);
+
         var filter = settings.Agents.Length > 0
             ? settings.Agents.Select(AgentRegistry.Get).ToList()
             : null;
@@ -47,7 +56,7 @@ public sealed class ListCommand : Command<ListCommand.Settings>
 
         if (installed.Count == 0)
         {
-            AnsiConsole.MarkupLine("[grey]No skills installed.[/]");
+            _console.MarkupLine("[grey]No skills installed.[/]");
             return 0;
         }
 
@@ -56,9 +65,9 @@ public sealed class ListCommand : Command<ListCommand.Settings>
             installed = PackageMatcher.ResolveTargets(settings.Targets, installed, s => s.Name);
             if (installed.Count == 0)
             {
-                AnsiConsole.MarkupLine(
+                _console.MarkupLine(
                     $"[grey]No installed skills matched {Markup.Escape(string.Join(", ", settings.Targets))}.[/]");
-                MaybePrintVersionMismatchHint(settings.Targets);
+                MaybePrintVersionMismatchHint(_console, settings.Targets);
                 return 0;
             }
         }
@@ -68,7 +77,7 @@ public sealed class ListCommand : Command<ListCommand.Settings>
         var grouping = ParseGrouping(settings.GroupBy);
         if (grouping is null)
         {
-            AnsiConsole.MarkupLine(
+            _console.MarkupLine(
                 $"[red]Invalid --by value '{Markup.Escape(settings.GroupBy!)}'. Valid: package, path, agent, scope.[/]");
             return 2;
         }
@@ -118,7 +127,7 @@ public sealed class ListCommand : Command<ListCommand.Settings>
         };
     }
 
-    private static void RenderFlat(IReadOnlyList<Row> rows, bool showPaths)
+    private void RenderFlat(IReadOnlyList<Row> rows, bool showPaths)
     {
         var table = new Table().Border(TableBorder.Rounded).LeftAligned();
         if (showPaths)
@@ -145,10 +154,10 @@ public sealed class ListCommand : Command<ListCommand.Settings>
             table.AddRow(values.ToArray());
         }
 
-        AnsiConsole.Write(table);
+        _console.Write(table);
     }
 
-    private static void RenderGrouped(IReadOnlyList<Row> rows, Grouping grouping, bool showPaths)
+    private void RenderGrouped(IReadOnlyList<Row> rows, Grouping grouping, bool showPaths)
     {
         IEnumerable<IGrouping<string, Row>> groups = grouping switch
         {
@@ -163,8 +172,8 @@ public sealed class ListCommand : Command<ListCommand.Settings>
 
         foreach (var group in groups.OrderBy(g => g.Key, StringComparer.Ordinal))
         {
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine($"[bold]{group.Key}[/] [grey]({group.Count()} skill(s))[/]");
+            _console.WriteLine();
+            _console.MarkupLine($"[bold]{group.Key}[/] [grey]({group.Count()} skill(s))[/]");
 
             var table = new Table().Border(TableBorder.Minimal).LeftAligned();
             if (showPaths)
@@ -189,7 +198,7 @@ public sealed class ListCommand : Command<ListCommand.Settings>
 
                 table.AddRow(values.ToArray());
             }
-            AnsiConsole.Write(table);
+            _console.Write(table);
         }
     }
 
@@ -205,8 +214,9 @@ public sealed class ListCommand : Command<ListCommand.Settings>
     /// of the same package is installed, print a "did you mean…" hint instead of leaving
     /// them guessing.
     /// </summary>
-    internal static void MaybePrintVersionMismatchHint(IReadOnlyList<string> targets)
+    internal static void MaybePrintVersionMismatchHint(IAnsiConsole console, IReadOnlyList<string> targets)
     {
+        ArgumentNullException.ThrowIfNull(console);
         var pinned = targets
             .Select(PackageMatcher.NormalizeToLocator)
             .Where(l => l.Version is not null)
@@ -218,7 +228,7 @@ public sealed class ListCommand : Command<ListCommand.Settings>
         {
             if (installedVersions.TryGetValue(locator.BaseId, out var versions) && versions.Count > 0)
             {
-                AnsiConsole.MarkupLine(
+                console.MarkupLine(
                     $"[grey]hint: {Markup.Escape(locator.BaseId)} is installed at version(s) " +
                     $"{Markup.Escape(string.Join(", ", versions.OrderBy(v => v, StringComparer.Ordinal)))}; " +
                     $"drop the @version to list anyway.[/]");

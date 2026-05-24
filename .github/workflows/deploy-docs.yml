@@ -1,7 +1,8 @@
 name: Deploy docs to GitHub Pages
 
-# Builds the VitePress site under docs/ and publishes it to GitHub Pages on
-# every push to main. Manual runs supported via workflow_dispatch.
+# Manual-only: docs publish when you run this workflow from the Actions
+# tab (or via `gh workflow run deploy-docs.yml`). No push trigger, so
+# committing docs/ changes does not auto-publish.
 #
 # First-time setup (one-off, in repo Settings):
 #   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
@@ -9,12 +10,12 @@ name: Deploy docs to GitHub Pages
 # Site lives at: https://mysticmind.github.io/agentskills-cli/
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag, or SHA to deploy (defaults to the branch you ran it from)'
+        required: false
+        type: string
 
 # Allow this workflow to publish to Pages and request the deployment token.
 permissions:
@@ -22,8 +23,8 @@ permissions:
   pages: write
   id-token: write
 
-# Cancel in-flight runs when a new commit lands; we only ever publish the
-# latest build.
+# Only one Pages deploy in flight at a time; new manual runs supersede
+# in-progress ones.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -34,6 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0   # full history so VitePress' lastUpdated timestamps work
 
       - uses: actions/setup-node@v4

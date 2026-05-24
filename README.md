@@ -604,7 +604,7 @@ dotnet nuget push ./out/MyOrg.AgentSkills.1.0.0.nupkg \
 
 A complete example lives in [`samples/sample-nuget-package`](samples/sample-nuget-package).
 
-> If you don't follow the `contentFiles/any/any/skills/` convention, `AgentSkills` still falls back to a recursive scan inside the extracted `.nupkg`. The convention is just the fast path.
+> **Prefer the convention.** `contentFiles/any/any/skills/<name>/SKILL.md` is auto-discovered with no extra flags - users just run `agentskills add YourPackage` and it works. AgentSkills also falls back to a recursive scan, and users can install with `agentskills add YourPackage --path some/custom/path` when skills live somewhere else, but every non-conventional layout is friction the user has to learn. Use the convention unless you have a hard reason not to.
 
 ### Publishing skills as an npm package
 
@@ -650,7 +650,7 @@ agentskills add npm:unscoped-pkg -y                         # unscoped requires 
 
 A complete example lives in [`samples/sample-npm-package`](samples/sample-npm-package). The README there also covers local Verdaccio-registry testing without publishing.
 
-> Same fallback behavior as NuGet: if the package puts skills somewhere other than `package/skills/`, AgentSkills will scan recursively. You can also pass `--path <subdir>` to point discovery at a non-standard layout explicitly.
+> **Prefer the convention.** `package/skills/<name>/SKILL.md` is auto-discovered with no extra flags - users just run `agentskills add @your-org/your-package` and it works. AgentSkills also falls back to a recursive scan, and users can install with `agentskills add @your-org/your-package --path src/skills` when skills live elsewhere, but every non-conventional layout is friction the user has to learn. Use the convention unless you have a hard reason not to.
 
 ---
 

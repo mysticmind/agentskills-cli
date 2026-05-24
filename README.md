@@ -6,20 +6,20 @@ Runs as `dnx agentskills` on .NET 10 (no install step) or as a global tool on .N
 
 A *skill* is a folder containing a `SKILL.md` (YAML frontmatter + markdown body) plus optional supporting files. `AgentSkills` installs those folders into the right place for whichever coding agent you use (Claude Code, Cursor, Codex, OpenCode, …) so the agent can read and apply them.
 
-Both the `SKILL.md` format and the well-known discovery endpoint follow the open **[Agent Skills specification](https://agentskills.io)**, so skills published for the upstream npm tool, the broader ecosystem, or any other spec-compliant client work here too.
+Both the `SKILL.md` format and the well-known discovery endpoint follow the open **[Agent Skills specification](https://agentskills.io)**, so skills published for `vercel-labs/skills`, the broader ecosystem, or any other spec-compliant client work here too.
 
-This port keeps every source the upstream npm tool supports (local folders, GitHub, GitLab, any git URL, well-known endpoints) and adds two more:
+This port keeps every source the npm tool supports (local folders, GitHub, GitLab, any git URL, well-known endpoints) and adds two more:
 
 - **NuGet packages** - public *and* private feeds, using your existing `NuGet.Config` and credential providers.
 - **npm packages** - public *and* private registries, using your existing `~/.npmrc` and project `.npmrc` (scoped registries and `_authToken`/`_auth` honored).
 
 **Ship skills with the libraries they describe, not just as standalone packages.** Add a `skills/` folder to your existing NuGet or npm package and it becomes a skill source automatically - the SDK and the agent guidance for using it travel together, version together, and discover together. Library authors can keep doing what they already do (`dotnet pack`, `npm publish`); users get skills for free with packages they were already going to install. The dedicated skills-only package is still an option when there's no library to co-ship with.
 
-## What this port does beyond upstream
+## What this port does beyond the npm tool
 
 A few places where AgentSkills goes further than `npx skills` today:
 
-| Capability | AgentSkills | Upstream |
+| Capability | AgentSkills | `npx skills` |
 |---|---|---|
 | **NuGet packages** as a first-class source (public + private feeds, NuGet.config + credential providers) | yes | no NuGet path |
 | **npm registry fetch** as a first-class source (public + private, `.npmrc` + scoped registries + `_authToken`) | yes | only `experimental_sync` from pre-installed `node_modules` |
@@ -37,14 +37,14 @@ A few places where AgentSkills goes further than `npx skills` today:
 
 **Not in v1.** None of these are blockers for daily use; the working set above covers the install / discover / update flow end-to-end.
 
-- *Maybe later, on demand*: additional agents from the upstream's 55-agent registry, live fzf-style `find` UI.
-- *Deliberately not shipped*: telemetry (privacy by default), `experimental_install` / `experimental_sync` (upstream-experimental, holding for stability).
+- *Maybe later, on demand*: additional agents from the broader 55-agent registry, live fzf-style `find` UI.
+- *Deliberately not shipped*: telemetry (privacy by default), `experimental_install` / `experimental_sync` (still experimental in `npx skills`, holding for stability).
 
 ---
 
 ## Table of contents
 
-- [What this port does beyond upstream](#what-this-port-does-beyond-upstream)
+- [What this port does beyond the npm tool](#what-this-port-does-beyond-the-npm-tool)
 - [Install](#install)
 - [Concepts](#concepts)
 - [Commands](#commands)
@@ -208,7 +208,7 @@ agentskills add @my-org/agent-skills --path src/skills -y
 agentskills add anthropics/skills --path docs/skills -y
 ```
 
-**Discovery, briefly.** Without `--path`, skills are found via three layered passes: (1) source-type conventions (`contentFiles/any/any/skills/` for NuGet, `package/skills/` then `package/contentFiles/...` for npm, the upstream priority dir list for git), then (2) recursive scan up to 5 levels deep, skipping `node_modules`, `.git`, `dist`, `build`, `__pycache__`. With `--path`, the scan is restricted to that one subdirectory of the staged source.
+**Discovery, briefly.** Without `--path`, skills are found via three layered passes: (1) source-type conventions (`contentFiles/any/any/skills/` for NuGet, `package/skills/` then `package/contentFiles/...` for npm, the conventional priority dir list for git), then (2) recursive scan up to 5 levels deep, skipping `node_modules`, `.git`, `dist`, `build`, `__pycache__`. With `--path`, the scan is restricted to that one subdirectory of the staged source.
 
 **Output.** After a successful install, the result table includes a `Path` column with the exact file location for every `(skill, agent)` pair, followed by an `Installed under …` summary listing the distinct directory roots:
 
@@ -378,7 +378,7 @@ agentskills find --list-providers
 
 ### `update`
 
-Detect upstream changes for tracked GitHub skills and reinstall them.
+Detect remote changes for tracked GitHub skills and reinstall them.
 
 ```
 agentskills update [<name>...] [-g] [-p] [--check] [-y]
@@ -395,7 +395,7 @@ agentskills update [<name>...] [-g] [-p] [--check] [-y]
 
 **How it works:** `add` records the GitHub tree SHA (`skillFolderHash`) and skill folder path (`skillPath`) for every skill installed from a git source. `update` groups the lock by `owner/repo`, calls the GitHub Trees API once per repo, looks up each skill's current tree SHA, and reinstalls any that have drifted.
 
-**GitHub auth** is lazy and mirrors upstream:
+**GitHub auth** is lazy:
 
 1. Try unauthenticated (sufficient for most personal use - 60 req/h per IP).
 2. On a rate-limit 403, try `GITHUB_TOKEN`.
@@ -408,7 +408,7 @@ Sources that can't be checked automatically (local paths, generic git URLs, GitL
 
 ## Source formats
 
-Detection is order-sensitive - the first rule that matches wins. This list mirrors upstream's `source-parser.ts` plus a new NuGet branch.
+Detection is order-sensitive - the first rule that matches wins. This list mirrors `vercel-labs/skills`'s `source-parser.ts` plus a new NuGet branch.
 
 ### Local
 
@@ -546,7 +546,7 @@ metadata:                # optional, free-form object.
 
 **Multi-skill repos.** Place each skill in its own folder. By default the discovery scan prefers well-known subdirectories (`skills/`, `.agents/skills/`, `.claude/skills/`, …) before recursing. Up to 5 levels of recursion. `node_modules/`, `.git/`, `dist/`, `build/`, and `__pycache__/` are skipped.
 
-**Excluded from copy** (mirrors upstream): `metadata.json`, `.git/`, `__pycache__/`, `__pypackages__/`. Broken symlinks are skipped without aborting the install.
+**Excluded from copy**: `metadata.json`, `.git/`, `__pycache__/`, `__pypackages__/`. Broken symlinks are skipped without aborting the install.
 
 ---
 
@@ -848,7 +848,7 @@ agentskills remove MyOrg.AgentSkills -y             # …or roll the whole packa
 dnx agentskills -y -- add ./my-skill -a claude-code -y --copy
 ```
 
-### Refresh everything from upstream
+### Refresh everything from source
 
 ```bash
 agentskills update --check                    # dry-run table
@@ -946,7 +946,7 @@ Set-Alias -Name as -Value agentskills
 
 After that: `as add ./my-skill -y`, `as list --by package`, etc.
 
-**`agentskills`/`skills` confusion** - if you previously installed the upstream `npx skills` and now also have `agentskills` installed, the two coexist by design: separate binaries (`skills` vs `agentskills`), but they share the same lock file (`~/.agents/.skill-lock.json`) and install directory (`.agents/skills/`), so installs done by either tool are visible to both.
+**`agentskills`/`skills` confusion** - if you previously installed `npx skills` and now also have `agentskills` installed, the two coexist by design: separate binaries (`skills` vs `agentskills`), but they share the same lock file (`~/.agents/.skill-lock.json`) and install directory (`.agents/skills/`), so installs done by either tool are visible to both.
 
 ---
 
@@ -954,9 +954,9 @@ After that: `as add ./my-skill -y`, `as list --by package`, etc.
 
 - **[Agent Skills specification](https://agentskills.io)** - the open spec for the `SKILL.md` format, well-known discovery endpoint, and v0.2.0 schema this CLI implements.
 - **[`schemas.agentskills.io`](https://schemas.agentskills.io/)** - canonical JSON schemas (currently `discovery/0.2.0/schema.json`).
-- **[vercel-labs/skills](https://github.com/vercel-labs/skills)** - the upstream npm CLI this project ports. Skills published for `npx skills` work with `dnx agentskills` and vice-versa.
+- **[vercel-labs/skills](https://github.com/vercel-labs/skills)** - the npm CLI this project ports. Skills published for `npx skills` work with `dnx agentskills` and vice-versa.
 - **[skills.sh](https://skills.sh)** - community directory powering `agentskills find`.
 
 ## License
 
-MIT. Portions derived from [vercel-labs/skills](https://github.com/vercel-labs/skills) (MIT). See `LICENSE` and `NOTICE`.
+MIT. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).

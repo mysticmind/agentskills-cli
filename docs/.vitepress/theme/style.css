@@ -26,49 +26,53 @@
 }
 
 /* -----------------------------------------------------------------------------
-   Light mode
-   Background ladder: pure white -> slate-50 -> slate-100
-   Text ladder:       slate-900 -> slate-700 -> slate-500
+   Light mode - calm reading-friendly palette
+   Background: warm off-white (not pure white) to reduce eye strain
+   Brand accents: present but quiet; the indigo logo is the loudest element
 ----------------------------------------------------------------------------- */
 :root {
-  /* brand */
+  /* brand - the source-of-truth indigo. Used sparingly for accents, not as a
+     spray-paint over every UI element. */
   --vp-c-brand-1: var(--as-brand-600);
   --vp-c-brand-2: var(--as-brand-500);
-  --vp-c-brand-3: var(--as-brand-500);
-  --vp-c-brand-soft: rgba(99, 102, 241, 0.12);
+  --vp-c-brand-3: var(--as-brand-600);
+  --vp-c-brand-soft: rgba(79, 70, 229, 0.08);
 
-  /* legacy aliases that some VitePress 1.x components still read */
   --vp-c-brand: var(--vp-c-brand-1);
   --vp-c-brand-light: var(--vp-c-brand-2);
   --vp-c-brand-lighter: var(--as-brand-400);
   --vp-c-brand-dark: var(--as-brand-700);
   --vp-c-brand-darker: var(--as-brand-800);
 
-  /* surfaces */
-  --vp-c-bg:        #FFFFFF;
-  --vp-c-bg-alt:    #F8FAFC;   /* sidebar, nav bar bg blend */
-  --vp-c-bg-elv:    #FFFFFF;   /* popovers, search panel */
-  --vp-c-bg-soft:   #F1F5F9;   /* feature card bg, inline code */
+  /* surfaces - warm off-whites instead of pure #FFFFFF. The bg ladder is
+     deliberately compressed so cards barely pop off the page; calm, not flat. */
+  --vp-c-bg:        #FBFBFC;   /* page bg - subtle warm off-white */
+  --vp-c-bg-alt:    #F5F6F8;   /* sidebar, distinct but quiet */
+  --vp-c-bg-elv:    #FFFFFF;   /* popovers, search panel - keep pure white for elevation contrast */
+  --vp-c-bg-soft:   #F2F4F7;   /* feature cards, inline code */
 
-  /* dividers */
-  --vp-c-border:    #E2E8F0;
-  --vp-c-divider:   #E2E8F0;
-  --vp-c-gutter:    #EDF2F7;
+  /* dividers - softer than slate-200 */
+  --vp-c-border:    #E4E7EB;
+  --vp-c-divider:   #EAECF0;
+  --vp-c-gutter:    #EFF1F4;
 
-  /* text */
-  --vp-c-text-1:    #0F172A;   /* slate-900 */
-  --vp-c-text-2:    #475569;   /* slate-600 */
-  --vp-c-text-3:    #94A3B8;   /* slate-400 */
+  /* text - keep slate-900 for body so reading remains crisp, but the muted
+     levels get more breathing room */
+  --vp-c-text-1:    #1F2937;   /* slate-800, not the harsher slate-900 */
+  --vp-c-text-2:    #4B5563;   /* slate-600 */
+  --vp-c-text-3:    #9CA3AF;   /* slate-400 */
 
-  /* code blocks */
-  --vp-code-block-bg: #F8FAFC;
-  --vp-code-block-color: #0F172A;
-  --vp-code-line-highlight-color: rgba(99, 102, 241, 0.10);
+  /* code blocks - slightly warmer than the page bg so they sit on the page
+     without being a bright slab */
+  --vp-code-block-bg: #F4F5F7;
+  --vp-code-block-color: #1F2937;
+  --vp-code-line-highlight-color: rgba(79, 70, 229, 0.07);
   --vp-code-tab-divider: var(--vp-c-divider);
   --vp-code-tab-active-text-color: var(--vp-c-brand-1);
   --vp-code-tab-active-bar-color:  var(--vp-c-brand-1);
 
-  /* hero name ("AgentSkills" in the homepage hero) - solid brand color */
+  /* hero name ("AgentSkills") - solid brand color, no gradient. Slightly
+     dialed back via font-weight in the polish layer below. */
   --vp-home-hero-name-color: var(--as-brand-600);
   --vp-home-hero-name-background: transparent;
 
@@ -78,29 +82,29 @@
   --vp-button-brand-bg:           var(--as-brand-600);
   --vp-button-brand-hover-border: transparent;
   --vp-button-brand-hover-text:   #FFFFFF;
-  --vp-button-brand-hover-bg:     var(--as-brand-500);
+  --vp-button-brand-hover-bg:     var(--as-brand-700);   /* darker on hover, not lighter */
   --vp-button-brand-active-border: transparent;
   --vp-button-brand-active-text:  #FFFFFF;
-  --vp-button-brand-active-bg:    var(--as-brand-700);
+  --vp-button-brand-active-bg:    var(--as-brand-800);
 
-  /* secondary "View on GitHub" button */
+  /* secondary buttons - very quiet, almost ghost */
   --vp-button-alt-border:       var(--vp-c-border);
   --vp-button-alt-text:         var(--vp-c-text-1);
   --vp-button-alt-bg:           var(--vp-c-bg-soft);
-  --vp-button-alt-hover-border: var(--as-brand-300);
+  --vp-button-alt-hover-border: var(--vp-c-text-3);
   --vp-button-alt-hover-text:   var(--vp-c-text-1);
-  --vp-button-alt-hover-bg:     var(--as-brand-50);
-  --vp-button-alt-active-bg:    var(--as-brand-100);
+  --vp-button-alt-hover-bg:     var(--vp-c-gutter);
+  --vp-button-alt-active-bg:    #E6E9EE;
 
   /* custom blocks */
   --vp-custom-block-tip-border: transparent;
   --vp-custom-block-tip-text:   var(--as-brand-700);
-  --vp-custom-block-tip-bg:     var(--as-brand-50);
-  --vp-custom-block-tip-code-bg: var(--as-brand-100);
+  --vp-custom-block-tip-bg:     rgba(79, 70, 229, 0.06);
+  --vp-custom-block-tip-code-bg: rgba(79, 70, 229, 0.12);
 
   --vp-custom-block-info-border: transparent;
-  --vp-custom-block-info-text:   #0F172A;
-  --vp-custom-block-info-bg:     #F1F5F9;
+  --vp-custom-block-info-text:   var(--vp-c-text-1);
+  --vp-custom-block-info-bg:     var(--vp-c-bg-soft);
 }
 
 /* -----------------------------------------------------------------------------
@@ -172,20 +176,24 @@
    Polish layer - small adjustments that lift the default theme
 ----------------------------------------------------------------------------- */
 
-/* Tighter, more confident hero name typography */
+/* Hero name typography - confident but not blaring. 800 was too heavy at
+   large sizes against a calm light bg; 700 reads as a brand mark without
+   shouting. */
 .VPHero .name {
-  letter-spacing: -0.03em;
-  font-weight: 800;
-}
-.VPHero .text {
   letter-spacing: -0.02em;
   font-weight: 700;
+}
+.VPHero .text {
+  letter-spacing: -0.015em;
+  font-weight: 600;
 }
 .VPHero .tagline {
   color: var(--vp-c-text-2);
 }
 
-/* Feature cards: slightly elevated, subtle border, hover lift */
+/* Feature cards - quiet borders, gentle hover. No indigo glow shadow in
+   light mode (it read as "marketing landing page"). Dark mode keeps a very
+   subtle brand-tinted shadow because the dark bg can take it. */
 .VPFeature {
   border: 1px solid var(--vp-c-border);
   background: var(--vp-c-bg-soft);
@@ -195,12 +203,13 @@
     box-shadow 0.18s ease;
 }
 .VPFeature:hover {
-  border-color: var(--as-brand-400);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -12px rgba(99, 102, 241, 0.35);
+  border-color: var(--vp-c-text-3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -8px rgba(0, 0, 0, 0.10);
 }
 .dark .VPFeature:hover {
-  box-shadow: 0 8px 24px -8px rgba(129, 140, 248, 0.25);
+  border-color: var(--as-brand-400);
+  box-shadow: 0 8px 24px -10px rgba(129, 140, 248, 0.20);
 }
 
 /* Sidebar active link gets a brand accent bar */
@@ -242,4 +251,27 @@
 /* Search box (local search) blends with the nav better */
 .DocSearch-Button {
   border-radius: 8px !important;
+}
+
+/* Bigger navbar logo - default VitePress logo height is ~24px which leaves
+   the hexagon feeling crowded against the wordmark. Bump to 36px and add a
+   little breathing room before the site title. */
+.VPNavBarTitle .VPImage.logo {
+  height: 36px;
+  width: 36px;
+}
+.VPNavBarTitle .title {
+  padding-left: 10px;
+}
+
+/* Navbar wordmark "AgentSkills" picks up the brand indigo. Light mode uses
+   the deeper indigo-600 (matches the logo hexagon); dark mode uses the
+   lighter indigo-300 (matches the recolored dark-mode hexagon). */
+.VPNavBarTitle .title {
+  color: var(--as-brand-600);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.dark .VPNavBarTitle .title {
+  color: var(--as-brand-300);
 }

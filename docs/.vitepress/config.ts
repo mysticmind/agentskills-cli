@@ -12,10 +12,18 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
 
+  // `base` is /agentskills-cli/, so all paths below pick that up
+  // automatically via VitePress' withBase. Hardcoded /agentskills-cli/
+  // prefix not needed.
   head: [
-    ['meta', { name: 'theme-color', content: '#0EA5E9' }],
+    ['link', { rel: 'icon', type: 'image/x-icon', href: '/agentskills-cli/favicon.ico' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/agentskills-cli/favicon-32x32.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/agentskills-cli/favicon-16x16.png' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/agentskills-cli/apple-touch-icon.png' }],
+    ['meta', { name: 'theme-color', content: '#4F46E5' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'AgentSkills' }],
+    ['meta', { property: 'og:image', content: '/agentskills-cli/apple-touch-icon.png' }],
     [
       'meta',
       {
@@ -28,6 +36,15 @@ export default defineConfig({
 
   themeConfig: {
     siteTitle: 'AgentSkills',
+
+    // Light/dark variants: the source navy is preserved for light mode;
+    // the dark variant has the navy recolored to white so the hexagon
+    // stays visible on near-black backgrounds.
+    logo: {
+      light: '/logo.png',
+      dark: '/logo-dark.png',
+      alt: 'AgentSkills hexagonal terminal logo',
+    },
 
     nav: [
       { text: 'Guide', link: '/getting-started/install', activeMatch: '^/(?!$)' },

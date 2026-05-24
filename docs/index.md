@@ -5,6 +5,10 @@ hero:
   name: AgentSkills
   text: Install agent skills from anywhere into every coding agent.
   tagline: A .NET CLI that pulls skills from GitHub, NuGet, npm, well-known endpoints, or local folders and drops them into Claude Code, Cursor, Codex, OpenCode, and the universal .agents/skills directory. One command, every agent, no JavaScript runtime required.
+  image:
+    light: /logo.png
+    dark: /logo-dark.png
+    alt: AgentSkills hexagonal terminal logo
   actions:
     - theme: brand
       text: Get started

@@ -77,7 +77,6 @@ public sealed class AddCommand : AsyncCommand<AddCommand.Settings>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         ArgumentNullException.ThrowIfNull(settings);
-        Banner.Show();
 
         var resolveOptions = new ResolveOptions(NuGetSource: settings.NuGetSource, NpmRegistry: settings.NpmRegistry);
 

@@ -1,0 +1,15 @@
+{
+  "name": "@acme/agent-skills-sample",
+  "version": "0.1.0",
+  "description": "A sample npm package shipping a single agent skill under package/skills/.",
+  "license": "MIT",
+  "files": [
+    "skills/",
+    "README.md"
+  ],
+  "keywords": [
+    "agent-skills",
+    "skills",
+    "sample"
+  ]
+}

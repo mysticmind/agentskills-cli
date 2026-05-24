@@ -3,10 +3,12 @@ obj/
 artifacts/
 local-feed/
 *.nupkg
+*.tgz
 *.user
 .vs/
 .idea/
 .DS_Store
 TestResults/
 .nuget/
+node_modules/
 

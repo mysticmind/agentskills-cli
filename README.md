@@ -52,6 +52,7 @@ A few places where AgentSkills goes further than `npx skills` today:
 - [Source formats](#source-formats)
 - [Authoring skills](#authoring-skills)
 - [Publishing skills as a NuGet package](#publishing-skills-as-a-nuget-package)
+  - [Publishing skills as an npm package](#publishing-skills-as-an-npm-package)
 - [Agents](#agents)
 - [Where files land](#where-files-land)
 - [Search providers (extension point)](#search-providers-extension-point)
@@ -596,6 +597,50 @@ dotnet nuget push ./out/MyOrg.AgentSkills.1.0.0.nupkg \
 A complete example lives in [`samples/sample-nuget-package`](samples/sample-nuget-package).
 
 > If you don't follow the `contentFiles/any/any/skills/` convention, `AgentSkills` still falls back to a recursive scan inside the extracted `.nupkg`. The convention is just the fast path.
+
+### Publishing skills as an npm package
+
+For npm, the conventional layout is `package/skills/<name>/SKILL.md` (which is what `npm pack` produces from a top-level `skills/` directory):
+
+```
+@my-org/agent-skills/
+├── package.json                              # scoped names auto-detect as npm
+├── README.md
+└── skills/
+    ├── skill-one/SKILL.md
+    └── skill-two/SKILL.md
+```
+
+Minimum `package.json`:
+
+```json
+{
+  "name": "@my-org/agent-skills",
+  "version": "0.1.0",
+  "description": "Our team's curated agent skills.",
+  "license": "MIT",
+  "files": ["skills/", "README.md"],
+  "keywords": ["agent-skills", "skills"]
+}
+```
+
+Pack and publish (auth via your normal `~/.npmrc`):
+
+```bash
+npm pack                                                    # → @my-org-agent-skills-0.1.0.tgz
+npm publish --access public                                 # public; drop --access for private/scoped
+```
+
+Users install with:
+
+```bash
+agentskills add @my-org/agent-skills -y                     # scoped → auto-detected as npm
+agentskills add npm:unscoped-pkg -y                         # unscoped requires explicit npm: prefix
+```
+
+A complete example lives in [`samples/sample-npm-package`](samples/sample-npm-package). The README there also covers local Verdaccio-registry testing without publishing.
+
+> Same fallback behavior as NuGet: if the package puts skills somewhere other than `package/skills/`, AgentSkills will scan recursively. You can also pass `--path <subdir>` to point discovery at a non-standard layout explicitly.
 
 ---
 

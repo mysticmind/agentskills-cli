@@ -23,8 +23,8 @@
     <Authors>Babu Annamalai</Authors>
     <Copyright>Copyright (c) 2026 Babu Annamalai</Copyright>
     <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx agentskills`. A .NET port of vercel-labs/skills implementing the open Agent Skills spec.</Description>
-    <PackageProjectUrl>https://github.com/mysticmind/agent-skills</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/mysticmind/agent-skills</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/mysticmind/agentskills-cli</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mysticmind/agentskills-cli</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>skills;agent-skills;ai;agents;claude;cursor;codex;opencode;dotnet-tool;dnx;nuget;npm</PackageTags>

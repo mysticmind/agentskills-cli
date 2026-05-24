@@ -136,6 +136,9 @@ public static class GitHubApi
             if (!_ghCliWarned)
             {
                 _ghCliWarned = true;
+                // Deliberate Console.Error: one-time courtesy note that gh CLI was invoked
+                // as a fallback. stderr keeps it out of pipes; ILogger would mean threading
+                // a logger through this static utility for one line.
                 Console.Error.WriteLine("note: using GitHub token from `gh auth token` (set GITHUB_TOKEN to silence).");
             }
             return string.IsNullOrEmpty(token) ? null : token;

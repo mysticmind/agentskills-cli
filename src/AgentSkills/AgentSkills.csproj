@@ -18,14 +18,22 @@
     <ToolCommandName>agentskills</ToolCommandName>
     <PackageType>DotnetTool</PackageType>
     <PackageId>agentskills</PackageId>
+    <Title>AgentSkills</Title>
     <Version>0.2.0</Version>
     <Authors>Babu Annamalai</Authors>
+    <Copyright>Copyright (c) 2026 Babu Annamalai</Copyright>
     <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx agentskills`. A .NET port of vercel-labs/skills implementing the open Agent Skills spec.</Description>
     <PackageProjectUrl>https://github.com/mysticmind/agent-skills</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mysticmind/agent-skills</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>skills;ai;agents;claude;cursor;codex;opencode;dnx</PackageTags>
+    <PackageTags>skills;agent-skills;ai;agents;claude;cursor;codex;opencode;dotnet-tool;dnx;nuget;npm</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RollForward>LatestMajor</RollForward>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,6 +46,10 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

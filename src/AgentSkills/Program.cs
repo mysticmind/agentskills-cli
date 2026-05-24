@@ -18,7 +18,7 @@ var app = new CommandApp(registrar);
 
 app.Configure(config =>
 {
-    config.SetApplicationName("skills");
+    config.SetApplicationName("agentskills");
     config.PropagateExceptions();
 
     config.AddCommand<AddCommand>("add")
@@ -38,7 +38,7 @@ app.Configure(config =>
 
     config.AddCommand<FindCommand>("find")
         .WithAlias("search").WithAlias("f")
-        .WithDescription("Search skills.sh and install the result.");
+        .WithDescription("Search registered providers (skills.sh and any you register) and install a result.");
 
     config.AddCommand<UpdateCommand>("update")
         .WithAlias("upgrade").WithAlias("check")

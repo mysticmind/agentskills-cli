@@ -873,7 +873,7 @@ Each sample's own README has the step-by-step verification commands; this sectio
 
 ```bash
 dotnet build
-dotnet test                              # 41+ unit & integration tests
+dotnet test                              # 116 unit & integration tests, both runtimes
 dotnet pack src/AgentSkills -o ./artifacts
 
 # Try the freshly-packed tool without installing

@@ -1,0 +1,245 @@
+/* =============================================================================
+   AgentSkills - VitePress theme
+   Polished light + dark palettes built on an indigo brand (#6366F1).
+   Override individual variables here; do not edit node_modules.
+============================================================================ */
+
+/* -----------------------------------------------------------------------------
+   Brand palette
+----------------------------------------------------------------------------- */
+:root {
+  --as-brand-50:  #EEF2FF;
+  --as-brand-100: #E0E7FF;
+  --as-brand-200: #C7D2FE;
+  --as-brand-300: #A5B4FC;
+  --as-brand-400: #818CF8;
+  --as-brand-500: #6366F1;
+  --as-brand-600: #4F46E5;
+  --as-brand-700: #4338CA;
+  --as-brand-800: #3730A3;
+  --as-brand-900: #312E81;
+
+  --as-accent-cyan:   #06B6D4;
+  --as-accent-amber:  #F59E0B;
+  --as-accent-green:  #10B981;
+  --as-accent-rose:   #F43F5E;
+}
+
+/* -----------------------------------------------------------------------------
+   Light mode
+   Background ladder: pure white -> slate-50 -> slate-100
+   Text ladder:       slate-900 -> slate-700 -> slate-500
+----------------------------------------------------------------------------- */
+:root {
+  /* brand */
+  --vp-c-brand-1: var(--as-brand-600);
+  --vp-c-brand-2: var(--as-brand-500);
+  --vp-c-brand-3: var(--as-brand-500);
+  --vp-c-brand-soft: rgba(99, 102, 241, 0.12);
+
+  /* legacy aliases that some VitePress 1.x components still read */
+  --vp-c-brand: var(--vp-c-brand-1);
+  --vp-c-brand-light: var(--vp-c-brand-2);
+  --vp-c-brand-lighter: var(--as-brand-400);
+  --vp-c-brand-dark: var(--as-brand-700);
+  --vp-c-brand-darker: var(--as-brand-800);
+
+  /* surfaces */
+  --vp-c-bg:        #FFFFFF;
+  --vp-c-bg-alt:    #F8FAFC;   /* sidebar, nav bar bg blend */
+  --vp-c-bg-elv:    #FFFFFF;   /* popovers, search panel */
+  --vp-c-bg-soft:   #F1F5F9;   /* feature card bg, inline code */
+
+  /* dividers */
+  --vp-c-border:    #E2E8F0;
+  --vp-c-divider:   #E2E8F0;
+  --vp-c-gutter:    #EDF2F7;
+
+  /* text */
+  --vp-c-text-1:    #0F172A;   /* slate-900 */
+  --vp-c-text-2:    #475569;   /* slate-600 */
+  --vp-c-text-3:    #94A3B8;   /* slate-400 */
+
+  /* code blocks */
+  --vp-code-block-bg: #F8FAFC;
+  --vp-code-block-color: #0F172A;
+  --vp-code-line-highlight-color: rgba(99, 102, 241, 0.10);
+  --vp-code-tab-divider: var(--vp-c-divider);
+  --vp-code-tab-active-text-color: var(--vp-c-brand-1);
+  --vp-code-tab-active-bar-color:  var(--vp-c-brand-1);
+
+  /* hero name ("AgentSkills" in the homepage hero) - solid brand color */
+  --vp-home-hero-name-color: var(--as-brand-600);
+  --vp-home-hero-name-background: transparent;
+
+  /* primary "Get started" button */
+  --vp-button-brand-border:       transparent;
+  --vp-button-brand-text:         #FFFFFF;
+  --vp-button-brand-bg:           var(--as-brand-600);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text:   #FFFFFF;
+  --vp-button-brand-hover-bg:     var(--as-brand-500);
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text:  #FFFFFF;
+  --vp-button-brand-active-bg:    var(--as-brand-700);
+
+  /* secondary "View on GitHub" button */
+  --vp-button-alt-border:       var(--vp-c-border);
+  --vp-button-alt-text:         var(--vp-c-text-1);
+  --vp-button-alt-bg:           var(--vp-c-bg-soft);
+  --vp-button-alt-hover-border: var(--as-brand-300);
+  --vp-button-alt-hover-text:   var(--vp-c-text-1);
+  --vp-button-alt-hover-bg:     var(--as-brand-50);
+  --vp-button-alt-active-bg:    var(--as-brand-100);
+
+  /* custom blocks */
+  --vp-custom-block-tip-border: transparent;
+  --vp-custom-block-tip-text:   var(--as-brand-700);
+  --vp-custom-block-tip-bg:     var(--as-brand-50);
+  --vp-custom-block-tip-code-bg: var(--as-brand-100);
+
+  --vp-custom-block-info-border: transparent;
+  --vp-custom-block-info-text:   #0F172A;
+  --vp-custom-block-info-bg:     #F1F5F9;
+}
+
+/* -----------------------------------------------------------------------------
+   Dark mode
+   Background ladder: zinc-950 -> zinc-900 -> zinc-800
+   Text ladder:       zinc-50  -> zinc-300 -> zinc-500
+----------------------------------------------------------------------------- */
+.dark {
+  /* brighten the brand for dark backgrounds */
+  --vp-c-brand-1: var(--as-brand-300);
+  --vp-c-brand-2: var(--as-brand-400);
+  --vp-c-brand-3: var(--as-brand-500);
+  --vp-c-brand-soft: rgba(129, 140, 248, 0.16);
+
+  --vp-c-brand: var(--vp-c-brand-1);
+  --vp-c-brand-light: var(--as-brand-200);
+  --vp-c-brand-lighter: var(--as-brand-100);
+  --vp-c-brand-dark: var(--as-brand-500);
+  --vp-c-brand-darker: var(--as-brand-600);
+
+  /* surfaces - true near-black for OLED, single step of warmth on cards */
+  --vp-c-bg:        #0A0A0F;
+  --vp-c-bg-alt:    #0F0F17;
+  --vp-c-bg-elv:    #15151E;
+  --vp-c-bg-soft:   #15151E;
+
+  /* dividers */
+  --vp-c-border:    #232333;
+  --vp-c-divider:   #232333;
+  --vp-c-gutter:    #1A1A26;
+
+  /* text */
+  --vp-c-text-1:    #F8FAFC;
+  --vp-c-text-2:    #CBD5E1;
+  --vp-c-text-3:    #64748B;
+
+  /* code blocks */
+  --vp-code-block-bg: #15151E;
+  --vp-code-block-color: #E2E8F0;
+  --vp-code-line-highlight-color: rgba(129, 140, 248, 0.18);
+
+  /* hero name - solid brand color, brighter for dark mode contrast */
+  --vp-home-hero-name-color: var(--as-brand-300);
+
+  /* buttons */
+  --vp-button-brand-text:         #0A0A0F;
+  --vp-button-brand-bg:           var(--as-brand-400);
+  --vp-button-brand-hover-text:   #0A0A0F;
+  --vp-button-brand-hover-bg:     var(--as-brand-300);
+  --vp-button-brand-active-text:  #0A0A0F;
+  --vp-button-brand-active-bg:    var(--as-brand-500);
+
+  --vp-button-alt-text:         var(--vp-c-text-1);
+  --vp-button-alt-bg:           #1C1C28;
+  --vp-button-alt-hover-border: var(--as-brand-500);
+  --vp-button-alt-hover-bg:     #232333;
+  --vp-button-alt-active-bg:    #2A2A3A;
+
+  /* custom blocks */
+  --vp-custom-block-tip-text:    var(--as-brand-200);
+  --vp-custom-block-tip-bg:      rgba(129, 140, 248, 0.10);
+  --vp-custom-block-tip-code-bg: rgba(129, 140, 248, 0.18);
+
+  --vp-custom-block-info-text:   var(--vp-c-text-1);
+  --vp-custom-block-info-bg:     #15151E;
+}
+
+/* -----------------------------------------------------------------------------
+   Polish layer - small adjustments that lift the default theme
+----------------------------------------------------------------------------- */
+
+/* Tighter, more confident hero name typography */
+.VPHero .name {
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+.VPHero .text {
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+.VPHero .tagline {
+  color: var(--vp-c-text-2);
+}
+
+/* Feature cards: slightly elevated, subtle border, hover lift */
+.VPFeature {
+  border: 1px solid var(--vp-c-border);
+  background: var(--vp-c-bg-soft);
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.VPFeature:hover {
+  border-color: var(--as-brand-400);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -12px rgba(99, 102, 241, 0.35);
+}
+.dark .VPFeature:hover {
+  box-shadow: 0 8px 24px -8px rgba(129, 140, 248, 0.25);
+}
+
+/* Sidebar active link gets a brand accent bar */
+.VPSidebarItem.is-active > .item .text {
+  color: var(--vp-c-brand-1);
+  font-weight: 600;
+}
+
+/* Code blocks: a touch more padding, monospace tightened */
+.vp-doc div[class*='language-'] {
+  border-radius: 10px;
+  border: 1px solid var(--vp-c-divider);
+}
+
+/* Inline code in prose - softer, brand-tinted in dark mode */
+.vp-doc :not(pre) > code {
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  padding: 0.15em 0.4em;
+  border-radius: 5px;
+  font-size: 0.88em;
+}
+.dark .vp-doc :not(pre) > code {
+  color: var(--as-brand-200);
+}
+
+/* Tables - subtle row separators, no busy borders */
+.vp-doc table {
+  border-collapse: collapse;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.vp-doc th {
+  background: var(--vp-c-bg-soft);
+  font-weight: 600;
+}
+
+/* Search box (local search) blends with the nav better */
+.DocSearch-Button {
+  border-radius: 8px !important;
+}

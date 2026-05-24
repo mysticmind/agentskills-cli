@@ -37,7 +37,7 @@ public sealed class InitCommand : Command<InitCommand.Settings>
         var skillMd = System.IO.Path.Combine(dir, "SKILL.md");
         if (File.Exists(skillMd) && !settings.Yes)
         {
-            if (!Prompts.Confirm($"{skillMd} exists. Overwrite?", false))
+            if (!Prompts.Confirm(_console, $"{skillMd} exists. Overwrite?", false))
             {
                 _console.MarkupLine("[grey]Aborted.[/]");
                 return 0;

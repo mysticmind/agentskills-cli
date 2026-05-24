@@ -4,15 +4,22 @@ using Spectre.Console;
 
 namespace AgentSkills.UI;
 
+/// <summary>
+/// Stateless prompt helpers. Every method takes <see cref="IAnsiConsole"/> so it shares
+/// the caller's console (testable via Spectre's <c>TestConsole</c>, respects whatever
+/// rendering profile the host configured). No static <c>AnsiConsole.*</c> reaches.
+/// </summary>
 public static class Prompts
 {
-    public static List<Skill> SelectSkills(IReadOnlyList<Skill> skills, bool yes)
+    public static List<Skill> SelectSkills(IAnsiConsole console, IReadOnlyList<Skill> skills, bool yes)
     {
+        ArgumentNullException.ThrowIfNull(console);
+        ArgumentNullException.ThrowIfNull(skills);
         if (skills.Count == 0)
         {
             return [];
         }
-        if (skills.Count == 1 || yes || !AnsiConsole.Profile.Capabilities.Interactive)
+        if (skills.Count == 1 || yes || !console.Profile.Capabilities.Interactive)
         {
             return skills.ToList();
         }
@@ -25,7 +32,7 @@ public static class Prompts
             .InstructionsText("[grey](Press <space> to toggle, <enter> to confirm)[/]")
             .AddChoices(byLabel.Keys);
 
-        var selected = AnsiConsole.Prompt(prompt);
+        var selected = console.Prompt(prompt);
         return selected.Count == 0 ? skills.ToList() : selected.Select(s => byLabel[s]).ToList();
     }
 
@@ -35,15 +42,20 @@ public static class Prompts
     /// references to <c>[Entity]</c> attributes), so both must be escaped before being
     /// interpolated into a Spectre markup string - otherwise Spectre parses them as colors.
     /// </summary>
-    public static string FormatSkillLabel(Skill skill) =>
-        $"{Markup.Escape(skill.Name)}  [grey]{Markup.Escape(Truncate(skill.Description, 60))}[/]";
-
-    public static List<AgentConfig> SelectAgents(IReadOnlyList<AgentConfig> detected, bool yes)
+    public static string FormatSkillLabel(Skill skill)
     {
+        ArgumentNullException.ThrowIfNull(skill);
+        return $"{Markup.Escape(skill.Name)}  [grey]{Markup.Escape(Truncate(skill.Description, 60))}[/]";
+    }
+
+    public static List<AgentConfig> SelectAgents(IAnsiConsole console, IReadOnlyList<AgentConfig> detected, bool yes)
+    {
+        ArgumentNullException.ThrowIfNull(console);
+        ArgumentNullException.ThrowIfNull(detected);
         var universal = detected.Where(a => a.IsUniversal).ToList();
         var others = detected.Where(a => !a.IsUniversal).ToList();
 
-        if (yes || !AnsiConsole.Profile.Capabilities.Interactive)
+        if (yes || !console.Profile.Capabilities.Interactive)
         {
             return detected.ToList();
         }
@@ -61,19 +73,20 @@ public static class Prompts
             .InstructionsText("[grey](Press <space> to toggle, <enter> to confirm. Universal agents are always included.)[/]")
             .AddChoices(byLabel.Keys);
 
-        var selected = AnsiConsole.Prompt(prompt);
+        var selected = console.Prompt(prompt);
         var chosen = selected.Select(s => byLabel[s]).ToList();
         chosen.AddRange(universal);
         return chosen.Count == 0 ? detected.ToList() : chosen;
     }
 
-    public static bool Confirm(string question, bool defaultValue = false)
+    public static bool Confirm(IAnsiConsole console, string question, bool defaultValue = false)
     {
-        if (!AnsiConsole.Profile.Capabilities.Interactive)
+        ArgumentNullException.ThrowIfNull(console);
+        if (!console.Profile.Capabilities.Interactive)
         {
             return defaultValue;
         }
-        return AnsiConsole.Confirm(question, defaultValue);
+        return console.Confirm(question, defaultValue);
     }
 
     private static string Truncate(string s, int max) =>

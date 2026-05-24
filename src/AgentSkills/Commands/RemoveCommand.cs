@@ -91,7 +91,7 @@ public sealed class RemoveCommand : Command<RemoveCommand.Settings>
             if (toRemove.Count == 0) return 0;
         }
 
-        if (!settings.Yes && !Prompts.Confirm(
+        if (!settings.Yes && !Prompts.Confirm(_console,
                 $"Remove {toRemove.Count} skill(s)?", defaultValue: false))
         {
             _console.MarkupLine("[grey]Aborted.[/]");

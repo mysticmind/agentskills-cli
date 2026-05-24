@@ -123,7 +123,7 @@ public sealed class AddCommand : AsyncCommand<AddCommand.Settings>
                 return 1;
             }
 
-            skillsToInstall = Prompts.SelectSkills(filtered, settings.Yes);
+            skillsToInstall = Prompts.SelectSkills(_console, filtered, settings.Yes);
             if (skillsToInstall.Count == 0)
             {
                 _console.MarkupLine("[yellow]Nothing selected, skipping.[/]");
@@ -172,7 +172,7 @@ public sealed class AddCommand : AsyncCommand<AddCommand.Settings>
         {
             return [AgentRegistry.Get("universal")];
         }
-        return Prompts.SelectAgents(detected, settings.Yes);
+        return Prompts.SelectAgents(_console, detected, settings.Yes);
     }
 
     private void Render(InstallSummary summary)

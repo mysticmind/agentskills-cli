@@ -43,7 +43,7 @@ The `--by package` flag on [`list`](/commands/list) groups output by source pack
 `dnx` resolves and runs the latest `agentskills-cli` from your configured NuGet feeds in one shot - no `dotnet tool install` step. Perfect for ephemeral CI runners.
 
 ```bash
-dnx agentskills-cli -y -- add ./my-skill -a claude-code -y --copy
+dnx agentskills-cli --prerelease -y -- add ./my-skill -a claude-code -y --copy
 ```
 
 The `-y --` before `add` tells `dnx` to skip its own confirmation prompt and pass everything after the `--` as arguments to the tool.
@@ -52,7 +52,7 @@ For a CI run that publishes built artifacts to a local feed first and then verif
 
 ```bash
 dotnet pack src/MyOrg.AgentSkills -o ./local-feed
-dnx agentskills-cli -y -- add MyOrg.AgentSkills \
+dnx agentskills-cli --prerelease -y -- add MyOrg.AgentSkills \
   --nuget-source ./local-feed -a universal -y --copy
 ```
 

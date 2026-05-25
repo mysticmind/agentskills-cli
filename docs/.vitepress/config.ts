@@ -107,7 +107,7 @@ export default defineConfig({
           { text: 'Environment variables', link: '/reference/environment-variables' },
           { text: 'Search providers (extension point)', link: '/reference/search-providers' },
           { text: 'Samples', link: '/reference/samples' },
-          { text: 'AgentSkills CLI vs npx skills', link: '/reference/comparison' },
+          { text: 'AgentSkills CLI vs vercel-labs/skills', link: '/reference/comparison' },
         ],
       },
       {

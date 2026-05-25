@@ -8,7 +8,7 @@ Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders i
 
 First-class NuGet & npm · library-bundled skill packages · extension points by design.
 
-[📖 Documentation](https://mysticmind.github.io/agentskills-cli/) · [Why AgentSkills CLI?](https://mysticmind.github.io/agentskills-cli/why) · [Quick start](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start) · [vs npx skills](https://mysticmind.github.io/agentskills-cli/reference/comparison)
+[📖 Documentation](https://mysticmind.github.io/agentskills-cli/) · [Why AgentSkills CLI?](https://mysticmind.github.io/agentskills-cli/why) · [Quick start](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start) · [vs vercel-labs/skills](https://mysticmind.github.io/agentskills-cli/reference/comparison)
 
 ---
 
@@ -70,7 +70,7 @@ The `--` separates `dnx`'s own flags from the args it passes through to the tool
 - **Multi-targeted** - one `.nupkg` ships both .NET 8 LTS and .NET 10 builds.
 - **Lock-file interop** - same `~/.agents/.skill-lock.json` and `./skills-lock.json` format as upstream `vercel-labs/skills`, so the two tools share state.
 
-[Full feature matrix vs npx skills →](https://mysticmind.github.io/agentskills-cli/reference/comparison)
+[Full feature matrix vs vercel-labs/skills →](https://mysticmind.github.io/agentskills-cli/reference/comparison)
 
 ## Documentation
 

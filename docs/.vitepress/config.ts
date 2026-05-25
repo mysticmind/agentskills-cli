@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'AgentSkills CLI',
   description:
-    'Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex & friends. The .NET commandline tool for the open Agent Skills ecosystem.',
+    'The .NET commandline tool for the open Agent Skills ecosystem. Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and any spec-compliant agent.',
 
   // GitHub Pages project site lives at mysticmind.github.io/agentskills-cli/.
   // `base` makes every asset and internal link resolve under that subpath.
@@ -29,7 +29,7 @@ export default defineConfig({
       {
         property: 'og:description',
         content:
-          'Install agent skills from GitHub, NuGet, npm, or local folders. The .NET commandline tool for the open Agent Skills ecosystem.',
+          'The .NET commandline tool for the open Agent Skills ecosystem. Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into any spec-compliant agent.',
       },
     ],
   ],

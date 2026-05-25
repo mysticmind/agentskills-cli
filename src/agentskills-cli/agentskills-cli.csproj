@@ -23,7 +23,7 @@
     <Version>0.2.0</Version>
     <Authors>Babu Annamalai</Authors>
     <Copyright>Copyright (c) 2026 Babu Annamalai</Copyright>
-    <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx agentskills-cli` or `dotnet tool install -g agentskills-cli` then `agentskills add ...`. A .NET commandline tool implementing the open Agent Skills spec.</Description>
+    <Description>The .NET commandline tool for the open Agent Skills ecosystem. Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and any spec-compliant agent. First-class NuGet and npm, library-bundled skill packages, and extension points by design. Install: `dotnet tool install -g agentskills-cli` (or one-shot: `dnx agentskills-cli`).</Description>
     <PackageProjectUrl>https://github.com/mysticmind/agentskills-cli</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mysticmind/agentskills-cli</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

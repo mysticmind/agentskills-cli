@@ -5,12 +5,15 @@
 <h1 align="center">AgentSkills CLI</h1>
 
 <p align="center">
-  <strong>The .NET commandline tool for the open <a href="https://agentskills.io">Agent Skills</a> ecosystem.</strong><br>
-  First-class NuGet and npm support, library-bundled skill packages, and an extension-point architecture for custom sources and search backends.
+  <strong>The .NET commandline tool for the open <a href="https://agentskills.io">Agent Skills</a> ecosystem.</strong>
 </p>
 
 <p align="center">
-  Pull skills from <strong>GitHub</strong>, <strong>NuGet</strong>, <strong>npm</strong>, well-known endpoints, or local folders and drop them into Claude Code, Cursor, Codex, OpenCode, and friends.
+  Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and any spec-compliant agent.
+</p>
+
+<p align="center">
+  First-class NuGet &amp; npm · library-bundled skill packages · extension points by design.
 </p>
 
 <p align="center">

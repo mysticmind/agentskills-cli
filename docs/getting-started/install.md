@@ -7,32 +7,29 @@ AgentSkills CLI is a [.NET tool](https://learn.microsoft.com/en-us/dotnet/core/t
 Install once, type `agentskills-cli` from anywhere.
 
 ```bash
-# --prerelease required while AgentSkills CLI is in the 0.2.0-preview phase
-dotnet tool install --global agentskills-cli --prerelease
+dotnet tool install --global agentskills-cli
 agentskills-cli --help
 ```
 
 Update or uninstall:
 
 ```bash
-dotnet tool update --global agentskills-cli --prerelease
+dotnet tool update --global agentskills-cli
 dotnet tool uninstall --global agentskills-cli
 ```
-
-When the stable `0.2.0` ships, `--prerelease` becomes optional - omit it to track stable, keep it to track previews.
 
 ## Option B: one-shot via `dnx` (CI / no-install scenarios)
 
 No install step required. `dnx` is the .NET 10 SDK's equivalent of `npx` - it downloads the tool on first use, caches it, and runs it.
 
 ```bash
-dnx agentskills-cli --prerelease -- --help
-dnx agentskills-cli --prerelease -- add ./my-skill -a claude-code
+dnx agentskills-cli -- --help
+dnx agentskills-cli -- add ./my-skill -a claude-code
 ```
 
-The `--prerelease` is the preview-phase requirement; the `--` separator passes args after it through to the tool (not to `dnx`).
+The `--` separator passes args after it through to the tool (not to `dnx`).
 
-Best when you want to try the tool once, run it in CI without polluting the global tool space, or pin to a specific preview version (`dnx agentskills-cli@0.2.0-preview.2 -- add ...`). For interactive daily use, prefer Option A - it's much less typing.
+Best when you want to try the tool once, run it in CI without polluting the global tool space, or pin to a specific version (`dnx agentskills-cli@0.2.0 -- add ...`). For interactive daily use, prefer Option A - it's much less typing.
 
 ## Requirements
 
@@ -43,7 +40,7 @@ Best when you want to try the tool once, run it in CI without polluting the glob
 
 ## Shortcuts
 
-Typing `agentskills-cli add ./my-skill` (or worse, `dnx agentskills-cli --prerelease -- add ./my-skill`) gets old fast. Three alias patterns to pick from depending on which install path you use.
+Typing `agentskills-cli add ./my-skill` (or worse, `dnx agentskills-cli -- add ./my-skill`) gets old fast. Three alias patterns to pick from depending on which install path you use.
 
 ### Pattern 1: alias the installed tool (most common)
 
@@ -78,22 +75,22 @@ If you don't want a global install (CI sandboxes, ephemeral environments), alias
 
 ```bash [bash / zsh]
 # ~/.bashrc or ~/.zshrc
-alias as='dnx agentskills-cli --prerelease --'
+alias as='dnx agentskills-cli --'
 ```
 
 ```fish [fish]
 # ~/.config/fish/config.fish
-alias as 'dnx agentskills-cli --prerelease --'
+alias as 'dnx agentskills-cli --'
 ```
 
 ```powershell [PowerShell]
 # $PROFILE
-function as { & dnx agentskills-cli --prerelease -- @args }
+function as { & dnx agentskills-cli -- @args }
 ```
 
 :::
 
-Then `as add ./my-skill -y` runs the full `dnx agentskills-cli --prerelease -- add ./my-skill -y` command behind the scenes.
+Then `as add ./my-skill -y` runs the full `dnx agentskills-cli -- add ./my-skill -y` command behind the scenes.
 
 ### Pattern 3: auto-detect (works in both modes)
 
@@ -107,7 +104,7 @@ as() {
   if command -v agentskills-cli >/dev/null 2>&1; then
     agentskills-cli "$@"
   else
-    dnx agentskills-cli --prerelease -- "$@"
+    dnx agentskills-cli -- "$@"
   fi
 }
 ```
@@ -118,7 +115,7 @@ function as
   if type -q agentskills-cli
     agentskills-cli $argv
   else
-    dnx agentskills-cli --prerelease -- $argv
+    dnx agentskills-cli -- $argv
   end
 end
 ```
@@ -129,7 +126,7 @@ function as {
   if (Get-Command agentskills-cli -ErrorAction SilentlyContinue) {
     & agentskills-cli @args
   } else {
-    & dnx agentskills-cli --prerelease -- @args
+    & dnx agentskills-cli -- @args
   }
 }
 ```

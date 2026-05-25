@@ -14,24 +14,24 @@ First-class NuGet & npm · library-bundled skill packages · extension points by
 
 ---
 
-> **Early-access preview (`0.2.0-preview.2`).** Feature-complete and tested, but pre-stable. Refinements expected based on early-user feedback before the stable `0.2.0` release. [Open an issue](https://github.com/mysticmind/agentskills-cli/issues) with feedback or bug reports.
+> **Initial release (`0.2.0`).** Feedback welcome on the install path, on any feature you expected and didn't find, and on anything that reads as confusing in the docs - [open an issue](https://github.com/mysticmind/agentskills-cli/issues).
 
 ## Install
 
 ```bash
 # Global tool (recommended for daily use; .NET 8 LTS or .NET 10)
-dotnet tool install --global agentskills-cli --prerelease
+dotnet tool install --global agentskills-cli
 agentskills-cli --help
 
 # Or one-shot via dnx (.NET 10+) for CI / no-install scenarios
-dnx agentskills-cli --prerelease -- --help
+dnx agentskills-cli -- --help
 ```
 
 See the [install guide](https://mysticmind.github.io/agentskills-cli/getting-started/install) for `.NET 8` notes, [shell shortcuts](https://mysticmind.github.io/agentskills-cli/getting-started/install#shortcuts) for both paths, and verification.
 
 ## At a glance
 
-Once installed globally (`dotnet tool install --global agentskills-cli --prerelease`):
+Once installed globally (`dotnet tool install --global agentskills-cli`):
 
 ```bash
 # Install from any source - one command, multiple ecosystems
@@ -53,10 +53,10 @@ agentskills-cli remove @my-org/agent-skills -y
 Or one-shot via `dnx` for CI / no-install scenarios:
 
 ```bash
-dnx agentskills-cli --prerelease -- add ./my-skill
+dnx agentskills-cli -- add ./my-skill
 ```
 
-The `--prerelease` flag goes away once the stable `0.2.0` ships. The `--` separates `dnx`'s own flags from the args passed through to the tool. For interactive daily use, prefer the installed-tool path - it's much less typing.
+The `--` separates `dnx`'s own flags from the args passed through to the tool. For interactive daily use, prefer the installed-tool path - it's much less typing.
 
 > **Tip:** Both paths support a one-character shell alias (`as add ./skill` instead of typing the full command). See [Shortcuts](https://mysticmind.github.io/agentskills-cli/getting-started/install#shortcuts) for bash / zsh / fish / PowerShell.
 

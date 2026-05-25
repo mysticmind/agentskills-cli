@@ -88,9 +88,11 @@ Comprehensive guides at **[mysticmind.github.io/agentskills-cli](https://mysticm
 | [Troubleshooting](https://mysticmind.github.io/agentskills-cli/troubleshooting) | Common issues with fixes |
 | [FAQ](https://mysticmind.github.io/agentskills-cli/faq) | The "why is it like that" questions |
 
-## Built on the open spec
+## A .NET-native port of vercel-labs/skills
 
-Implements the open [Agent Skills specification](https://agentskills.io) - the `SKILL.md` format and the well-known discovery endpoint - so skills published for the spec by anyone work here too. AgentSkills CLI implements the spec; it doesn't fork it.
+AgentSkills CLI is a faithful .NET port of [vercel-labs/skills](https://github.com/vercel-labs/skills) (the `npx skills` CLI). The two tools share the open [Agent Skills specification](https://agentskills.io), the same `SKILL.md` format, the same lock-file format, and the universal `.agents/skills/` install directory - so a skill installed by either tool is visible to the other and you can mix toolchains in a polyglot team.
+
+AgentSkills CLI extends the upstream with first-class NuGet support, full npm registry fetch (not just `node_modules` sync), library-bundled skill packages, version-aware target matching on `list` / `remove`, and an extension-point architecture for custom sources and search backends. See the [full feature comparison](https://mysticmind.github.io/agentskills-cli/reference/comparison).
 
 ## Samples
 

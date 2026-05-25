@@ -4,7 +4,8 @@ layout: home
 hero:
   name: AgentSkills CLI
   text: The .NET commandline tool for the Agent Skills ecosystem.
-  tagline: Install skills from any source into any coding agent. One command, every ecosystem.
+  tagline: |
+    Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and any spec-compliant agent.<br><br>First-class NuGet & npm · library-bundled skill packages · extension points by design.
   image:
     light: /logo.png
     dark: /logo-dark.png

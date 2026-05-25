@@ -72,7 +72,7 @@ public sealed class NuGetSource : ISkillSource
 
         try
         {
-            Exception? lastError = null;
+            var errors = new List<string>();
             foreach (var packageSource in sources)
             {
                 try
@@ -162,14 +162,21 @@ public sealed class NuGetSource : ISkillSource
                 }
                 catch (Exception ex)
                 {
-                    lastError = ex;
+                    errors.Add($"{packageSource.Name} ({packageSource.Source}): {ex.Message}");
                     log?.Invoke($"  {packageSource.Name}: {ex.Message}");
                 }
             }
 
-            throw new InvalidOperationException(
-                $"Failed to download NuGet package '{packageId}' from any configured source.",
-                lastError);
+            // Build a descriptive error message so the user knows *which* source(s) failed
+            // and *why* without having to dig into -v / --trace verbose output.
+            var sourceList = string.Join(", ", sources.Select(s => s.Name));
+            var message = errors.Count == 0
+                ? $"Failed to download NuGet package '{packageId}': not found on any configured source ({sourceList}). " +
+                  $"Check the package id, or add the right feed with: dotnet nuget add source <URL> -n <name>"
+                : $"Failed to download NuGet package '{packageId}' from any configured source:" +
+                  Environment.NewLine +
+                  string.Join(Environment.NewLine, errors.Select(e => $"  - {e}"));
+            throw new InvalidOperationException(message);
         }
         catch
         {

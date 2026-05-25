@@ -9,20 +9,21 @@
     -->
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <RootNamespace>AgentSkills</RootNamespace>
-    <!-- AssemblyName / PackageId / ToolCommandName are all the lowercase form
-         so `dnx agentskills` and `agentskills <verb>` read identically. The C#
-         namespace and project/solution names stay PascalCase per .NET convention. -->
-    <AssemblyName>agentskills</AssemblyName>
+    <!-- All three (PackageId, AssemblyName, ToolCommandName) match the
+         hyphenated form. One name, one mental model: what you install is
+         what you type. Users who want a shorter daily command alias it in
+         their shell (see docs/getting-started/install.md). -->
+    <AssemblyName>agentskills-cli</AssemblyName>
 
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>agentskills</ToolCommandName>
+    <ToolCommandName>agentskills-cli</ToolCommandName>
     <PackageType>DotnetTool</PackageType>
-    <PackageId>agentskills</PackageId>
-    <Title>AgentSkills</Title>
+    <PackageId>agentskills-cli</PackageId>
+    <Title>AgentSkills CLI</Title>
     <Version>0.2.0</Version>
     <Authors>Babu Annamalai</Authors>
     <Copyright>Copyright (c) 2026 Babu Annamalai</Copyright>
-    <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx agentskills`. A .NET port of vercel-labs/skills implementing the open Agent Skills spec.</Description>
+    <Description>Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex &amp; friends. Runs as `dnx agentskills-cli` or `dotnet tool install -g agentskills-cli` then `agentskills add ...`. A .NET CLI implementing the open Agent Skills spec.</Description>
     <PackageProjectUrl>https://github.com/mysticmind/agentskills-cli</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mysticmind/agentskills-cli</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

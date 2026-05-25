@@ -8,19 +8,19 @@ What the CLI looks like end-to-end. Each section below covers one of these in de
 
 ```bash
 # Install from any source - one command, several ecosystems
-agentskills add anthropics/skills                      # GitHub shorthand
-agentskills add MyOrg.AgentSkills                      # NuGet package
-agentskills add @my-org/agent-skills                   # npm package
-agentskills add ./my-local-skill                       # local folder
+agentskills-cli add anthropics/skills                      # GitHub shorthand
+agentskills-cli add MyOrg.AgentSkills                      # NuGet package
+agentskills-cli add @my-org/agent-skills                   # npm package
+agentskills-cli add ./my-local-skill                       # local folder
 
 # Inspect what is installed, grouped however you want
-agentskills list --by package
+agentskills-cli list --by package
 
 # Search community skills
-agentskills find testing
+agentskills-cli find testing
 
 # Remove an entire package's worth of skills
-agentskills remove @my-org/agent-skills -y
+agentskills-cli remove @my-org/agent-skills -y
 ```
 
 Now the step-by-step.
@@ -29,7 +29,7 @@ Now the step-by-step.
 
 ```bash
 mkdir my-first-skill && cd my-first-skill
-agentskills init . -y
+agentskills-cli init . -y
 ```
 
 Open `SKILL.md`. The scaffolded file looks like this:
@@ -58,7 +58,7 @@ Edit the `description` and body to describe whatever you want an AI agent to do.
 
 ```bash
 cd ..
-agentskills add ./my-first-skill -a universal -y --copy
+agentskills-cli add ./my-first-skill -a universal -y --copy
 ```
 
 The output shows where the files landed:
@@ -78,14 +78,14 @@ A `skills-lock.json` is written alongside, recording what was installed and from
 ## 3. List what's installed
 
 ```bash
-agentskills list
+agentskills-cli list
 ```
 
 Group by package or by install path:
 
 ```bash
-agentskills list --by package
-agentskills list --by path --paths
+agentskills-cli list --by package
+agentskills-cli list --by path --paths
 ```
 
 ## 4. Install from a real source
@@ -95,29 +95,29 @@ Pick whichever ecosystem fits:
 ::: code-group
 
 ```bash [GitHub]
-agentskills add anthropics/skills -y --copy
+agentskills-cli add anthropics/skills -y --copy
 ```
 
 ```bash [NuGet]
-agentskills add MyOrg.AgentSkills -y --copy
+agentskills-cli add MyOrg.AgentSkills -y --copy
 ```
 
 ```bash [npm]
-agentskills add @my-org/agent-skills -y --copy
+agentskills-cli add @my-org/agent-skills -y --copy
 ```
 
 ```bash [Local]
-agentskills add /path/to/skill -y --copy
+agentskills-cli add /path/to/skill -y --copy
 ```
 
 :::
 
-All four use the same install pipeline. The result table tells you exactly where the files landed and the lock file records the source for `agentskills update` later.
+All four use the same install pipeline. The result table tells you exactly where the files landed and the lock file records the source for `agentskills-cli update` later.
 
 ## 5. Search the community registry
 
 ```bash
-agentskills find testing
+agentskills-cli find testing
 ```
 
 Picks an entry, hands it off to the install flow. See [`find`](/commands/find) for the full UX.
@@ -125,14 +125,14 @@ Picks an entry, hands it off to the install flow. See [`find`](/commands/find) f
 ## 6. Remove cleanly
 
 ```bash
-agentskills remove my-first-skill -y
+agentskills-cli remove my-first-skill -y
 ```
 
 Or remove every skill that came from a specific source (the [unified-targets behavior](/commands/remove)):
 
 ```bash
-agentskills remove MyOrg.AgentSkills -y       # all skills from that NuGet package
-agentskills remove anthropics/skills -y       # all skills from that GitHub repo
+agentskills-cli remove MyOrg.AgentSkills -y       # all skills from that NuGet package
+agentskills-cli remove anthropics/skills -y       # all skills from that GitHub repo
 ```
 
 ## What next

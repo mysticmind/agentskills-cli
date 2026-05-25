@@ -29,12 +29,12 @@ The `<skill-name>` segment is the kebab-case form of the SKILL.md `name` field: 
 
 ## Three ways to see paths for skills already on disk
 
-1. [`agentskills add …`](/commands/add) prints them in the result table's `Path` column and in the `Installed under …` summary
-2. [`agentskills list --paths`](/commands/list) re-renders the same `Path` column for everything installed
-3. [`agentskills list --by path --paths`](/commands/list) groups skills by install directory - handy for a "what's actually in `~/.claude/skills/`?" view
+1. [`agentskills-cli add …`](/commands/add) prints them in the result table's `Path` column and in the `Installed under …` summary
+2. [`agentskills-cli list --paths`](/commands/list) re-renders the same `Path` column for everything installed
+3. [`agentskills-cli list --by path --paths`](/commands/list) groups skills by install directory - handy for a "what's actually in `~/.claude/skills/`?" view
 
 ## The "canonical only" install result
 
 You may see `canonical only` in the result column when adding for a non-universal agent (typically `claude-code`) without that agent's config directory existing in the project. In that case AgentSkills installs only to the canonical `.agents/skills/` location and skips creating the per-agent mirror. This avoids polluting your project with config directories for agents you may not actually use.
 
-The skill is still available - any future `agentskills add` (or symlink) will materialize the agent-specific copy if the config directory appears later.
+The skill is still available - any future `agentskills-cli add` (or symlink) will materialize the agent-specific copy if the config directory appears later.

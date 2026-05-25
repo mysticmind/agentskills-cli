@@ -5,7 +5,7 @@ Remove installed skills.
 ## Synopsis
 
 ```
-agentskills remove [<target>...] [-g] [-a agent...] [-y]
+agentskills-cli remove [<target>...] [-g] [-a agent...] [-y]
 ```
 
 ## Arguments
@@ -26,16 +26,16 @@ agentskills remove [<target>...] [-g] [-a agent...] [-y]
 
 ```bash
 # Remove by skill name
-agentskills remove hello-skill -y
+agentskills-cli remove hello-skill -y
 
 # Remove every skill installed from a package - same parsing as `add`
-agentskills remove nuget:MyOrg.AgentSkills -y          # NuGet (bare 'MyOrg.AgentSkills' also works)
-agentskills remove @acme/sample-skills -y              # npm
-agentskills remove anthropics/skills -y                # GitHub
-agentskills remove https://gitlab.com/group/repo -y    # GitLab
+agentskills-cli remove nuget:MyOrg.AgentSkills -y          # NuGet (bare 'MyOrg.AgentSkills' also works)
+agentskills-cli remove @acme/sample-skills -y              # npm
+agentskills-cli remove anthropics/skills -y                # GitHub
+agentskills-cli remove https://gitlab.com/group/repo -y    # GitLab
 
 # Mix skill names and sources, narrow to one agent
-agentskills remove some-extra-skill MyOrg.AgentSkills -a claude-code -y
+agentskills-cli remove some-extra-skill MyOrg.AgentSkills -a claude-code -y
 ```
 
 ## Versions
@@ -54,10 +54,10 @@ After removal:
 
 ## Non-interactive safety
 
-In a non-interactive shell (CI, piped stdin), running `agentskills remove` with **no targets** refuses with exit code 2 rather than removing everything. You must pass explicit targets in scripts.
+In a non-interactive shell (CI, piped stdin), running `agentskills-cli remove` with **no targets** refuses with exit code 2 rather than removing everything. You must pass explicit targets in scripts.
 
 ```
-$ agentskills remove -y
+$ agentskills-cli remove -y
 Refusing to remove all skills without explicit targets. Pass them as arguments.
 ```
 

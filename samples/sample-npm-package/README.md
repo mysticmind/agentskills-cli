@@ -35,7 +35,7 @@ npm publish --registry http://localhost:4873            # one-time auth prompt t
 
 # 3. Install with AgentSkills, pointed at the local registry
 cd /tmp/test-project
-agentskills add @acme/agent-skills-sample \
+agentskills-cli add @acme/agent-skills-sample \
   --npm-registry http://localhost:4873 \
   -a universal -y --copy
 
@@ -53,7 +53,7 @@ npm publish --access public                              # scoped packages need 
 Users then install with:
 
 ```bash
-agentskills add @acme/agent-skills-sample -y
+agentskills-cli add @acme/agent-skills-sample -y
 ```
 
 ## Auth for private registries
@@ -68,7 +68,7 @@ Auth is read from `~/.npmrc` (and any project `.npmrc`) - the same files `npm in
 Then:
 
 ```bash
-MY_TOKEN=… agentskills add @my-org/agent-skills -y
+MY_TOKEN=… agentskills-cli add @my-org/agent-skills -y
 ```
 
 Per-scope registry rules, longest-path-prefix token matching, and `${ENV_VAR}` expansion all work the same as in `npm`.

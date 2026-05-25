@@ -37,7 +37,7 @@ public static class SkillsServices
         services.AddSingleton(_ =>
         {
             var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("agentskills");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("agentskills-cli");
             return client;
         });
 

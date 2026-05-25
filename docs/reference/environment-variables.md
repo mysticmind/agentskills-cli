@@ -22,7 +22,7 @@ All optional. Reasonable defaults apply if unset.
 | `GIT_TERMINAL_PROMPT` | `0` | Never block on credential prompts. Auth must be configured up front. |
 | `GIT_LFS_SKIP_SMUDGE` | `1` | Skip LFS object download - skills are small and LFS-fetched content slows things down for no benefit |
 
-This means an `agentskills add` against a private repo without configured credentials will fail fast (no prompt), not hang.
+This means an `agentskills-cli add` against a private repo without configured credentials will fail fast (no prompt), not hang.
 
 ## Verbosity flags
 

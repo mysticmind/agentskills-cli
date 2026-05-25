@@ -6,12 +6,12 @@ Install skills from any NuGet feed - public nuget.org or private (Azure Artifact
 
 ```bash
 # Bare shorthand (auto-detected when the id contains a '.')
-agentskills add MyOrg.AgentSkills
-agentskills add MyOrg.AgentSkills@1.2.3
+agentskills-cli add MyOrg.AgentSkills
+agentskills-cli add MyOrg.AgentSkills@1.2.3
 
 # Explicit prefix (required for IDs without a '.')
-agentskills add nuget:MyOrg.AgentSkills
-agentskills add nuget:MyOrg.AgentSkills@1.2.3
+agentskills-cli add nuget:MyOrg.AgentSkills
+agentskills-cli add nuget:MyOrg.AgentSkills@1.2.3
 ```
 
 ## Detection rule
@@ -27,12 +27,12 @@ That last rule means single-segment NuGet IDs without a dot (rare in practice) n
 
 AgentSkills uses `NuGet.Protocol` with `Settings.LoadDefaultSettings()`, so **every feed listed in your machine, user, or project `NuGet.Config` is searched in order**. Credential providers (Azure Artifacts Credential Provider, GitHub Packages PAT in NuGet.Config, etc.) are honored automatically - no flag needed.
 
-If `dotnet restore` works against your feed, `agentskills add <pkg>` works against the same feed.
+If `dotnet restore` works against your feed, `agentskills-cli add <pkg>` works against the same feed.
 
 Override the feed list for a single command with `--nuget-source <URL>`:
 
 ```bash
-agentskills add MyOrg.AgentSkills \
+agentskills-cli add MyOrg.AgentSkills \
   --nuget-source https://pkgs.contoso.com/v3/index.json
 ```
 
@@ -55,9 +55,9 @@ If the package doesn't follow the convention, AgentSkills falls back to a recurs
 A bare package id matches the latest stable version; pin with `@`:
 
 ```bash
-agentskills add MyOrg.AgentSkills              # latest stable
-agentskills add MyOrg.AgentSkills@1.2.3        # specific version
-agentskills add MyOrg.AgentSkills@2.0.0-beta.1 # prerelease
+agentskills-cli add MyOrg.AgentSkills              # latest stable
+agentskills-cli add MyOrg.AgentSkills@1.2.3        # specific version
+agentskills-cli add MyOrg.AgentSkills@2.0.0-beta.1 # prerelease
 ```
 
 ## Authoring NuGet packages with skills

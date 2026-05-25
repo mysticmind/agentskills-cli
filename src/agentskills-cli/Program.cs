@@ -18,7 +18,7 @@ var app = new CommandApp(registrar);
 
 app.Configure(config =>
 {
-    config.SetApplicationName("agentskills");
+    config.SetApplicationName("agentskills-cli");
     config.PropagateExceptions();
 
     config.AddCommand<AddCommand>("add")

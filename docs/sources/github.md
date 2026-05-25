@@ -6,19 +6,19 @@ The most common remote source. Multiple input shapes all canonicalize to the sam
 
 ```bash
 # Shorthand
-agentskills add owner/repo
-agentskills add owner/repo/skills/my-skill                 # with subpath
-agentskills add owner/repo#main                            # with branch/tag
-agentskills add owner/repo@my-skill                        # with single-skill filter
-agentskills add owner/repo#main@my-skill                   # both
+agentskills-cli add owner/repo
+agentskills-cli add owner/repo/skills/my-skill                 # with subpath
+agentskills-cli add owner/repo#main                            # with branch/tag
+agentskills-cli add owner/repo@my-skill                        # with single-skill filter
+agentskills-cli add owner/repo#main@my-skill                   # both
 
 # Full URL
-agentskills add https://github.com/owner/repo
-agentskills add https://github.com/owner/repo.git
-agentskills add https://github.com/owner/repo/tree/main/skills/my-skill
+agentskills-cli add https://github.com/owner/repo
+agentskills-cli add https://github.com/owner/repo.git
+agentskills-cli add https://github.com/owner/repo/tree/main/skills/my-skill
 
 # Explicit prefix
-agentskills add github:owner/repo
+agentskills-cli add github:owner/repo
 ```
 
 ## Detection rule
@@ -34,8 +34,8 @@ A source is treated as GitHub if it:
 The fragment after `#` becomes the git ref (branch/tag/commit) used when cloning. After `@` (in the fragment), the skill filter.
 
 ```bash
-agentskills add owner/repo#v1.2.0           # checks out v1.2.0
-agentskills add owner/repo#main@only-this   # main branch, only the "only-this" skill
+agentskills-cli add owner/repo#v1.2.0           # checks out v1.2.0
+agentskills-cli add owner/repo#main@only-this   # main branch, only the "only-this" skill
 ```
 
 ## Auth

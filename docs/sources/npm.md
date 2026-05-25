@@ -6,13 +6,13 @@ Install skills from any npm-compatible registry - public npmjs.org or private (V
 
 ```bash
 # Scoped (auto-detected from leading @)
-agentskills add @my-org/agent-skills
-agentskills add @my-org/agent-skills@1.2.3        # pinned version
-agentskills add @my-org/agent-skills@next         # dist-tag
+agentskills-cli add @my-org/agent-skills
+agentskills-cli add @my-org/agent-skills@1.2.3        # pinned version
+agentskills-cli add @my-org/agent-skills@next         # dist-tag
 
 # Unscoped (requires the npm: prefix to disambiguate from NuGet)
-agentskills add npm:sample-pkg
-agentskills add npm:sample-pkg@1.3.0
+agentskills-cli add npm:sample-pkg
+agentskills-cli add npm:sample-pkg@1.3.0
 ```
 
 ## Detection rule
@@ -43,7 +43,7 @@ A scoped package `@my-org/foo` would be fetched from `https://npm.contoso.com/te
 Override the default registry for a single command with `--npm-registry <URL>`:
 
 ```bash
-agentskills add @my-org/foo --npm-registry https://npm.contoso.com/team/ -y
+agentskills-cli add @my-org/foo --npm-registry https://npm.contoso.com/team/ -y
 ```
 
 The override doesn't override per-scope rules in your `.npmrc` - the resolved registry for the specific scope still applies.
@@ -59,7 +59,7 @@ Bearer tokens (`_authToken`), basic auth (`_auth`), and username/password forms 
 
 `${ENV_VAR}` expansion happens at load time, just like npm. The token is matched against the registry URL by **longest path prefix** - so a token under `//npm.contoso.com/team/` is used for the `team/` registry but not for `//npm.contoso.com/other/`.
 
-If `npm install <pkg>` works in your shell, `agentskills add <pkg>` works the same way. Zero new auth surface.
+If `npm install <pkg>` works in your shell, `agentskills-cli add <pkg>` works the same way. Zero new auth surface.
 
 ## Package layout
 

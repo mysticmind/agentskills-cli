@@ -4,4 +4,4 @@ description: Sample skill packaged in a NuGet package for AgentSkills smoke test
 ---
 # sample-greeter
 
-This skill was installed from a NuGet package via `agentskills add Sample.SkillPackage`.
+This skill was installed from a NuGet package via `agentskills-cli add Sample.SkillPackage`.

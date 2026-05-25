@@ -70,7 +70,7 @@ dotnet nuget push ./out/MyOrg.AgentSkills.1.0.0.nupkg \
 Users install with:
 
 ```bash
-agentskills add MyOrg.AgentSkills -y
+agentskills-cli add MyOrg.AgentSkills -y
 ```
 
 ## Bundle into an existing library package
@@ -119,7 +119,7 @@ Next `dotnet pack`, the `.nupkg` contains the skills. Users who install `Contoso
 
 ## Prefer the convention
 
-`contentFiles/any/any/skills/<name>/SKILL.md` is auto-discovered with no extra flags - users just run `agentskills add YourPackage` and it works. AgentSkills also falls back to a recursive scan, and users can install with `agentskills add YourPackage --path some/custom/path` when skills live somewhere else, but **every non-conventional layout is friction the user has to learn**. Use the convention unless you have a hard reason not to.
+`contentFiles/any/any/skills/<name>/SKILL.md` is auto-discovered with no extra flags - users just run `agentskills-cli add YourPackage` and it works. AgentSkills also falls back to a recursive scan, and users can install with `agentskills-cli add YourPackage --path some/custom/path` when skills live somewhere else, but **every non-conventional layout is friction the user has to learn**. Use the convention unless you have a hard reason not to.
 
 ## See the working sample
 

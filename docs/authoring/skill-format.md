@@ -38,8 +38,8 @@ This means `My Cool Skill!` and `my-cool-skill` install to the same directory. T
 
 One-line hint shown in:
 
-- `agentskills list` output (truncated to ~80 chars)
-- `agentskills find` results
+- `agentskills-cli list` output (truncated to ~80 chars)
+- `agentskills-cli find` results
 - The multi-select prompt during `add`
 - Agent-side discovery (some agents read this directly to decide which skills to apply)
 
@@ -99,7 +99,7 @@ AgentSkills validates frontmatter on parse:
 - Wrong types (e.g., `name: 42`) → skill ignored
 - Body without frontmatter → skill ignored (the YAML `---` block is required)
 
-If `agentskills add` reports "No SKILL.md files found", check that your SKILL.md has both a proper `---` delimited frontmatter AND the two required fields.
+If `agentskills-cli add` reports "No SKILL.md files found", check that your SKILL.md has both a proper `---` delimited frontmatter AND the two required fields.
 
 ## Next
 

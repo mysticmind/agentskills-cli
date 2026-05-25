@@ -45,7 +45,7 @@ public sealed class WellKnownSource : ISkillSource
         var owned = httpClient is null;
         httpClient ??= CreateDefaultClient();
 
-        var stagingRoot = Path.Combine(Path.GetTempPath(), $"agentskills-wk-{Guid.NewGuid():N}");
+        var stagingRoot = Path.Combine(Path.GetTempPath(), $"agentskills-cli-wk-{Guid.NewGuid():N}");
         Directory.CreateDirectory(stagingRoot);
 
         try
@@ -87,7 +87,7 @@ public sealed class WellKnownSource : ISkillSource
     private static HttpClient CreateDefaultClient()
     {
         var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("agentskills/0.1");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("agentskills-cli/0.1");
         return client;
     }
 

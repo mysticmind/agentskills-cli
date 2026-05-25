@@ -6,16 +6,16 @@ Behaves like [GitHub](/sources/github) - same `git clone --depth 1` mechanic, sa
 
 ```bash
 # Prefix shorthand
-agentskills add gitlab:group/repo
+agentskills-cli add gitlab:group/repo
 
 # Full URL - simple
-agentskills add https://gitlab.com/group/repo
+agentskills-cli add https://gitlab.com/group/repo
 
 # Full URL - with subgroup
-agentskills add https://gitlab.com/group/subgroup/repo
+agentskills-cli add https://gitlab.com/group/subgroup/repo
 
 # Full URL - with /-/tree/<ref>/<path>
-agentskills add https://gitlab.com/group/repo/-/tree/main/skills/my-skill
+agentskills-cli add https://gitlab.com/group/repo/-/tree/main/skills/my-skill
 ```
 
 ## Detection rule

@@ -5,7 +5,7 @@ Inspect installed skills.
 ## Synopsis
 
 ```
-agentskills list [<target>...] [-g] [-a agent...] [--by package|path|agent|scope] [--paths]
+agentskills-cli list [<target>...] [-g] [-a agent...] [--by package|path|agent|scope] [--paths]
 ```
 
 ## Arguments
@@ -27,29 +27,29 @@ agentskills list [<target>...] [-g] [-a agent...] [--by package|path|agent|scope
 
 ```bash
 # Filter by skill name
-agentskills list hello-skill
+agentskills-cli list hello-skill
 
 # Filter by source - same parsing as `add`
-agentskills list @acme/sample-skills                           # npm scoped
-agentskills list npm:sample-pkg                                # npm unscoped
-agentskills list MyOrg.AgentSkills                             # NuGet
-agentskills list anthropics/skills                             # GitHub shorthand
-agentskills list https://github.com/anthropics/skills          # GitHub URL - same lock entries
-agentskills list https://gitlab.com/group/sub/repo             # GitLab
-agentskills list /abs/path/to/local/skill                      # local path
+agentskills-cli list @acme/sample-skills                           # npm scoped
+agentskills-cli list npm:sample-pkg                                # npm unscoped
+agentskills-cli list MyOrg.AgentSkills                             # NuGet
+agentskills-cli list anthropics/skills                             # GitHub shorthand
+agentskills-cli list https://github.com/anthropics/skills          # GitHub URL - same lock entries
+agentskills-cli list https://gitlab.com/group/sub/repo             # GitLab
+agentskills-cli list /abs/path/to/local/skill                      # local path
 
 # Mix skill names and sources - the union is shown
-agentskills list hello-skill anthropics/skills MyOrg.AgentSkills
+agentskills-cli list hello-skill anthropics/skills MyOrg.AgentSkills
 
 # Group by package (one mini-table per source)
-agentskills list --by package
+agentskills-cli list --by package
 
 # Group by install directory + show the full path on each row
-agentskills list --by path --paths
+agentskills-cli list --by path --paths
 
 # Group by agent or scope
-agentskills list --by agent
-agentskills list --by scope
+agentskills-cli list --by agent
+agentskills-cli list --by scope
 ```
 
 ## Output
@@ -76,7 +76,7 @@ For NuGet and npm targets, dropping the `@version` matches any installed version
 If the requested version isn't installed but a different version is, the command prints a hint:
 
 ```
-$ agentskills list npm:@acme/sample-skills@1.5.0
+$ agentskills-cli list npm:@acme/sample-skills@1.5.0
 No installed skills matched npm:@acme/sample-skills@1.5.0.
 hint: @acme/sample-skills is installed at version(s) 1.4.0; drop the @version to list anyway.
 ```

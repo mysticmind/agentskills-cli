@@ -40,4 +40,4 @@ All auth is read from the ecosystem's own config files - AgentSkills doesn't int
 | npm | `~/.npmrc` and project `.npmrc` (default registry, scoped registries, `_authToken`, `_auth`, `${ENV_VAR}` expansion) |
 | Well-known | None typically (HTTPS); if you need auth, run an HTTPS endpoint that handles it |
 
-If `dotnet restore` works against your NuGet feed, `agentskills add <pkg>` works against the same feed. Same for `npm install` and npm packages.
+If `dotnet restore` works against your NuGet feed, `agentskills-cli add <pkg>` works against the same feed. Same for `npm install` and npm packages.

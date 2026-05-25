@@ -78,4 +78,4 @@ public sealed class LocalCacheSearchProvider : ISkillSearchProvider
 }
 ```
 
-Register it; `agentskills find` now also returns results matching your locally tracked skills, useful when offline.
+Register it; `agentskills-cli find` now also returns results matching your locally tracked skills, useful when offline.

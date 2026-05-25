@@ -58,7 +58,7 @@ public sealed class NuGetSource : ISkillSource
         var logger = new SpectreNuGetLogger(log);
         using var cache = new SourceCacheContext { NoCache = false, DirectDownload = false };
 
-        var stagingRoot = Path.Combine(Path.GetTempPath(), $"agentskills-nuget-{Guid.NewGuid():N}");
+        var stagingRoot = Path.Combine(Path.GetTempPath(), $"agentskills-cli-nuget-{Guid.NewGuid():N}");
         Directory.CreateDirectory(stagingRoot);
 
         try

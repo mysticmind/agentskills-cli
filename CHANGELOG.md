@@ -8,7 +8,7 @@ The first public release of **AgentSkills**, a .NET port of [vercel-labs/skills]
 
 ### Sources
 
-- **Local folders** - `agentskills add ./my-skill`
+- **Local folders** - `agentskills-cli add ./my-skill`
 - **GitHub** - shorthand (`owner/repo[/subpath][#ref][@skill]`), full URLs (incl. `/tree/<ref>/<path>`), `github:` prefix
 - **GitLab** - shorthand and URL (incl. `/-/tree/<ref>/<path>`), `gitlab:` prefix, subgroups
 - **Arbitrary git URL** - HTTPS / SSH, via system `git`
@@ -22,7 +22,7 @@ The first public release of **AgentSkills**, a .NET port of [vercel-labs/skills]
 |---|---|
 | `add` | Install one or more skills from a source. Captures GitHub tree SHA per skill so `update` works. |
 | `list` | Inspect installed skills. Positional targets match by skill name *or* any source format. `--by package\|path\|agent\|scope` to group, `--paths` for the install path column. |
-| `remove` | Remove installed skills. Positional targets match by skill name *or* any source format (e.g. `agentskills remove @acme/sample-skills -y` wipes everything from that package). |
+| `remove` | Remove installed skills. Positional targets match by skill name *or* any source format (e.g. `agentskills-cli remove @acme/sample-skills -y` wipes everything from that package). |
 | `init` | Scaffold a `SKILL.md` template. |
 | `find` | Search [skills.sh](https://skills.sh), pick a result interactively, hand off to `add`. |
 | `update` | Use the GitHub Trees API to detect drift, reinstall changed skills. Lazy GitHub auth (`GITHUB_TOKEN` → `GH_TOKEN` → `gh auth token`). |
@@ -33,12 +33,12 @@ The first public release of **AgentSkills**, a .NET port of [vercel-labs/skills]
 
 ### Runtime
 
-- **Multi-targeted: `net8.0` and `net10.0`** - `dotnet tool install --global agentskills` works on either runtime; `dnx agentskills` is .NET 10 only (because `dnx` itself ships with the .NET 10 SDK).
+- **Multi-targeted: `net8.0` and `net10.0`** - `dotnet tool install --global agentskills-cli` works on either runtime; `dnx agentskills-cli` is .NET 10 only (because `dnx` itself ships with the .NET 10 SDK). Daily-use command is `agentskills-cli` regardless of how it was installed.
 
 ### Versioning of package targets
 
-- `agentskills list MyOrg.AgentSkills` matches every installed version.
-- `agentskills list MyOrg.AgentSkills@1.2.3` strict-matches; a "did you mean…" hint is printed if a different version is installed.
+- `agentskills-cli list MyOrg.AgentSkills` matches every installed version.
+- `agentskills-cli list MyOrg.AgentSkills@1.2.3` strict-matches; a "did you mean…" hint is printed if a different version is installed.
 - Scoped npm (`@acme/sample-skills@1.0.0`) is parsed correctly - the leading `@` is the scope marker, not a version.
 
 ### Output / UX

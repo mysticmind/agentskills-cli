@@ -25,7 +25,7 @@ public sealed class GitSource : ISkillSource
 
     public static GitSource Clone(ParsedSource parsed, IProgress<string>? progress = null)
     {
-        var tempRoot = Path.Combine(Path.GetTempPath(), $"agentskills-{Guid.NewGuid():N}");
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"agentskills-cli-{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempRoot);
 
         try

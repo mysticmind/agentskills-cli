@@ -44,8 +44,8 @@ Auth comes from your normal `~/.npmrc` (the same one `npm install` uses).
 Users install with:
 
 ```bash
-agentskills add @my-org/agent-skills -y                     # scoped → auto-detected as npm
-agentskills add npm:unscoped-pkg -y                         # unscoped requires explicit npm: prefix
+agentskills-cli add @my-org/agent-skills -y                     # scoped → auto-detected as npm
+agentskills-cli add npm:unscoped-pkg -y                         # unscoped requires explicit npm: prefix
 ```
 
 ## Bundle into an existing library package
@@ -88,7 +88,7 @@ npx verdaccio                                            # listens on http://loc
 npm publish --registry http://localhost:4873            # one-time auth prompt the first time
 
 # In any test project
-agentskills add @my-org/agent-skills \
+agentskills-cli add @my-org/agent-skills \
   --npm-registry http://localhost:4873 \
   -a universal -y --copy
 ```
@@ -107,14 +107,14 @@ Auth is read from `~/.npmrc` and project `.npmrc` - same files `npm install` alr
 Then:
 
 ```bash
-MY_TOKEN=… agentskills add @my-org/agent-skills -y
+MY_TOKEN=… agentskills-cli add @my-org/agent-skills -y
 ```
 
 Per-scope registry rules, longest-path-prefix token matching, and `${ENV_VAR}` expansion all work the same as in `npm`.
 
 ## Prefer the convention
 
-`package/skills/<name>/SKILL.md` is auto-discovered with no extra flags. AgentSkills also falls back to a recursive scan, and users can install with `agentskills add @your-org/your-package --path src/skills` when skills live elsewhere, but **every non-conventional layout is friction the user has to learn**. Use the convention unless you have a hard reason not to.
+`package/skills/<name>/SKILL.md` is auto-discovered with no extra flags. AgentSkills also falls back to a recursive scan, and users can install with `agentskills-cli add @your-org/your-package --path src/skills` when skills live elsewhere, but **every non-conventional layout is friction the user has to learn**. Use the convention unless you have a hard reason not to.
 
 ## See the working sample
 

@@ -42,7 +42,7 @@ AgentSkills is a faithful .NET-native port of [`vercel-labs/skills`](https://git
 
 ## Lock-file interop, not lock-in
 
-By design, AgentSkills writes to the **same** `~/.agents/.skill-lock.json` and `./skills-lock.json` files that `npx skills` uses. A skill installed by either tool is visible to the other. You can switch tools without losing tracked state, you can use both on the same machine, and a polyglot team can have `npx skills` users and `agentskills` users in the same repo with no friction.
+By design, AgentSkills writes to the **same** `~/.agents/.skill-lock.json` and `./skills-lock.json` files that `npx skills` uses. A skill installed by either tool is visible to the other. You can switch tools without losing tracked state, you can use both on the same machine, and a polyglot team can have `npx skills` users and `agentskills-cli` users in the same repo with no friction.
 
 ## Built on the open spec
 

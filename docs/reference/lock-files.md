@@ -65,7 +65,7 @@ The project lock is written on every project install. Skipped for global install
 
 ## Interop with `vercel-labs/skills`
 
-These schemas match the `vercel-labs/skills` lock format exactly. The two tools can share state - a skill installed via `npx skills add` is visible to `agentskills update`, and vice versa.
+These schemas match the `vercel-labs/skills` lock format exactly. The two tools can share state - a skill installed via `npx skills add` is visible to `agentskills-cli update`, and vice versa.
 
 This is deliberate. The lock format isn't part of the published spec at agentskills.io, but matching the existing convention means users can use either tool interchangeably without losing tracked state.
 
@@ -73,4 +73,4 @@ This is deliberate. The lock format isn't part of the published spec at agentski
 
 Both files are written atomically (write to temp + rename) and sorted deterministically. Committing the project lock and seeing predictable diffs is part of the expected workflow.
 
-Manual edits work but aren't recommended - prefer `agentskills add` / `agentskills remove` to keep state consistent.
+Manual edits work but aren't recommended - prefer `agentskills-cli add` / `agentskills-cli remove` to keep state consistent.

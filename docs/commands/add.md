@@ -5,7 +5,7 @@ Install one or more skills from a source into one or more agents.
 ## Synopsis
 
 ```
-agentskills add <source> [-g] [-a agent...] [-s skill...] [-y]
+agentskills-cli add <source> [-g] [-a agent...] [-s skill...] [-y]
                          [--copy|--symlink]
                          [--nuget-source URL] [--npm-registry URL]
                          [--path PATH]
@@ -35,26 +35,26 @@ agentskills add <source> [-g] [-a agent...] [-s skill...] [-y]
 
 ```bash
 # Install one specific skill from a repo for Claude Code, non-interactive
-agentskills add vercel-labs/agent-skills -a claude-code -s web-design-guidelines -y
+agentskills-cli add vercel-labs/agent-skills -a claude-code -s web-design-guidelines -y
 
 # Install everything in a NuGet package into the project, all detected agents
-agentskills add MyOrg.AgentSkills -y
+agentskills-cli add MyOrg.AgentSkills -y
 
 # Install all skills from a private NuGet feed at a pinned version, globally
-agentskills add MyOrg.AgentSkills@1.2.3 -g -y \
+agentskills-cli add MyOrg.AgentSkills@1.2.3 -g -y \
   --nuget-source https://pkgs.contoso.com/v3/index.json
 
 # Install from a GitHub branch with a subpath
-agentskills add https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines
+agentskills-cli add https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines
 
 # Install a local skill into the current project for Cursor
-agentskills add ./my-local-skill -a cursor
+agentskills-cli add ./my-local-skill -a cursor
 
 # Source uses a non-conventional layout - point at it explicitly
-agentskills add MyOrg.AgentSkills --path ai/prompts -y           # NuGet
-agentskills add @my-org/agent-skills --path src/skills -y         # npm
-agentskills add anthropics/skills --path docs/skills -y           # GitHub shorthand
-agentskills add ./my-local-skill --path subdir/skills -y          # local
+agentskills-cli add MyOrg.AgentSkills --path ai/prompts -y           # NuGet
+agentskills-cli add @my-org/agent-skills --path src/skills -y         # npm
+agentskills-cli add anthropics/skills --path docs/skills -y           # GitHub shorthand
+agentskills-cli add ./my-local-skill --path subdir/skills -y          # local
 ```
 
 ## Output
@@ -72,7 +72,7 @@ Installed under /path/to/project/.agents/skills, /path/to/project/.claude/skills
 Done.
 ```
 
-After the fact you can recover the same paths any time with `agentskills list --paths` or by reading [Where files land](/reference/where-files-land).
+After the fact you can recover the same paths any time with `agentskills-cli list --paths` or by reading [Where files land](/reference/where-files-land).
 
 ## Discovery
 

@@ -76,7 +76,7 @@ public sealed class FindCommand : AsyncCommand<FindCommand.Settings>
         {
             if (!interactive)
             {
-                _console.MarkupLine("[grey]Usage:[/] agentskills find <query>");
+                _console.MarkupLine("[grey]Usage:[/] agentskills-cli find <query>");
                 return 64;
             }
             query = _console.Prompt(new TextPrompt<string>("[bold]Search skills:[/]")

@@ -47,7 +47,7 @@ Add to the `.csproj`:
 Next `dotnet pack`, the `.nupkg` ships with the skills. Users:
 
 ```bash
-agentskills add Contoso.SampleLib -y
+agentskills-cli add Contoso.SampleLib -y
 ```
 
 …and the skills land in their `.agents/skills/`, immediately readable by Claude Code, Cursor, Codex, OpenCode, etc.
@@ -80,7 +80,7 @@ Update `package.json` to include `skills/` in the published files:
 Next `npm publish`, the tarball ships with the skills. Users:
 
 ```bash
-agentskills add @my-org/sample-toolkit -y
+agentskills-cli add @my-org/sample-toolkit -y
 ```
 
 ## What to write in your skills
@@ -126,7 +126,7 @@ When breaking changes happen:
 2. Bump the package version
 3. Publish
 
-Users who run `agentskills update` after upgrading the library will see the skill folder hash change and pull the updated skills automatically.
+Users who run `agentskills-cli update` after upgrading the library will see the skill folder hash change and pull the updated skills automatically.
 
 ## Try it locally first
 
@@ -134,7 +134,7 @@ Test the pattern before publishing to a real feed. For NuGet:
 
 ```bash
 dotnet pack src/Contoso.SampleLib -o ./local-feed
-agentskills add Contoso.SampleLib \
+agentskills-cli add Contoso.SampleLib \
   --nuget-source ./local-feed -a universal -y --copy
 ls .agents/skills/
 ```
@@ -150,7 +150,7 @@ cd @my-org/sample-toolkit
 npm publish --registry http://localhost:4873
 
 # Terminal 3 (your test project)
-agentskills add @my-org/sample-toolkit \
+agentskills-cli add @my-org/sample-toolkit \
   --npm-registry http://localhost:4873 -a universal -y --copy
 ls .agents/skills/
 ```

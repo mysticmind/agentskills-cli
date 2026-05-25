@@ -42,7 +42,7 @@ By design - the two tools interoperate, so being identical here is a feature, no
 
 ## Coexistence
 
-If you have both tools installed, they coexist by design - different binaries (`skills` vs `agentskills`), shared lock and install dirs. See [Troubleshooting -> coexistence](/troubleshooting#agentskills-and-npx-skills-coexistence) for the details.
+If you have both tools installed, they coexist by design - different binaries (`skills` vs `agentskills-cli`), shared lock and install dirs. See [Troubleshooting -> coexistence](/troubleshooting#agentskills-cli-and-npx-skills-coexistence) for the details.
 
 ## Next
 

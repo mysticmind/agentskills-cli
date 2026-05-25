@@ -5,7 +5,7 @@ Scaffold a new `SKILL.md` template in a directory.
 ## Synopsis
 
 ```
-agentskills init [PATH] [-y]
+agentskills-cli init [PATH] [-y]
 ```
 
 ## Arguments
@@ -24,10 +24,10 @@ agentskills init [PATH] [-y]
 
 ```bash
 # Scaffold in current directory
-agentskills init
+agentskills-cli init
 
 # Scaffold in a new directory
-agentskills init my-new-skill -y
+agentskills-cli init my-new-skill -y
 ```
 
 ## What gets created

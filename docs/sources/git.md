@@ -6,12 +6,12 @@ For self-hosted git hosts (Gitea, Forgejo, Bitbucket Server, custom GitLab insta
 
 ```bash
 # HTTPS
-agentskills add https://git.contoso.com/team/skills.git
-agentskills add https://gitea.example.com/owner/repo.git
+agentskills-cli add https://git.contoso.com/team/skills.git
+agentskills-cli add https://gitea.example.com/owner/repo.git
 
 # SSH
-agentskills add git@git.contoso.com:team/skills.git
-agentskills add ssh://git@host.example.com/team/skills.git
+agentskills-cli add git@git.contoso.com:team/skills.git
+agentskills-cli add ssh://git@host.example.com/team/skills.git
 ```
 
 ## Detection rule
@@ -27,7 +27,7 @@ Same as GitHub/GitLab: whatever your local `git` knows about. SSH keys, credenti
 The arbitrary-git source doesn't parse subpath / ref from the URL. If you need those, use the [`--path`](/commands/add) flag at install time and rely on the cloned repo's default branch:
 
 ```bash
-agentskills add https://git.contoso.com/team/skills.git --path some/subfolder -y
+agentskills-cli add https://git.contoso.com/team/skills.git --path some/subfolder -y
 ```
 
 For pinning a specific branch on a generic git URL, the simplest workaround is to publish that branch as a tag and pass the tag via the fragment - which works for any git-shaped source.

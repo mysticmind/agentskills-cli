@@ -4,23 +4,23 @@ Short, copy-pastable recipes for the patterns that come up most often. Each is s
 
 ## Bootstrap a fresh project with a curated skill set
 
-Pin an entire NuGet (or npm) skill collection at the project level, commit the lock, and your teammates reproduce on `agentskills add` against the same source.
+Pin an entire NuGet (or npm) skill collection at the project level, commit the lock, and your teammates reproduce on `agentskills-cli add` against the same source.
 
 ```bash
 cd my-app
-agentskills add MyOrg.CuratedSkills -y
+agentskills-cli add MyOrg.CuratedSkills -y
 git add .agents/ skills-lock.json
 git commit -m "chore: pin agent skills"
 ```
 
-Teammates run `agentskills add <same source> -y` to land the same skills. See [Lock files](/reference/lock-files) for the project-lock schema.
+Teammates run `agentskills-cli add <same source> -y` to land the same skills. See [Lock files](/reference/lock-files) for the project-lock schema.
 
 ## Add a single skill globally so every project has it
 
 `-g` writes to the global lock under `~/.agents/.skill-lock.json` and installs into the per-agent global directories.
 
 ```bash
-agentskills add vercel-labs/agent-skills -g -s web-design-guidelines -y
+agentskills-cli add vercel-labs/agent-skills -g -s web-design-guidelines -y
 ```
 
 After this, every project on the machine that has Claude Code (or Cursor, Codex, etc.) installed picks up `web-design-guidelines` without any per-project install step.
@@ -30,20 +30,20 @@ After this, every project on the machine that has Claude Code (or Cursor, Codex,
 Useful when evaluating a community skill pack: install everything, see what's there, drop what you don't need.
 
 ```bash
-agentskills add MyOrg.AgentSkills -y                # installs all skills in the package
-agentskills list MyOrg.AgentSkills --paths          # what landed, with on-disk paths
-agentskills remove unused-skill -y                  # drop one specific skill
-agentskills remove MyOrg.AgentSkills -y             # ...or roll the whole package back
+agentskills-cli add MyOrg.AgentSkills -y                # installs all skills in the package
+agentskills-cli list MyOrg.AgentSkills --paths          # what landed, with on-disk paths
+agentskills-cli remove unused-skill -y                  # drop one specific skill
+agentskills-cli remove MyOrg.AgentSkills -y             # ...or roll the whole package back
 ```
 
 The `--by package` flag on [`list`](/commands/list) groups output by source package, which makes "what came from where" obvious when you have skills from multiple packages installed.
 
 ## Drive `dnx` from CI without ever installing the tool
 
-`dnx` resolves and runs the latest `agentskills` from your configured NuGet feeds in one shot - no `dotnet tool install` step. Perfect for ephemeral CI runners.
+`dnx` resolves and runs the latest `agentskills-cli` from your configured NuGet feeds in one shot - no `dotnet tool install` step. Perfect for ephemeral CI runners.
 
 ```bash
-dnx agentskills -y -- add ./my-skill -a claude-code -y --copy
+dnx agentskills-cli -y -- add ./my-skill -a claude-code -y --copy
 ```
 
 The `-y --` before `add` tells `dnx` to skip its own confirmation prompt and pass everything after the `--` as arguments to the tool.
@@ -52,20 +52,20 @@ For a CI run that publishes built artifacts to a local feed first and then verif
 
 ```bash
 dotnet pack src/MyOrg.AgentSkills -o ./local-feed
-dnx agentskills -y -- add MyOrg.AgentSkills \
+dnx agentskills-cli -y -- add MyOrg.AgentSkills \
   --nuget-source ./local-feed -a universal -y --copy
 ```
 
-Requires `.NET 10` SDK on the runner (`dnx` ships with .NET 10). For .NET 8-only runners, fall back to `dotnet tool install --global agentskills` once at the top of the job.
+Requires `.NET 10` SDK on the runner (`dnx` ships with .NET 10). For .NET 8-only runners, fall back to `dotnet tool install --global agentskills-cli` once at the top of the job.
 
 ## Refresh everything from source
 
 The [`update`](/commands/update) command queries the GitHub Trees API for every tracked GitHub source and reinstalls any that have drifted. Always preview with `--check` first.
 
 ```bash
-agentskills update --check                          # dry-run table
-agentskills update -g -y                            # actually update globals
-agentskills update -y                               # update the current project
+agentskills-cli update --check                          # dry-run table
+agentskills-cli update -g -y                            # actually update globals
+agentskills-cli update -y                               # update the current project
 ```
 
 Sources that can't be checked automatically (local paths, generic git URLs, GitLab, NuGet, npm) are listed as skipped in the output. See [`update`](/commands/update) for the full behavior and GitHub auth chain.
@@ -80,10 +80,10 @@ dotnet nuget add source https://pkgs.contoso.com/v3/index.json \
   -n contoso -u $USER -p $TOKEN --store-password-in-clear-text
 
 # Daily use - no auth flags needed, credentials picked up from NuGet.config:
-agentskills add Contoso.AgentSkills -y
+agentskills-cli add Contoso.AgentSkills -y
 ```
 
-For Azure Artifacts specifically, install the [Azure Artifacts Credential Provider](https://github.com/microsoft/artifacts-credprovider) once and `dotnet`/`agentskills` auth seamlessly.
+For Azure Artifacts specifically, install the [Azure Artifacts Credential Provider](https://github.com/microsoft/artifacts-credprovider) once and `dotnet`/`agentskills-cli` auth seamlessly.
 
 ## Mirror the install on a teammate's box
 
@@ -92,10 +92,10 @@ Clone the project, run one command, your teammate has the same skills.
 ```bash
 git clone <project repo> && cd <project>
 # If the project lock pins to public sources, this just works:
-agentskills add $(cat skills-lock.json | jq -r '.skills | to_entries[] | .value.source')
+agentskills-cli add $(cat skills-lock.json | jq -r '.skills | to_entries[] | .value.source')
 ```
 
-A `agentskills install --from-lock` command is on the roadmap; for now the loop above (or a tiny script) covers it.
+A `agentskills-cli install --from-lock` command is on the roadmap; for now the loop above (or a tiny script) covers it.
 
 ## Next
 

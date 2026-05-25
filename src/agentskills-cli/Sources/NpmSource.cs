@@ -74,7 +74,7 @@ public sealed class NpmSource : ISkillSource
 
         var tarballBytes = await tarballResponse.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
 
-        var stagingRoot = Path.Combine(Path.GetTempPath(), $"agentskills-npm-{Guid.NewGuid():N}");
+        var stagingRoot = Path.Combine(Path.GetTempPath(), $"agentskills-cli-npm-{Guid.NewGuid():N}");
         Directory.CreateDirectory(stagingRoot);
 
         try

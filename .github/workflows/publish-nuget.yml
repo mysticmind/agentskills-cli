@@ -70,7 +70,7 @@ jobs:
           input="${{ inputs.version }}"
           if [[ -z "$input" ]]; then
             # Pull <Version> from the csproj as the fallback.
-            input=$(grep -oE '<Version>[^<]+</Version>' src/AgentSkills/AgentSkills.csproj \
+            input=$(grep -oE '<Version>[^<]+</Version>' src/agentskills-cli/agentskills-cli.csproj \
               | head -n1 | sed -E 's|</?Version>||g')
           fi
           if [[ -z "$input" ]]; then
@@ -81,17 +81,17 @@ jobs:
           echo "Version: $input" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Restore
-        run: dotnet restore AgentSkills.sln
+        run: dotnet restore agentskills-cli.sln
 
       - name: Build (Release)
-        run: dotnet build AgentSkills.sln --configuration Release --no-restore
+        run: dotnet build agentskills-cli.sln --configuration Release --no-restore
 
       - name: Test (net8.0 + net10.0)
-        run: dotnet test AgentSkills.sln --configuration Release --no-build --verbosity normal
+        run: dotnet test agentskills-cli.sln --configuration Release --no-build --verbosity normal
 
       - name: Pack
         run: |
-          dotnet pack src/AgentSkills/AgentSkills.csproj \
+          dotnet pack src/agentskills-cli/agentskills-cli.csproj \
             --configuration Release \
             --no-build \
             -p:Version=${{ steps.version.outputs.value }} \
@@ -103,8 +103,8 @@ jobs:
           set -euo pipefail
           ls -lh ./artifacts
           # Confirm both TFM folders shipped.
-          unzip -l ./artifacts/agentskills.${{ steps.version.outputs.value }}.nupkg \
-            | grep -E 'tools/(net8|net10)\.0/any/agentskills\.dll' || {
+          unzip -l ./artifacts/agentskills-cli.${{ steps.version.outputs.value }}.nupkg \
+            | grep -E 'tools/(net8|net10)\.0/any/agentskills-cli\.dll' || {
               echo "::error::Multi-TFM payload missing from the .nupkg"
               exit 1
             }
@@ -112,8 +112,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: agentskills.${{ steps.version.outputs.value }}.nupkg
-          path: ./artifacts/agentskills.${{ steps.version.outputs.value }}.nupkg
+          name: agentskills-cli.${{ steps.version.outputs.value }}.nupkg
+          path: ./artifacts/agentskills-cli.${{ steps.version.outputs.value }}.nupkg
           if-no-files-found: error
           retention-days: 30
 
@@ -126,7 +126,7 @@ jobs:
             echo "::error::NUGET_API_KEY secret is not set on this repo."
             exit 1
           fi
-          dotnet nuget push ./artifacts/agentskills.${{ steps.version.outputs.value }}.nupkg \
+          dotnet nuget push ./artifacts/agentskills-cli.${{ steps.version.outputs.value }}.nupkg \
             --source https://api.nuget.org/v3/index.json \
             --api-key "$NUGET_API_KEY" \
             --skip-duplicate
@@ -164,7 +164,7 @@ jobs:
             --title "v$VERSION" \
             "${notes_arg[@]}" \
             "${prerelease_arg[@]}" \
-            ./artifacts/agentskills.${VERSION}.nupkg
+            ./artifacts/agentskills-cli.${VERSION}.nupkg
 
       - name: Summary
         shell: bash
@@ -175,5 +175,5 @@ jobs:
             echo "- **Version:** \`${{ steps.version.outputs.value }}\`"
             echo "- **Dry run:** \`${{ inputs.dry_run }}\`"
             echo "- **Released:** \`${{ inputs.create_release && inputs.dry_run != true }}\`"
-            echo "- **Package:** \`agentskills.${{ steps.version.outputs.value }}.nupkg\` (downloadable from this run's Artifacts)"
+            echo "- **Package:** \`agentskills-cli.${{ steps.version.outputs.value }}.nupkg\` (downloadable from this run's Artifacts)"
           } >> "$GITHUB_STEP_SUMMARY"

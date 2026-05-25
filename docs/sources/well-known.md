@@ -5,8 +5,8 @@ For organizations that want to publish skills via their own HTTPS endpoint witho
 ## Input shape
 
 ```bash
-agentskills add https://skills.example.com
-agentskills add https://skills.example.com/team
+agentskills-cli add https://skills.example.com
+agentskills-cli add https://skills.example.com/team
 ```
 
 Any HTTPS URL whose hostname is **not** github.com/gitlab.com/raw.githubusercontent.com falls into this bucket.

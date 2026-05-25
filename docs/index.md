@@ -28,7 +28,7 @@ features:
   - title: Every coding agent
     details: Claude Code, Cursor, Codex, OpenCode, and any agent that reads the universal .agents/skills directory. Auto-detected; install once, picked up by all of them.
   - title: Runs as dnx
-    details: One-shot via dnx agentskills, no install step required on .NET 10. Or dotnet tool install --global agentskills for daily use on .NET 8 or 10.
+    details: One-shot via dnx agentskills-cli, no install step required on .NET 10. Or dotnet tool install --global agentskills-cli for daily use on .NET 8 or 10.
   - title: Extension points by design
     details: Custom source types via ISkillSourceFactory. Custom search backends via ISkillSearchProvider. Add new ecosystems with a single DI registration.
   - title: Built on the open spec

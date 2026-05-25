@@ -15,7 +15,7 @@ public class PathOverrideTests : IDisposable
 
     public PathOverrideTests()
     {
-        _root = Path.Combine(Path.GetTempPath(), "agentskills-pathtest-" + Guid.NewGuid().ToString("N"));
+        _root = Path.Combine(Path.GetTempPath(), "agentskills-cli-pathtest-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_root);
     }
 

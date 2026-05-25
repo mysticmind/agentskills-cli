@@ -35,7 +35,7 @@ public class SkillCoreTests
     [Fact]
     public void Manifest_ParsesFrontmatter()
     {
-        var tmp = Path.Combine(Path.GetTempPath(), "agentskills-test-" + Guid.NewGuid().ToString("N"));
+        var tmp = Path.Combine(Path.GetTempPath(), "agentskills-cli-test-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tmp);
         try
         {
@@ -63,7 +63,7 @@ public class SkillCoreTests
     [Fact]
     public void Discovery_FindsRootAndNested()
     {
-        var root = Path.Combine(Path.GetTempPath(), "agentskills-test-" + Guid.NewGuid().ToString("N"));
+        var root = Path.Combine(Path.GetTempPath(), "agentskills-cli-test-" + Guid.NewGuid().ToString("N"));
         try
         {
             var nested = Path.Combine(root, "skills", "nested-one");

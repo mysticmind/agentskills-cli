@@ -5,7 +5,7 @@ Detect remote changes for tracked GitHub skills and reinstall them.
 ## Synopsis
 
 ```
-agentskills update [<name>...] [-g] [-p] [--check] [-y]
+agentskills-cli update [<name>...] [-g] [-p] [--check] [-y]
 ```
 
 ## Arguments
@@ -65,13 +65,13 @@ This isn't a permanent limitation - GitLab Trees API support and similar are rea
 
 ```bash
 # Dry-run: report drift, change nothing
-agentskills update --check
+agentskills-cli update --check
 
 # Reinstall every drifted global skill
-agentskills update -g -y
+agentskills-cli update -g -y
 
 # Only this one skill
-agentskills update web-design-guidelines -g
+agentskills-cli update web-design-guidelines -g
 ```
 
 ## Output

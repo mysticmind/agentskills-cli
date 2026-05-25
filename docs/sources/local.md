@@ -5,12 +5,12 @@ Install skills from a directory on disk. The simplest source type - no network, 
 ## Input shapes
 
 ```bash
-agentskills add .                       # current directory
-agentskills add ./my-skill              # relative
-agentskills add ../shared/skill         # parent-relative
-agentskills add /abs/path/to/skill      # absolute (POSIX)
-agentskills add C:\skills\my-skill      # absolute (Windows)
-agentskills add C:/skills/my-skill      # also Windows
+agentskills-cli add .                       # current directory
+agentskills-cli add ./my-skill              # relative
+agentskills-cli add ../shared/skill         # parent-relative
+agentskills-cli add /abs/path/to/skill      # absolute (POSIX)
+agentskills-cli add C:\skills\my-skill      # absolute (Windows)
+agentskills-cli add C:/skills/my-skill      # also Windows
 ```
 
 ## Detection rule

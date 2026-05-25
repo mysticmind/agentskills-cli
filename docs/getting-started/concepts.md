@@ -41,7 +41,7 @@ my-skills-repo/                    # a single source (git repo, .nupkg, .tgz, �
         └── reference.md
 ```
 
-`agentskills add <source>` discovers every skill in the source and (by default) installs all of them. Narrow the set with `-s <name>` to pick specific skills, or pick interactively with the multi-select prompt.
+`agentskills-cli add <source>` discovers every skill in the source and (by default) installs all of them. Narrow the set with `-s <name>` to pick specific skills, or pick interactively with the multi-select prompt.
 
 ## Source
 

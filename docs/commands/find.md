@@ -5,7 +5,7 @@ Search registered providers for skills. Out of the box that's [skills.sh](https:
 ## Synopsis
 
 ```
-agentskills find [QUERY] [-g] [-y] [--provider NAME...] [--list-providers]
+agentskills-cli find [QUERY] [-g] [-y] [--provider NAME...] [--list-providers]
 ```
 
 ## Arguments
@@ -33,16 +33,16 @@ In an interactive shell, results render as a table and then a `SelectionPrompt` 
 
 ```bash
 # All enabled providers (default)
-agentskills find testing
+agentskills-cli find testing
 
 # One specific provider
-agentskills find testing --provider skills.sh
+agentskills-cli find testing --provider skills.sh
 
 # Union of two named providers
-agentskills find testing --provider skills.sh --provider contoso
+agentskills-cli find testing --provider skills.sh --provider contoso
 
 # What's wired up?
-agentskills find --list-providers
+agentskills-cli find --list-providers
 ```
 
 `--list-providers` output:
@@ -57,4 +57,4 @@ agentskills find --list-providers
 
 ## The wider story
 
-The search backend is an extension point, not a fixed dependency on skills.sh. Once an organization has its own internal skill registry, registering `ISkillSearchProvider` makes `agentskills find` query both sources at once. See [Search providers](/reference/search-providers) for the contract.
+The search backend is an extension point, not a fixed dependency on skills.sh. Once an organization has its own internal skill registry, registering `ISkillSearchProvider` makes `agentskills-cli find` query both sources at once. See [Search providers](/reference/search-providers) for the contract.

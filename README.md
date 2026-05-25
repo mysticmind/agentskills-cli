@@ -17,15 +17,15 @@ First-class NuGet & npm · library-bundled skill packages · extension points by
 ## Install
 
 ```bash
-# One-shot via dnx (.NET 10+) - --prerelease needed during preview phase
-dnx agentskills-cli --prerelease -- --help
-
-# Or as a global tool (.NET 8 LTS or .NET 10)
+# Global tool (recommended for daily use; .NET 8 LTS or .NET 10)
 dotnet tool install --global agentskills-cli --prerelease
 agentskills-cli --help
+
+# Or one-shot via dnx (.NET 10+) for CI / no-install scenarios
+dnx agentskills-cli --prerelease -- --help
 ```
 
-See the [install guide](https://mysticmind.github.io/agentskills-cli/getting-started/install) for `.NET 8` notes, shell aliases (including a function that auto-falls-back to `dnx`), and verification.
+See the [install guide](https://mysticmind.github.io/agentskills-cli/getting-started/install) for `.NET 8` notes, [shell shortcuts](https://mysticmind.github.io/agentskills-cli/getting-started/install#shortcuts) for both paths, and verification.
 
 ## At a glance
 

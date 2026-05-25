@@ -5,7 +5,7 @@
 <h1 align="center">AgentSkills CLI</h1>
 
 <p align="center">
-  <strong>The .NET CLI for the open <a href="https://agentskills.io">Agent Skills</a> ecosystem.</strong><br>
+  <strong>The .NET commandline tool for the open <a href="https://agentskills.io">Agent Skills</a> ecosystem.</strong><br>
   First-class NuGet and npm support, library-bundled skill packages, and an extension-point architecture for custom sources and search backends.
 </p>
 

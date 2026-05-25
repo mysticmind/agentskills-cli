@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'AgentSkills',
+  title: 'AgentSkills CLI',
   description:
     'Install agent skills from GitHub, NuGet, npm, or local folders into Claude Code, Cursor, Codex & friends. The .NET CLI for the open Agent Skills ecosystem.',
 
@@ -22,7 +22,7 @@ export default defineConfig({
     ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/agentskills-cli/apple-touch-icon.png' }],
     ['meta', { name: 'theme-color', content: '#4F46E5' }],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:title', content: 'AgentSkills' }],
+    ['meta', { property: 'og:title', content: 'AgentSkills CLI' }],
     ['meta', { property: 'og:image', content: '/agentskills-cli/apple-touch-icon.png' }],
     [
       'meta',
@@ -35,7 +35,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    siteTitle: 'AgentSkills',
+    siteTitle: 'AgentSkills CLI',
 
     // Light/dark variants: the source navy is preserved for light mode;
     // the dark variant has the navy recolored to white so the hexagon

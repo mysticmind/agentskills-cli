@@ -14,7 +14,7 @@ on:
         type: boolean
         default: false
       create_release:
-        description: "Tag v<version> and create a GitHub release with the .nupkg attached."
+        description: "Tag v<version> and create a GitHub release with the changelog. (The .nupkg itself lives on nuget.org, not attached here.)"
         required: false
         type: boolean
         default: true
@@ -160,11 +160,12 @@ jobs:
             prerelease_arg=(--prerelease)
           fi
 
+          # No .nupkg attached - the package lives on nuget.org. The GitHub
+          # release exists to tag the commit and surface the changelog.
           gh release create "v$VERSION" \
             --title "v$VERSION" \
             "${notes_arg[@]}" \
-            "${prerelease_arg[@]}" \
-            ./artifacts/agentskills-cli.${VERSION}.nupkg
+            "${prerelease_arg[@]}"
 
       - name: Summary
         shell: bash

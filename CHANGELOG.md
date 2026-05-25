@@ -6,7 +6,7 @@ All notable changes are documented here. Format roughly follows [Keep a Changelo
 
 The first **early-access preview** of **AgentSkills CLI**, a .NET port of [vercel-labs/skills](https://github.com/vercel-labs/skills) implementing the open [Agent Skills spec](https://agentskills.io).
 
-> **Status: early access.** The surface is feature-complete and tested, but no third-party `ISkillSourceFactory` / `ISkillSearchProvider` implementations have been validated in the wild yet. Expect refinements based on early-user feedback before the stable `0.2.0` release. Use the [issue tracker](https://github.com/mysticmind/agentskills-cli/issues) for feedback.
+> **Status: early access.** Feature-complete and tested. Refinements may land based on early-user feedback before the stable `0.2.0` release. Use the [issue tracker](https://github.com/mysticmind/agentskills-cli/issues) for feedback.
 
 ### Sources
 

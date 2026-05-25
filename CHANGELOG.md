@@ -2,6 +2,16 @@
 
 All notable changes are documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [SemVer](https://semver.org). API may evolve in any `0.x` release.
 
+## 0.3.0 - 2026-05-26
+
+_In development - changes since `0.2.0` accumulate here as they land._
+
+### Housekeeping (post-0.2.0)
+
+- `LICENSE`: dropped the "Portions Copyright (c) Vercel Labs..." line. AgentSkills CLI is a clean-room C# port with no source code copied, so MIT's notice clause isn't triggered. Attribution now lives in `NOTICE` where it belongs.
+- `NOTICE`: rewritten to use the current product name + a proper attribution block. Names what's shared with upstream (behavior, design, lock format) and what isn't (source code).
+- README badges: NuGet + GitHub release badges now track stable releases only (not prereleases) and use shields.io default colors instead of the custom indigo.
+
 ## 0.2.0 - 2026-05-26
 
 The first public release of **AgentSkills CLI**, a .NET commandline tool for the open [Agent Skills](https://agentskills.io) ecosystem. A faithful .NET-native port of [vercel-labs/skills](https://github.com/vercel-labs/skills) (the `npx skills` CLI) - same `SKILL.md` format, same lock files, same `.agents/skills/` install directory, so skills installed by either tool are visible to the other and toolchains can be mixed freely.

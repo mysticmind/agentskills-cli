@@ -4,8 +4,9 @@ name: Deploy docs to GitHub Pages
 # tab (or via `gh workflow run deploy-docs.yml`). No push trigger, so
 # committing docs/ changes does not auto-publish.
 #
-# First-time setup (one-off, in repo Settings):
-#   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
+# Pages is auto-enabled on first run via `enablement: true` on
+# actions/configure-pages, so no UI setup is required - just run the
+# workflow once and Pages turns itself on.
 #
 # Site lives at: https://mysticmind.github.io/agentskills-cli/
 
@@ -56,6 +57,10 @@ jobs:
         run: touch docs/.vitepress/dist/.nojekyll
 
       - uses: actions/configure-pages@v5
+        with:
+          # Bootstrap Pages on first run if not yet enabled in repo Settings.
+          # Subsequent runs are no-ops for this flag.
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

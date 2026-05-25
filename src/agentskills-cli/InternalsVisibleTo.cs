@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("AgentSkills.Tests")]
+[assembly: InternalsVisibleTo("agentskills-cli.tests")]

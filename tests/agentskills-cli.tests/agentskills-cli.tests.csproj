@@ -4,6 +4,9 @@
     <!-- Mirror the production TFMs so we exercise the tool on every runtime we ship. -->
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <!-- AssemblyName follows the hyphenated form (matches src/agentskills-cli);
+         RootNamespace stays PascalCase per C# convention. -->
+    <AssemblyName>agentskills-cli.tests</AssemblyName>
     <RootNamespace>AgentSkills.Tests</RootNamespace>
     <NoWarn>$(NoWarn);CA1707</NoWarn>
   </PropertyGroup>

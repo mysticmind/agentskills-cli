@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "agentskills-cli", "src\agen
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentSkills.Tests", "tests\AgentSkills.Tests\AgentSkills.Tests.csproj", "{D2EC710D-96DD-4344-BCE9-BA9181EE7798}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "agentskills-cli.tests", "tests\agentskills-cli.tests\agentskills-cli.tests.csproj", "{D2EC710D-96DD-4344-BCE9-BA9181EE7798}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{5D20AA90-6969-D8BD-9DCD-8634F4692FDA}"
 EndProject

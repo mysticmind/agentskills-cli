@@ -29,7 +29,18 @@ See the [install guide](https://mysticmind.github.io/agentskills-cli/getting-sta
 
 ## At a glance
 
-Once installed globally (`dotnet tool install --global agentskills-cli --prerelease`):
+One-shot via `dnx` (no install step, .NET 10+):
+
+```bash
+# Each invocation pulls the latest preview from nuget.org
+dnx agentskills-cli -- add anthropics/skills
+dnx agentskills-cli -- list --by package
+dnx agentskills-cli -- find testing
+```
+
+The `--` separates `dnx`'s own flags from the args it passes through to the tool. Useful for CI runners and "let me just try it" first runs.
+
+Or installed globally (`dotnet tool install --global agentskills-cli --prerelease`) for daily use:
 
 ```bash
 # Install from any source - one command, multiple ecosystems
@@ -47,17 +58,6 @@ agentskills-cli find testing
 # Remove an entire package's worth of skills
 agentskills-cli remove @my-org/agent-skills -y
 ```
-
-Or one-shot via `dnx` (no install step, .NET 10+):
-
-```bash
-# Each invocation pulls the latest preview from nuget.org
-dnx agentskills-cli -- add anthropics/skills
-dnx agentskills-cli -- list --by package
-dnx agentskills-cli -- find testing
-```
-
-The `--` separates `dnx`'s own flags from the args it passes through to the tool. Useful for CI runners where you don't want a persistent global install.
 
 [Five-minute quick start →](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start)
 

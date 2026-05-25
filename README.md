@@ -25,14 +25,16 @@
 
 ---
 
+> **Early-access preview (`0.2.0-preview.1`).** Feature-complete and tested, but pre-stable. Refinements expected based on early-user feedback before the stable `0.2.0` release. [Open an issue](https://github.com/mysticmind/agentskills-cli/issues) with feedback or bug reports.
+
 ## Install
 
 ```bash
-# One-shot via dnx (.NET 10+)
+# One-shot via dnx (.NET 10+) - preview tag pulled automatically
 dnx agentskills-cli --help
 
 # Or as a global tool (.NET 8 LTS or .NET 10)
-dotnet tool install --global agentskills-cli
+dotnet tool install --global agentskills-cli --prerelease
 agentskills-cli --help
 ```
 

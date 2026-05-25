@@ -6,9 +6,6 @@
 
 <p align="center">
   <strong>The .NET commandline tool for the open <a href="https://agentskills.io">Agent Skills</a> ecosystem.</strong>
-</p>
-
-<p align="center">
   Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and any spec-compliant agent.
 </p>
 

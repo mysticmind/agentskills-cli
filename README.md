@@ -5,8 +5,12 @@
 <h1 align="center">AgentSkills CLI</h1>
 
 <p align="center">
-  <strong>A .NET CLI tool for installing AI agent skills.</strong><br>
-  Pull skills from <strong>GitHub</strong>, <strong>NuGet</strong>, <strong>npm</strong>, well-known endpoints, or local folders and drop them into Claude Code, Cursor, Codex, OpenCode, and any other agent that follows the open <a href="https://agentskills.io">Agent Skills spec</a>.
+  <strong>The .NET CLI for the open <a href="https://agentskills.io">Agent Skills</a> ecosystem.</strong><br>
+  First-class NuGet and npm support, library-bundled skill packages, and an extension-point architecture for custom sources and search backends.
+</p>
+
+<p align="center">
+  Pull skills from <strong>GitHub</strong>, <strong>NuGet</strong>, <strong>npm</strong>, well-known endpoints, or local folders and drop them into Claude Code, Cursor, Codex, OpenCode, and friends.
 </p>
 
 <p align="center">

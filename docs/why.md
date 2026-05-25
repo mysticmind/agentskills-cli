@@ -7,7 +7,7 @@ If you write .NET code and use Claude Code, Cursor, Codex, or any agent that rea
 - **Install agent skills the way .NET devs install everything else** - from NuGet (public or private), with your existing credentials and feeds. No new auth surface, no JavaScript runtime, no second package manager.
 - **Skills can ship inside the libraries they describe.** A `Contoso.SampleLib` NuGet package can carry the agent guidance for using `Contoso.SampleLib`. Users who install your library get the skills automatically; the SDK and its agent docs version together, distribute together, stay in sync.
 - **First-class npm too** - because TypeScript skills shipped on npm are still the bulk of the ecosystem, and AgentSkills CLI is the only tool that does proper registry fetch with `.npmrc` scoped-registry support (not just `node_modules` sync).
-- **Runs as `dnx`** - one-shot invocation on .NET 10, exactly like `npx`. CI runners need nothing pre-installed.
+- **Install once and forget** - `dotnet tool install -g agentskills-cli` and you're done; daily commands are short (`agentskills-cli add ...`, or one-character via a shell alias). CI runners that don't want a global install can use `dnx agentskills-cli` instead - same package, no install step on .NET 10+.
 
 ## The bigger insight: skills inside libraries
 

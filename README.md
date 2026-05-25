@@ -1,6 +1,6 @@
-# AgentSkills CLI
+![AgentSkills CLI logo](https://raw.githubusercontent.com/mysticmind/agentskills-cli/main/docs/public/logo-readme.png)
 
-![AgentSkills CLI logo](https://raw.githubusercontent.com/mysticmind/agentskills-cli/main/docs/public/logo.png)
+# AgentSkills CLI
 
 **The .NET commandline tool for the open [Agent Skills](https://agentskills.io) ecosystem.**
 

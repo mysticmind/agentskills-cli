@@ -1,27 +1,14 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/mysticmind/agentskills-cli/main/docs/public/logo.png" alt="AgentSkills CLI" width="128" />
-</p>
+# AgentSkills CLI
 
-<h1 align="center">AgentSkills CLI</h1>
+![AgentSkills CLI logo](https://raw.githubusercontent.com/mysticmind/agentskills-cli/main/docs/public/logo.png)
 
-<p align="center">
-  <strong>The .NET commandline tool for the open <a href="https://agentskills.io">Agent Skills</a> ecosystem.</strong>
-</p>
+**The .NET commandline tool for the open [Agent Skills](https://agentskills.io) ecosystem.**
 
-<p align="center">
-  Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and any spec-compliant agent.
-</p>
+Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and any spec-compliant agent.
 
-<p align="center">
-  First-class NuGet &amp; npm · library-bundled skill packages · extension points by design.
-</p>
+First-class NuGet & npm · library-bundled skill packages · extension points by design.
 
-<p align="center">
-  <a href="https://mysticmind.github.io/agentskills-cli/"><strong>📖 Documentation</strong></a> &nbsp;·&nbsp;
-  <a href="https://mysticmind.github.io/agentskills-cli/why">Why AgentSkills CLI?</a> &nbsp;·&nbsp;
-  <a href="https://mysticmind.github.io/agentskills-cli/getting-started/quick-start">Quick start</a> &nbsp;·&nbsp;
-  <a href="https://mysticmind.github.io/agentskills-cli/reference/comparison">vs <code>npx skills</code></a>
-</p>
+[📖 Documentation](https://mysticmind.github.io/agentskills-cli/) · [Why AgentSkills CLI?](https://mysticmind.github.io/agentskills-cli/why) · [Quick start](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start) · [vs `npx skills`](https://mysticmind.github.io/agentskills-cli/reference/comparison)
 
 ---
 

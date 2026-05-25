@@ -2,6 +2,8 @@
 
 # AgentSkills CLI
 
+[![NuGet](https://img.shields.io/nuget/vpre/agentskills-cli?logo=nuget&label=nuget&color=4F46E5)](https://www.nuget.org/packages/agentskills-cli) [![GitHub release](https://img.shields.io/github/v/release/mysticmind/agentskills-cli?include_prereleases&logo=github&label=release&color=4F46E5)](https://github.com/mysticmind/agentskills-cli/releases)
+
 **The .NET commandline tool for the open [Agent Skills](https://agentskills.io) ecosystem.**
 
 Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and any spec-compliant agent.

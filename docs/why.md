@@ -53,5 +53,5 @@ The `SKILL.md` format and the well-known discovery endpoint follow the open [Age
 - [Install](/getting-started/install) - get the CLI on your machine
 - [Quick start](/getting-started/quick-start) - five-minute hands-on tour
 - [Concepts](/getting-started/concepts) - the five terms you need to know
-- [Full feature comparison](/reference/comparison) - every difference vs `npx skills`
+- [Full feature comparison](/reference/comparison) - every difference vs vercel-labs/skills
 - [Ship skills with your library](/tutorials/ship-skills-with-library) - the library-shipping pattern in depth

@@ -29,18 +29,7 @@ See the [install guide](https://mysticmind.github.io/agentskills-cli/getting-sta
 
 ## At a glance
 
-One-shot via `dnx` (no install step, .NET 10+):
-
-```bash
-# --prerelease is required during the 0.2.0-preview phase; drop it once 0.2.0 stable ships
-dnx agentskills-cli --prerelease -- add anthropics/skills
-dnx agentskills-cli --prerelease -- list --by package
-dnx agentskills-cli --prerelease -- find testing
-```
-
-The `--` separates `dnx`'s own flags from the args it passes through to the tool. Useful for CI runners and "let me just try it" first runs.
-
-Or installed globally (`dotnet tool install --global agentskills-cli --prerelease`) for daily use:
+Once installed globally (`dotnet tool install --global agentskills-cli --prerelease`):
 
 ```bash
 # Install from any source - one command, multiple ecosystems
@@ -58,6 +47,14 @@ agentskills-cli find testing
 # Remove an entire package's worth of skills
 agentskills-cli remove @my-org/agent-skills -y
 ```
+
+Or one-shot via `dnx` for CI / no-install scenarios:
+
+```bash
+dnx agentskills-cli --prerelease -- add ./my-skill
+```
+
+The `--prerelease` flag goes away once the stable `0.2.0` ships. The `--` separates `dnx`'s own flags from the args passed through to the tool. For interactive daily use, prefer the installed-tool path - it's much less typing.
 
 [Five-minute quick start →](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start)
 

@@ -2,6 +2,10 @@
 
 All notable changes are documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [SemVer](https://semver.org). API may evolve in any `0.x` release.
 
+## 0.2.0-preview.2 - 2026-05-25
+
+Second early-access preview. Iteration on packaging metadata, README rendering on nuget.org (pure Markdown + bundled `PackageIcon`), and docs site branding (logo + favicon set + indigo palette). No functional changes since `0.2.0-preview.1`.
+
 ## 0.2.0-preview.1 - 2026-05-25
 
 The first **early-access preview** of **AgentSkills CLI**, a .NET port of [vercel-labs/skills](https://github.com/vercel-labs/skills) implementing the open [Agent Skills spec](https://agentskills.io).

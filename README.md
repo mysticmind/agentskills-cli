@@ -12,7 +12,7 @@ First-class NuGet & npm · library-bundled skill packages · extension points by
 
 ---
 
-> **Early-access preview (`0.2.0-preview.1`).** Feature-complete and tested, but pre-stable. Refinements expected based on early-user feedback before the stable `0.2.0` release. [Open an issue](https://github.com/mysticmind/agentskills-cli/issues) with feedback or bug reports.
+> **Early-access preview (`0.2.0-preview.2`).** Feature-complete and tested, but pre-stable. Refinements expected based on early-user feedback before the stable `0.2.0` release. [Open an issue](https://github.com/mysticmind/agentskills-cli/issues) with feedback or bug reports.
 
 ## Install
 

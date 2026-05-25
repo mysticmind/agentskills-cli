@@ -8,7 +8,9 @@ using Spectre.Console.Cli;
 
 // Resolve verbosity early so the logger pipeline reflects -v / -q before any
 // command runs. Spectre.Console.Cli's settings binding happens too late for this.
-var verbosity = ParseVerbosity(args);
+// The flags also have to be stripped from args before Spectre sees them, since
+// Spectre would otherwise reject them as 'Unexpected option ...'.
+var (verbosity, runArgs) = ParseVerbosity(args);
 
 var services = new ServiceCollection()
     .AddSkillsRuntime(minimumLogLevel: verbosity);
@@ -47,7 +49,7 @@ app.Configure(config =>
 
 try
 {
-    return await app.RunAsync(args);
+    return await app.RunAsync(runArgs);
 }
 catch (SkillsException ex)
 {
@@ -70,14 +72,27 @@ catch (Exception ex)
     return 1;
 }
 
-static LogLevel ParseVerbosity(string[] cli)
+static (LogLevel Level, string[] StrippedArgs) ParseVerbosity(string[] cli)
 {
-    for (var i = 0; i < cli.Length; i++)
+    var level = LogLevel.Information;
+    var remaining = new List<string>(cli.Length);
+    foreach (var a in cli)
     {
-        var a = cli[i];
-        if (a is "--quiet" or "-q") return LogLevel.Warning;
-        if (a is "--verbose" or "-v") return LogLevel.Debug;
-        if (a == "--trace") return LogLevel.Trace;
+        switch (a)
+        {
+            case "--quiet" or "-q":
+                level = LogLevel.Warning;
+                continue;
+            case "--verbose" or "-v":
+                level = LogLevel.Debug;
+                continue;
+            case "--trace":
+                level = LogLevel.Trace;
+                continue;
+            default:
+                remaining.Add(a);
+                break;
+        }
     }
-    return LogLevel.Information;
+    return (level, remaining.ToArray());
 }

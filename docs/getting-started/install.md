@@ -7,9 +7,12 @@ AgentSkills CLI is a [.NET tool](https://learn.microsoft.com/en-us/dotnet/core/t
 No install step required. `dnx` is the .NET 10 SDK's equivalent of `npx` - it downloads the tool on first use, caches it, and runs it.
 
 ```bash
-dnx agentskills-cli --help
-dnx agentskills-cli add ./my-skill -a claude-code
+# --prerelease required while AgentSkills CLI is in the 0.2.0-preview phase
+dnx agentskills-cli --prerelease --help
+dnx agentskills-cli --prerelease -- add ./my-skill -a claude-code
 ```
+
+When the stable `0.2.0` ships, `--prerelease` becomes optional - omit it to track stable, keep it to track previews.
 
 Best when you want to try the tool once or run it in CI without polluting the global tool space.
 
@@ -73,7 +76,7 @@ as() {
   if command -v agentskills-cli >/dev/null 2>&1; then
     agentskills-cli "$@"
   else
-    dnx agentskills-cli -- "$@"
+    dnx agentskills-cli --prerelease -- "$@"
   fi
 }
 ```
@@ -84,7 +87,7 @@ function as
   if type -q agentskills-cli
     agentskills-cli $argv
   else
-    dnx agentskills-cli -- $argv
+    dnx agentskills-cli --prerelease -- $argv
   end
 end
 ```
@@ -95,7 +98,7 @@ function as {
   if (Get-Command agentskills-cli -ErrorAction SilentlyContinue) {
     & agentskills-cli @args
   } else {
-    & dnx agentskills-cli -- @args
+    & dnx agentskills-cli --prerelease -- @args
   }
 }
 ```

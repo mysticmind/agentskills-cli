@@ -17,8 +17,8 @@ First-class NuGet & npm · library-bundled skill packages · extension points by
 ## Install
 
 ```bash
-# One-shot via dnx (.NET 10+) - preview tag pulled automatically
-dnx agentskills-cli --help
+# One-shot via dnx (.NET 10+) - --prerelease needed during preview phase
+dnx agentskills-cli --prerelease --help
 
 # Or as a global tool (.NET 8 LTS or .NET 10)
 dotnet tool install --global agentskills-cli --prerelease
@@ -32,10 +32,10 @@ See the [install guide](https://mysticmind.github.io/agentskills-cli/getting-sta
 One-shot via `dnx` (no install step, .NET 10+):
 
 ```bash
-# Each invocation pulls the latest preview from nuget.org
-dnx agentskills-cli -- add anthropics/skills
-dnx agentskills-cli -- list --by package
-dnx agentskills-cli -- find testing
+# --prerelease is required during the 0.2.0-preview phase; drop it once 0.2.0 stable ships
+dnx agentskills-cli --prerelease -- add anthropics/skills
+dnx agentskills-cli --prerelease -- list --by package
+dnx agentskills-cli --prerelease -- find testing
 ```
 
 The `--` separates `dnx`'s own flags from the args it passes through to the tool. Useful for CI runners and "let me just try it" first runs.

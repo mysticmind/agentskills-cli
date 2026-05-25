@@ -22,7 +22,7 @@ hero:
 
 features:
   - title: First-class NuGet support
-    details: Install from public or private NuGet feeds using your existing NuGet.config and credential providers. Azure Artifacts, GitHub Packages, ProGet, MyGet - if dotnet restore works against your feed, agentskills-cli does too. No new auth surface.
+    details: Install from public or private NuGet feeds using your existing NuGet.config and credential providers. Azure Artifacts, GitHub Packages, ProGet, MyGet - if `dotnet restore` works against your feed, `agentskills-cli` does too. No new auth surface.
   - title: Ship skills inside your library
     details: Drop a skills/ folder into your existing NuGet or npm package and it becomes a skill source automatically. The SDK and the agent guidance for using it travel together, version together, and discover together. Library authors keep doing what they already do.
   - title: First-class npm registry fetch

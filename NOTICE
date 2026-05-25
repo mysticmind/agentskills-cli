@@ -1,2 +1,10 @@
-skills-net is a .NET 10 port of vercel-labs/skills (https://github.com/vercel-labs/skills),
-licensed under the MIT License. Behavioral parity is intentional. See LICENSE.
+AgentSkills CLI (agentskills-cli)
+Copyright (c) 2026 Babu Annamalai
+Licensed under the MIT License. See LICENSE.
+
+This project is a .NET-native port of vercel-labs/skills
+(https://github.com/vercel-labs/skills), the `npx skills` CLI for
+the open Agent Skills ecosystem (https://agentskills.io).
+
+vercel-labs/skills is also distributed under the MIT License.
+Behavioral parity is intentional; no source code was copied.

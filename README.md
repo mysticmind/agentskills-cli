@@ -67,6 +67,7 @@ The `--prerelease` flag goes away once the stable `0.2.0` ships. The `--` separa
 - **NuGet as a first-class source** - public *and* private feeds via your existing `NuGet.config` and credential providers. No new auth surface.
 - **npm registry fetch** (not just `node_modules` sync) - public *and* private registries via your existing `.npmrc`, scoped registries, `_authToken`.
 - **Skills can ship inside library packages** - drop a `skills/` folder into your existing `.nupkg` or `.tgz`. Users get the skills for free when they install your library. [How →](https://mysticmind.github.io/agentskills-cli/tutorials/ship-skills-with-library)
+- **Versioned install units** - skills from a NuGet or npm package are tracked together as a managed set. `agentskills-cli remove MyOrg.SkillPack -y` wipes all of them at once; `agentskills-cli update` checks the whole package for drift; `agentskills-cli list --by package` groups them. Same dependency-like semantics .NET devs already use for NuGet packages - no orphan skills when you uninstall.
 - **Extension points by design** - register `ISkillSourceFactory` for new source types and `ISkillSearchProvider` for new search backends with a single DI registration.
 - **Multi-targeted** - one `.nupkg` ships both .NET 8 LTS and .NET 10 builds.
 - **Lock-file interop** - same `~/.agents/.skill-lock.json` and `./skills-lock.json` format as upstream `vercel-labs/skills`, so the two tools share state.

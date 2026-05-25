@@ -26,6 +26,52 @@ public class SourceParserTests
     }
 
     [Theory]
+    [InlineData("./Foo.AiSkills.1.4.0.nupkg")]
+    [InlineData("../packages/Foo.AiSkills.1.4.0.nupkg")]
+    [InlineData("./PKG.NUPKG")]
+    public void LocalNuPkgFile_RoutesToNuGetWithLocalPath(string input)
+    {
+        var parsed = SourceParser.Parse(input);
+        Assert.Equal(SourceType.NuGet, parsed.Type);
+        Assert.NotNull(parsed.LocalPath);
+        Assert.True(Path.IsPathRooted(parsed.LocalPath));
+        // Detection happens off the path string; the file doesn't need to exist
+        // for the parser to route it - the source class verifies existence.
+    }
+
+    [Theory]
+    [InlineData("./foo-1.0.0.tgz")]
+    [InlineData("./pkg.tar.gz")]
+    [InlineData("../dist/pkg-1.2.3.TGZ")]
+    public void LocalNpmTarballFile_RoutesToNpmWithLocalPath(string input)
+    {
+        var parsed = SourceParser.Parse(input);
+        Assert.Equal(SourceType.Npm, parsed.Type);
+        Assert.NotNull(parsed.LocalPath);
+        Assert.True(Path.IsPathRooted(parsed.LocalPath));
+    }
+
+    [Fact]
+    public void LocalAbsoluteNuPkgFile_RoutesToNuGet()
+    {
+        var path = OperatingSystem.IsWindows()
+            ? "C:\\tmp\\Foo.Skills.1.0.0.nupkg"
+            : "/tmp/Foo.Skills.1.0.0.nupkg";
+        var parsed = SourceParser.Parse(path);
+        Assert.Equal(SourceType.NuGet, parsed.Type);
+        Assert.Equal(path, parsed.LocalPath);
+    }
+
+    [Fact]
+    public void LocalDirectoryWithoutArchiveExtension_StillRoutesToLocal()
+    {
+        // Sanity: directory paths that just happen to have dots in segments
+        // don't get misdetected as archive files.
+        var parsed = SourceParser.Parse("./my.skills.folder");
+        Assert.Equal(SourceType.Local, parsed.Type);
+    }
+
+    [Theory]
     [InlineData("acme/sample-skills", "https://github.com/acme/sample-skills.git", null, null, null)]
     [InlineData("acme/sample-skills/skills/foo", "https://github.com/acme/sample-skills.git", "skills/foo", null, null)]
     [InlineData("acme/sample-skills#main", "https://github.com/acme/sample-skills.git", null, "main", null)]

@@ -35,6 +35,15 @@ public sealed class NuGetSource : ISkillSource
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(parsed);
+
+        // Local .nupkg file path - skip feed resolve and extract directly. The
+        // package id and version come from the .nuspec inside the archive.
+        if (!string.IsNullOrEmpty(parsed.LocalPath) && File.Exists(parsed.LocalPath))
+        {
+            return await ExtractLocalNupkgAsync(parsed, parsed.LocalPath, log, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         var packageId = parsed.PackageId
             ?? throw new ArgumentException("Parsed source is not a NuGet source", nameof(parsed));
 
@@ -172,6 +181,72 @@ public sealed class NuGetSource : ISkillSource
     public void Dispose()
     {
         try { Directory.Delete(_stagingRoot, recursive: true); } catch { /* best effort */ }
+    }
+
+    /// <summary>
+    /// Extracts an existing <c>.nupkg</c> file on disk into a staging directory and
+    /// returns a <see cref="NuGetSource"/> just like <see cref="DownloadAsync"/> would
+    /// for a feed-resolved package. Package id + version are read from the embedded
+    /// <c>.nuspec</c> so the lock entry looks identical to a feed-resolved install.
+    /// </summary>
+    private static async Task<NuGetSource> ExtractLocalNupkgAsync(
+        ParsedSource parsed,
+        string nupkgPath,
+        Action<string>? log,
+        CancellationToken cancellationToken)
+    {
+        var stagingRoot = Path.Combine(Path.GetTempPath(), $"agentskills-cli-nuget-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(stagingRoot);
+
+        try
+        {
+            var extractDir = Path.Combine(stagingRoot, "extracted");
+            Directory.CreateDirectory(extractDir);
+
+            string packageId;
+            string packageVersion;
+
+            await using (var nupkgStream = File.OpenRead(nupkgPath))
+            using (var reader = new PackageArchiveReader(nupkgStream))
+            {
+                var identity = reader.GetIdentity();
+                packageId = identity.Id;
+                packageVersion = identity.Version.ToFullString();
+                log?.Invoke($"  extracting local nupkg {packageId} {packageVersion}");
+
+                foreach (var file in reader.GetFiles())
+                {
+                    var dest = Path.Combine(extractDir, file.Replace('/', Path.DirectorySeparatorChar));
+                    Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+                    using var src = reader.GetStream(file);
+                    using var fs = File.Create(dest);
+                    await src.CopyToAsync(fs, cancellationToken).ConfigureAwait(false);
+                }
+            }
+
+            var conventional = Path.Combine(extractDir, "contentFiles", "any", "any", "skills");
+            var subpath = Directory.Exists(conventional)
+                ? Path.Combine("contentFiles", "any", "any", "skills")
+                : null;
+
+            var resolvedParsed = parsed with
+            {
+                PackageId = packageId,
+                PackageVersion = packageVersion,
+            };
+
+            return new NuGetSource(
+                resolvedParsed,
+                extractDir,
+                subpath ?? string.Empty,
+                new Uri(nupkgPath).AbsoluteUri,
+                $"nuget:{packageId}@{packageVersion}");
+        }
+        catch
+        {
+            try { Directory.Delete(stagingRoot, recursive: true); } catch { /* swallow */ }
+            throw;
+        }
     }
 
     private sealed class SpectreNuGetLogger(Action<string>? sink) : LoggerBase

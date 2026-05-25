@@ -13,6 +13,10 @@ agentskills-cli add @my-org/agent-skills@next         # dist-tag
 # Unscoped (requires the npm: prefix to disambiguate from NuGet)
 agentskills-cli add npm:sample-pkg
 agentskills-cli add npm:sample-pkg@1.3.0
+
+# Local .tgz / .tar.gz file (path-based, skips registry lookup)
+agentskills-cli add ./contoso-sample-skills-2.1.0.tgz
+agentskills-cli add /abs/path/to/contoso-sample-skills-2.1.0.tgz
 ```
 
 ## Detection rule
@@ -20,9 +24,23 @@ agentskills-cli add npm:sample-pkg@1.3.0
 A source is treated as npm if it:
 
 - starts with `npm:`, OR
-- is a valid scoped package name (`@scope/name`).
+- is a valid scoped package name (`@scope/name`), OR
+- is a local path ending in `.tgz` or `.tar.gz`.
 
 Unscoped bare names (e.g., `lodash.merge`) hit the NuGet shorthand first, so unscoped npm packages need the `npm:` prefix.
+
+## Local tarball files
+
+Pass a local `.tgz` or `.tar.gz` file path (relative or absolute) and AgentSkills CLI extracts it directly - no registry lookup, no network call. Name + version are read from the embedded `package/package.json`, so the lock entry looks identical to a registry-resolved install:
+
+```bash
+# After `npm pack` produces ./my-org-sample-skills-1.0.0.tgz
+agentskills-cli add ./my-org-sample-skills-1.0.0.tgz -y
+agentskills-cli list --by package
+# -> @my-org/sample-skills @ 1.0.0
+```
+
+Same use cases as the NuGet local-file variant: pre-publish testing, sneakernet / air-gapped delivery, CI verification before pushing to a registry.
 
 ## Registry resolution
 

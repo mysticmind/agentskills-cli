@@ -12,6 +12,10 @@ agentskills-cli add MyOrg.AgentSkills@1.2.3
 # Explicit prefix (required for IDs without a '.')
 agentskills-cli add nuget:MyOrg.AgentSkills
 agentskills-cli add nuget:MyOrg.AgentSkills@1.2.3
+
+# Local .nupkg file (path-based, skips feed lookup)
+agentskills-cli add ./Contoso.SampleSkills.1.4.0.nupkg
+agentskills-cli add /abs/path/to/Contoso.SampleSkills.1.4.0.nupkg
 ```
 
 ## Detection rule
@@ -19,9 +23,23 @@ agentskills-cli add nuget:MyOrg.AgentSkills@1.2.3
 A source is treated as NuGet if it:
 
 - starts with `nuget:`, OR
-- matches the NuGet shorthand regex (contains a `.`, no `/`, no `:`).
+- matches the NuGet shorthand regex (contains a `.`, no `/`, no `:`), OR
+- is a local path ending in `.nupkg`.
 
-That last rule means single-segment NuGet IDs without a dot (rare in practice) need the explicit `nuget:` prefix - otherwise they fall through to the git fallback.
+That second rule means single-segment NuGet IDs without a dot (rare in practice) need the explicit `nuget:` prefix - otherwise they fall through to the git fallback.
+
+## Local .nupkg files
+
+Pass a local `.nupkg` file path (relative or absolute) and AgentSkills CLI extracts it directly - no feed lookup, no network call. Package id + version are read from the embedded `.nuspec`, so the lock entry looks identical to a feed-resolved install:
+
+```bash
+# After `dotnet pack` produces ./bin/Release/Contoso.SampleSkills.1.4.0.nupkg
+agentskills-cli add ./bin/Release/Contoso.SampleSkills.1.4.0.nupkg -y
+agentskills-cli list --by package
+# -> Contoso.SampleSkills @ 1.4.0
+```
+
+Useful for testing skill packages before publishing to a feed, installing packages from sneakernet / air-gapped environments, or wiring up CI verification steps without standing up a local feed first.
 
 ## Feeds and auth
 

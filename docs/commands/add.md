@@ -47,8 +47,12 @@ agentskills-cli add MyOrg.AgentSkills@1.2.3 -g -y \
 # Install from a GitHub branch with a subpath
 agentskills-cli add https://github.com/vercel-labs/agent-skills/tree/main/skills/web-design-guidelines
 
-# Install a local skill into the current project for Cursor
+# Install a local skill directory into the current project for Cursor
 agentskills-cli add ./my-local-skill -a cursor
+
+# Install from a local .nupkg or .tgz file (no feed / registry lookup)
+agentskills-cli add ./Contoso.SampleSkills.1.4.0.nupkg -y
+agentskills-cli add ./contoso-sample-skills-2.1.0.tgz -y
 
 # Source uses a non-conventional layout - point at it explicitly
 agentskills-cli add MyOrg.AgentSkills --path ai/prompts -y           # NuGet

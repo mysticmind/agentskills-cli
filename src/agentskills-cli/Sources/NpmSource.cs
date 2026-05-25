@@ -37,6 +37,14 @@ public sealed class NpmSource : ISkillSource
         Action<string>? log = null,
         CancellationToken cancellationToken = default)
     {
+        // Local .tgz / .tar.gz tarball - skip the registry fetch and extract
+        // directly. Name and version come from the package.json inside.
+        if (!string.IsNullOrEmpty(parsed.LocalPath) && File.Exists(parsed.LocalPath))
+        {
+            return await ExtractLocalTarballAsync(parsed, parsed.LocalPath, log, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         var packageId = parsed.PackageId
             ?? throw new ArgumentException("Parsed source is not an npm source", nameof(parsed));
 
@@ -119,6 +127,90 @@ public sealed class NpmSource : ISkillSource
     public void Dispose()
     {
         try { Directory.Delete(_stagingRoot, recursive: true); } catch { /* best effort */ }
+    }
+
+    /// <summary>
+    /// Extracts an existing <c>.tgz</c> / <c>.tar.gz</c> file on disk into a staging
+    /// directory and returns an <see cref="NpmSource"/> just like
+    /// <see cref="DownloadAsync"/> would for a registry-fetched package. Name + version
+    /// are read from <c>package/package.json</c> so the lock entry looks identical to a
+    /// registry-resolved install.
+    /// </summary>
+    private static async Task<NpmSource> ExtractLocalTarballAsync(
+        ParsedSource parsed,
+        string tarballPath,
+        Action<string>? log,
+        CancellationToken cancellationToken)
+    {
+        var bytes = await File.ReadAllBytesAsync(tarballPath, cancellationToken).ConfigureAwait(false);
+
+        var stagingRoot = Path.Combine(Path.GetTempPath(), $"agentskills-cli-npm-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(stagingRoot);
+
+        try
+        {
+            await ArchiveExtractor.ExtractAsync(
+                bytes, stagingRoot, ArchiveKind.TarGz, ArchiveLimits.Npm, cancellationToken)
+                .ConfigureAwait(false);
+
+            var packageDir = Path.Combine(stagingRoot, "package");
+            var packageJsonPath = Path.Combine(packageDir, "package.json");
+            string packageId;
+            string version;
+            if (File.Exists(packageJsonPath))
+            {
+                await using var pjStream = File.OpenRead(packageJsonPath);
+                using var pj = await JsonDocument.ParseAsync(pjStream, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+                packageId = pj.RootElement.TryGetProperty("name", out var nameEl) && nameEl.ValueKind == JsonValueKind.String
+                    ? nameEl.GetString()!
+                    : Path.GetFileNameWithoutExtension(tarballPath);
+                version = pj.RootElement.TryGetProperty("version", out var versionEl) && versionEl.ValueKind == JsonValueKind.String
+                    ? versionEl.GetString()!
+                    : string.Empty;
+            }
+            else
+            {
+                packageId = Path.GetFileNameWithoutExtension(tarballPath);
+                version = string.Empty;
+            }
+
+            log?.Invoke($"  extracting local tarball {packageId}{(string.IsNullOrEmpty(version) ? "" : $"@{version}")}");
+
+            var roots = new[]
+            {
+                Path.Combine(packageDir, "skills"),
+                Path.Combine(packageDir, "contentFiles", "any", "any", "skills"),
+            };
+            string? subpath = null;
+            foreach (var candidate in roots)
+            {
+                if (Directory.Exists(candidate))
+                {
+                    subpath = Path.GetRelativePath(stagingRoot, candidate).Replace('\\', '/');
+                    break;
+                }
+            }
+            subpath ??= Directory.Exists(packageDir) ? "package" : string.Empty;
+
+            var resolvedParsed = parsed with
+            {
+                PackageId = packageId,
+                PackageVersion = string.IsNullOrEmpty(version) ? null : version,
+            };
+
+            return new NpmSource(
+                resolvedParsed,
+                stagingRoot,
+                subpath,
+                new Uri(tarballPath).AbsoluteUri,
+                string.IsNullOrEmpty(version) ? $"npm:{packageId}" : $"npm:{packageId}@{version}");
+        }
+        catch
+        {
+            try { Directory.Delete(stagingRoot, recursive: true); } catch { /* swallow */ }
+            throw;
+        }
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────

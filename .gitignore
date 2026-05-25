@@ -12,3 +12,6 @@ TestResults/
 .nuget/
 node_modules/
 
+
+# Lock file from any local 'agentskills-cli add' invocations in the repo root during development
+/skills-lock.json

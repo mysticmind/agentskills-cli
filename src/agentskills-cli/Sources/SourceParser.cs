@@ -38,6 +38,23 @@ public static partial class SourceParser
         if (IsLocalPath(input))
         {
             var resolved = Path.GetFullPath(input);
+
+            // Local archive files: route .nupkg to the NuGet source path and
+            // .tgz/.tar.gz to the npm source path so the lock entries look like
+            // regular NuGet/npm installs (the source happens to live on disk
+            // rather than on a remote feed). LocalPath signals "use local file"
+            // to the source class; PackageId/Version get extracted from the
+            // archive's own metadata (.nuspec / package.json).
+            if (resolved.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase))
+            {
+                return new ParsedSource(SourceType.NuGet, resolved, LocalPath: resolved);
+            }
+            if (resolved.EndsWith(".tgz", StringComparison.OrdinalIgnoreCase) ||
+                resolved.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase))
+            {
+                return new ParsedSource(SourceType.Npm, resolved, LocalPath: resolved);
+            }
+
             return new ParsedSource(SourceType.Local, resolved, LocalPath: resolved);
         }
 

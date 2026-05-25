@@ -18,7 +18,7 @@ First-class NuGet & npm · library-bundled skill packages · extension points by
 
 ```bash
 # One-shot via dnx (.NET 10+) - --prerelease needed during preview phase
-dnx agentskills-cli --prerelease --help
+dnx agentskills-cli --prerelease -- --help
 
 # Or as a global tool (.NET 8 LTS or .NET 10)
 dotnet tool install --global agentskills-cli --prerelease

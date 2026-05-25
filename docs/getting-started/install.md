@@ -8,7 +8,7 @@ No install step required. `dnx` is the .NET 10 SDK's equivalent of `npx` - it do
 
 ```bash
 # --prerelease required while AgentSkills CLI is in the 0.2.0-preview phase
-dnx agentskills-cli --prerelease --help
+dnx agentskills-cli --prerelease -- --help
 dnx agentskills-cli --prerelease -- add ./my-skill -a claude-code
 ```
 

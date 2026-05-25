@@ -212,6 +212,28 @@
   box-shadow: 0 8px 24px -10px rgba(129, 140, 248, 0.20);
 }
 
+/* Feature tile icon: brand-tinted square that holds the Lucide SVG. The
+   SVG strokes use currentColor so the icon itself takes on the brand
+   color set here. */
+.VPFeature .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--vp-c-brand-soft);
+  color: var(--as-brand-600);
+  margin-bottom: 16px;
+}
+.dark .VPFeature .icon {
+  color: var(--as-brand-300);
+}
+.VPFeature .icon svg {
+  width: 24px;
+  height: 24px;
+}
+
 /* Sidebar active link gets a brand accent bar */
 .VPSidebarItem.is-active > .item .text {
   color: var(--vp-c-brand-1);

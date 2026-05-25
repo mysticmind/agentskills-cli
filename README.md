@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/mysticmind/agentskills-cli/main/docs/public/logo.png" alt="AgentSkills CLI" width="128" />
+  <img src="docs/public/logo.png" alt="AgentSkills CLI" width="128" />
 </p>
 
 <h1 align="center">AgentSkills CLI</h1>

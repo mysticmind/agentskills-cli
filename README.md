@@ -56,6 +56,8 @@ dnx agentskills-cli --prerelease -- add ./my-skill
 
 The `--prerelease` flag goes away once the stable `0.2.0` ships. The `--` separates `dnx`'s own flags from the args passed through to the tool. For interactive daily use, prefer the installed-tool path - it's much less typing.
 
+> **Tip:** Both paths support a one-character shell alias (`as add ./skill` instead of typing the full command). See [Shortcuts](https://mysticmind.github.io/agentskills-cli/getting-started/install#shortcuts) for bash / zsh / fish / PowerShell.
+
 [Five-minute quick start →](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start)
 
 ## What makes it different

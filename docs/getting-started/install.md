@@ -41,9 +41,13 @@ Best when you want to try the tool once, run it in CI without polluting the glob
 - **`git` on PATH** when installing from git URLs (GitHub, GitLab, arbitrary git). Local and NuGet/npm sources don't need git.
 - **Building from source** requires the .NET 10 SDK (it can build both target frameworks; the .NET 8 SDK cannot build the net10 output).
 
-## Want a shorter command?
+## Shortcuts
 
-The shell command is intentionally `agentskills-cli` (not `skills`) so it doesn't shadow the `npx skills` binary on PATH. Alias it locally if you want:
+Typing `agentskills-cli add ./my-skill` (or worse, `dnx agentskills-cli --prerelease -- add ./my-skill`) gets old fast. Three alias patterns to pick from depending on which install path you use.
+
+### Pattern 1: alias the installed tool (most common)
+
+If you're using the global tool (Option A), this is all you need:
 
 ::: code-group
 
@@ -64,11 +68,36 @@ Set-Alias -Name as -Value agentskills-cli
 
 :::
 
-Then use `as add ./my-skill -y`, `as list`, etc.
+Then `as add ./my-skill -y`, `as list`, etc.
 
-### Same alias for installed-tool and dnx
+### Pattern 2: alias the dnx invocation (no global install)
 
-The simple alias above only covers the installed-tool path. If you sometimes run via `dnx agentskills-cli` (CI runners, machines without the global install), use a shell function instead - it auto-detects which mode is available and falls back transparently:
+If you don't want a global install (CI sandboxes, ephemeral environments), alias the full dnx ceremony as a one-word shortcut:
+
+::: code-group
+
+```bash [bash / zsh]
+# ~/.bashrc or ~/.zshrc
+alias as='dnx agentskills-cli --prerelease --'
+```
+
+```fish [fish]
+# ~/.config/fish/config.fish
+alias as 'dnx agentskills-cli --prerelease --'
+```
+
+```powershell [PowerShell]
+# $PROFILE
+function as { & dnx agentskills-cli --prerelease -- @args }
+```
+
+:::
+
+Then `as add ./my-skill -y` runs the full `dnx agentskills-cli --prerelease -- add ./my-skill -y` command behind the scenes.
+
+### Pattern 3: auto-detect (works in both modes)
+
+If you switch between machines (some have the global install, some don't), use a shell function that detects which path is available and falls back to dnx transparently:
 
 ::: code-group
 
@@ -107,7 +136,7 @@ function as {
 
 :::
 
-Now `as add ./my-skill -y` works whether you've installed the tool globally or are on a fresh `.NET 10` runner with only `dnx` available. Same six characters either way.
+`as add ./my-skill -y` works whether you've installed the tool globally or are on a fresh `.NET 10` runner with only `dnx` available - same six characters either way.
 
 ## Verify
 

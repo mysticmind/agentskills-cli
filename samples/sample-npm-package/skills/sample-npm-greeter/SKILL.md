@@ -1,6 +1,6 @@
 ---
 name: sample-npm-greeter
-description: Sample skill packaged in an npm tarball for AgentSkills smoke tests.
+description: Sample skill packaged in an npm tarball for AgentSkills CLI smoke tests.
 ---
 # sample-npm-greeter
 

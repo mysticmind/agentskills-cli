@@ -57,7 +57,7 @@ See [Source formats](/sources/) for all the input shapes the CLI accepts.
 
 ## Agent
 
-A target tool that reads skills. AgentSkills v1 ships five agent targets:
+A target tool that reads skills. AgentSkills CLI v1 ships five agent targets:
 
 | Agent | What it reads |
 |---|---|
@@ -67,7 +67,7 @@ A target tool that reads skills. AgentSkills v1 ships five agent targets:
 | `opencode` | `.agents/skills/` |
 | `universal` | `.agents/skills/` (the canonical location every spec-compliant agent reads) |
 
-AgentSkills knows where each agent looks and copies the skill there.
+AgentSkills CLI knows where each agent looks and copies the skill there.
 
 ## Scope
 
@@ -80,7 +80,7 @@ Project installs are version-controlled with the project (the project lock file 
 
 Cursor, Codex, OpenCode and the "universal" target all read from the same canonical `.agents/skills/` directory. Installing a skill for one of them effectively installs it for all of them.
 
-Claude Code has its own `.claude/skills/` directory. On filesystems that support it, AgentSkills symlinks `.claude/skills/<name>` to the canonical copy in `.agents/skills/<name>`; otherwise it copies.
+Claude Code has its own `.claude/skills/` directory. On filesystems that support it, AgentSkills CLI symlinks `.claude/skills/<name>` to the canonical copy in `.agents/skills/<name>`; otherwise it copies.
 
 This means: installing a skill once typically makes it available to **every coding agent the developer uses**, not just the one specified on the command line.
 

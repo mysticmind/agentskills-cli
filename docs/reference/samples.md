@@ -18,9 +18,9 @@ Each sample's own README has the full step-by-step verification commands.
 - **Adding skills to a .NET library you publish to NuGet?** Open [`sample-nuget-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-nuget-package). The `.csproj` shows the `<Content Include="contentFiles\...\skills\**" Pack="true">` pattern that any existing library can adopt. See [Publishing to NuGet](/authoring/publishing-nuget) for the broader pattern.
 - **Adding skills to an npm package?** Open [`sample-npm-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-npm-package). The `package.json` `"files": ["skills/"]` entry is the whole publishing trick. See [Publishing to npm](/authoring/publishing-npm) for Verdaccio-based local testing.
 
-## Smoke-testing AgentSkills itself
+## Smoke-testing AgentSkills CLI itself
 
-The `hello-skill` sample is the easiest end-to-end test that AgentSkills works on your machine. After installing the tool:
+The `hello-skill` sample is the easiest end-to-end test that AgentSkills CLI works on your machine. After installing the tool:
 
 ```bash
 git clone https://github.com/mysticmind/agentskills-cli.git

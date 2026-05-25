@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/mysticmind/agentskills-cli/main/docs/public/logo.png" alt="AgentSkills" width="128" />
+  <img src="https://raw.githubusercontent.com/mysticmind/agentskills-cli/main/docs/public/logo.png" alt="AgentSkills CLI" width="128" />
 </p>
 
 <h1 align="center">AgentSkills CLI</h1>
@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="https://mysticmind.github.io/agentskills-cli/"><strong>📖 Documentation</strong></a> &nbsp;·&nbsp;
-  <a href="https://mysticmind.github.io/agentskills-cli/why">Why AgentSkills?</a> &nbsp;·&nbsp;
+  <a href="https://mysticmind.github.io/agentskills-cli/why">Why AgentSkills CLI?</a> &nbsp;·&nbsp;
   <a href="https://mysticmind.github.io/agentskills-cli/getting-started/quick-start">Quick start</a> &nbsp;·&nbsp;
   <a href="https://mysticmind.github.io/agentskills-cli/reference/comparison">vs <code>npx skills</code></a>
 </p>
@@ -73,7 +73,7 @@ Comprehensive guides at **[mysticmind.github.io/agentskills-cli](https://mysticm
 
 | Section | What's there |
 |---|---|
-| [Why AgentSkills](https://mysticmind.github.io/agentskills-cli/why) | The value proposition, condensed |
+| [Why AgentSkills CLI](https://mysticmind.github.io/agentskills-cli/why) | The value proposition, condensed |
 | [Install](https://mysticmind.github.io/agentskills-cli/getting-started/install) | `dnx`, global tool, shell aliases, runtime requirements |
 | [Quick start](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start) | Five-minute hands-on tour |
 | [Concepts](https://mysticmind.github.io/agentskills-cli/getting-started/concepts) | Skill, source, agent, scope - the five terms |
@@ -87,7 +87,7 @@ Comprehensive guides at **[mysticmind.github.io/agentskills-cli](https://mysticm
 
 ## Built on the open spec
 
-Implements the open [Agent Skills specification](https://agentskills.io) - the `SKILL.md` format and the well-known discovery endpoint - so skills published for the spec by anyone work here too. AgentSkills implements the spec; it doesn't fork it.
+Implements the open [Agent Skills specification](https://agentskills.io) - the `SKILL.md` format and the well-known discovery endpoint - so skills published for the spec by anyone work here too. AgentSkills CLI implements the spec; it doesn't fork it.
 
 ## Samples
 

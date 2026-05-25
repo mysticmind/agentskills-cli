@@ -18,11 +18,11 @@ Claude Code is the only **non-universal** agent in v1 - it has its own `.claude/
 
 ## Auto-detection
 
-If you don't pass `-a`, AgentSkills auto-detects which agents are installed on the system (by checking for their config directories) and, in interactive mode, presents a multi-select. Universal agents are pre-selected and always included.
+If you don't pass `-a`, AgentSkills CLI auto-detects which agents are installed on the system (by checking for their config directories) and, in interactive mode, presents a multi-select. Universal agents are pre-selected and always included.
 
 ## Why only five?
 
-The `npx skills` tool lists 55 agents. AgentSkills v1 ships the most commonly used ones to keep the surface small. Adding more is mechanical work; if you need a specific agent, open an issue or PR with the agent's name and conventional skills directory.
+The `npx skills` tool lists 55 agents. AgentSkills CLI v1 ships the most commonly used ones to keep the surface small. Adding more is mechanical work; if you need a specific agent, open an issue or PR with the agent's name and conventional skills directory.
 
 ## Adding a custom agent
 

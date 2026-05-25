@@ -13,7 +13,7 @@ Any HTTPS URL whose hostname is **not** github.com/gitlab.com/raw.githubusercont
 
 ## How it works
 
-AgentSkills probes for an index at:
+AgentSkills CLI probes for an index at:
 
 1. `<url>/.well-known/agent-skills/index.json` (modern path)
 2. `<url>/.well-known/skills/index.json` (legacy fallback)

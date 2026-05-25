@@ -8,13 +8,13 @@ hero:
   image:
     light: /logo.png
     dark: /logo-dark.png
-    alt: AgentSkills hexagonal terminal logo
+    alt: AgentSkills CLI hexagonal terminal logo
   actions:
     - theme: brand
       text: Get started
       link: /getting-started/install
     - theme: alt
-      text: Why AgentSkills?
+      text: Why AgentSkills CLI?
       link: /why
     - theme: alt
       text: View on GitHub

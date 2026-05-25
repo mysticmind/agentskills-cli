@@ -138,5 +138,5 @@ agentskills-cli remove anthropics/skills -y       # all skills from that GitHub 
 ## What next
 
 - **[Commands](/commands/add)** for the full flag reference on each subcommand
-- **[Source formats](/sources/)** for every input shape AgentSkills accepts
+- **[Source formats](/sources/)** for every input shape AgentSkills CLI accepts
 - **[Ship skills with your library](/tutorials/ship-skills-with-library)** if you maintain a NuGet or npm package and want users to get agent guidance "for free" when they install your SDK

@@ -35,6 +35,6 @@ The `<skill-name>` segment is the kebab-case form of the SKILL.md `name` field: 
 
 ## The "canonical only" install result
 
-You may see `canonical only` in the result column when adding for a non-universal agent (typically `claude-code`) without that agent's config directory existing in the project. In that case AgentSkills installs only to the canonical `.agents/skills/` location and skips creating the per-agent mirror. This avoids polluting your project with config directories for agents you may not actually use.
+You may see `canonical only` in the result column when adding for a non-universal agent (typically `claude-code`) without that agent's config directory existing in the project. In that case AgentSkills CLI installs only to the canonical `.agents/skills/` location and skips creating the per-agent mirror. This avoids polluting your project with config directories for agents you may not actually use.
 
 The skill is still available - any future `agentskills-cli add` (or symlink) will materialize the agent-specific copy if the config directory appears later.

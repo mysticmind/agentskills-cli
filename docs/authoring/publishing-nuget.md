@@ -9,7 +9,7 @@
 
 ## The convention
 
-AgentSkills uses the standard NuGet `contentFiles` layout:
+AgentSkills CLI uses the standard NuGet `contentFiles` layout:
 
 ```
 my-skills.csproj
@@ -24,7 +24,7 @@ contentFiles/
                 └── SKILL.md
 ```
 
-The `contentFiles/any/any/skills/` path means "for any target framework, any language - just files for content." Users get them via AgentSkills, not via the C# compilation pipeline.
+The `contentFiles/any/any/skills/` path means "for any target framework, any language - just files for content." Users get them via AgentSkills CLI, not via the C# compilation pipeline.
 
 ## Minimum `.csproj`
 
@@ -119,7 +119,7 @@ Next `dotnet pack`, the `.nupkg` contains the skills. Users who install `Contoso
 
 ## Prefer the convention
 
-`contentFiles/any/any/skills/<name>/SKILL.md` is auto-discovered with no extra flags - users just run `agentskills-cli add YourPackage` and it works. AgentSkills also falls back to a recursive scan, and users can install with `agentskills-cli add YourPackage --path some/custom/path` when skills live somewhere else, but **every non-conventional layout is friction the user has to learn**. Use the convention unless you have a hard reason not to.
+`contentFiles/any/any/skills/<name>/SKILL.md` is auto-discovered with no extra flags - users just run `agentskills-cli add YourPackage` and it works. AgentSkills CLI also falls back to a recursive scan, and users can install with `agentskills-cli add YourPackage --path some/custom/path` when skills live somewhere else, but **every non-conventional layout is friction the user has to learn**. Use the convention unless you have a hard reason not to.
 
 ## See the working sample
 

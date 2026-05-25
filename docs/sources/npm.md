@@ -26,7 +26,7 @@ Unscoped bare names (e.g., `lodash.merge`) hit the NuGet shorthand first, so uns
 
 ## Registry resolution
 
-AgentSkills reads `.npmrc` files in this order (later wins):
+AgentSkills CLI reads `.npmrc` files in this order (later wins):
 
 1. `~/.npmrc`
 2. Project `./.npmrc`
@@ -84,10 +84,10 @@ The `.npmrc` format is shared:
 | npm | yes | yes |
 | pnpm | yes | yes (same config) |
 | bun | yes | yes (same config) |
-| yarn 1 | prefers `.yarnrc` over `.npmrc` | partial - if your auth is only in `.yarnrc`, AgentSkills can't see it. Workaround: also mirror to `.npmrc`, or use `--npm-registry` |
+| yarn 1 | prefers `.yarnrc` over `.npmrc` | partial - if your auth is only in `.yarnrc`, AgentSkills CLI can't see it. Workaround: also mirror to `.npmrc`, or use `--npm-registry` |
 | yarn 2+ | uses `.yarnrc.yml` | same as yarn 1 |
 
-AgentSkills doesn't shell out to any of these - it talks to the npm registry HTTP API directly. **You do not need `node` or any JS tool installed** for the npm source to work.
+AgentSkills CLI doesn't shell out to any of these - it talks to the npm registry HTTP API directly. **You do not need `node` or any JS tool installed** for the npm source to work.
 
 ## Authoring npm packages with skills
 

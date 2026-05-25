@@ -1,6 +1,6 @@
 ---
 name: hello-skill
-description: A minimal sample skill used by AgentSkills smoke tests.
+description: A minimal sample skill used by AgentSkills CLI smoke tests.
 ---
 # hello-skill
 

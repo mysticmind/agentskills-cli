@@ -1,6 +1,6 @@
 # @acme/agent-skills-sample
 
-A trivial npm package showing the AgentSkills layout for shipping skills via the npm registry. The layout:
+A trivial npm package showing the AgentSkills CLI layout for shipping skills via the npm registry. The layout:
 
 ```
 @acme/agent-skills-sample/

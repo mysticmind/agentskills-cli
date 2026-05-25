@@ -40,7 +40,7 @@ Make sure the appropriate credential provider is installed:
 - **GitHub Packages**: add your PAT to `NuGet.Config` as documented by GitHub
 - **Other**: follow the feed vendor's NuGet auth docs
 
-AgentSkills uses `NuGet.Protocol` and doesn't introduce any new auth surface. If `dotnet restore` works against your feed, `agentskills-cli add` will too.
+AgentSkills CLI uses `NuGet.Protocol` and doesn't introduce any new auth surface. If `dotnet restore` works against your feed, `agentskills-cli add` will too.
 
 ## `update` shows "Could not fetch tree (rate-limited, private, or moved)"
 
@@ -51,7 +51,7 @@ export GITHUB_TOKEN=ghp_...
 agentskills-cli update -g
 ```
 
-If you have `gh` CLI authenticated, AgentSkills will fall back to `gh auth token` automatically after a 403 - no env var needed.
+If you have `gh` CLI authenticated, AgentSkills CLI will fall back to `gh auth token` automatically after a 403 - no env var needed.
 
 ## Symlinks failing on Windows
 

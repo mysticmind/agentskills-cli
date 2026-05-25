@@ -43,7 +43,7 @@ export default defineConfig({
     logo: {
       light: '/logo.png',
       dark: '/logo-dark.png',
-      alt: 'AgentSkills hexagonal terminal logo',
+      alt: 'AgentSkills CLI hexagonal terminal logo',
     },
 
     nav: [
@@ -56,7 +56,7 @@ export default defineConfig({
       {
         text: 'Getting started',
         items: [
-          { text: 'Why AgentSkills?', link: '/why' },
+          { text: 'Why AgentSkills CLI?', link: '/why' },
           { text: 'Install', link: '/getting-started/install' },
           { text: 'Concepts', link: '/getting-started/concepts' },
           { text: 'Quick start', link: '/getting-started/quick-start' },
@@ -107,7 +107,7 @@ export default defineConfig({
           { text: 'Environment variables', link: '/reference/environment-variables' },
           { text: 'Search providers (extension point)', link: '/reference/search-providers' },
           { text: 'Samples', link: '/reference/samples' },
-          { text: 'AgentSkills vs npx skills', link: '/reference/comparison' },
+          { text: 'AgentSkills CLI vs npx skills', link: '/reference/comparison' },
         ],
       },
       {

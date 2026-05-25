@@ -4,7 +4,7 @@ All notable changes are documented here. Format roughly follows [Keep a Changelo
 
 ## 0.2.0 - 2026-05-23
 
-The first public release of **AgentSkills**, a .NET port of [vercel-labs/skills](https://github.com/vercel-labs/skills) implementing the open [Agent Skills spec](https://agentskills.io).
+The first public release of **AgentSkills CLI**, a .NET port of [vercel-labs/skills](https://github.com/vercel-labs/skills) implementing the open [Agent Skills spec](https://agentskills.io).
 
 ### Sources
 

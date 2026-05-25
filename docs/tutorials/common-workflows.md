@@ -72,7 +72,7 @@ Sources that can't be checked automatically (local paths, generic git URLs, GitL
 
 ## Set up a private NuGet feed for team skills
 
-If your team publishes skills to an internal feed (Azure Artifacts, GitHub Packages, ProGet, MyGet, etc.), AgentSkills reads your existing `NuGet.config` and credential providers automatically - no new auth surface.
+If your team publishes skills to an internal feed (Azure Artifacts, GitHub Packages, ProGet, MyGet, etc.), AgentSkills CLI reads your existing `NuGet.config` and credential providers automatically - no new auth surface.
 
 ```bash
 # One-time, machine-wide:

@@ -1,6 +1,6 @@
 # SKILL.md format
 
-The atomic unit of a skill is a folder containing a `SKILL.md` file with YAML frontmatter. The format is defined by the open [Agent Skills specification](https://agentskills.io); AgentSkills implements it faithfully.
+The atomic unit of a skill is a folder containing a `SKILL.md` file with YAML frontmatter. The format is defined by the open [Agent Skills specification](https://agentskills.io); AgentSkills CLI implements it faithfully.
 
 ## Minimum
 
@@ -82,7 +82,7 @@ Discovery scans the conventional priority directories first, then recurses up to
 
 ## Excluded from copy
 
-When AgentSkills installs a skill, it copies the contents of the SKILL folder but excludes:
+When AgentSkills CLI installs a skill, it copies the contents of the SKILL folder but excludes:
 
 - `metadata.json` (a separate file - rare, but reserved)
 - `.git/`
@@ -93,7 +93,7 @@ Broken symlinks are skipped silently rather than aborting the install.
 
 ## Validation
 
-AgentSkills validates frontmatter on parse:
+AgentSkills CLI validates frontmatter on parse:
 
 - Missing `name` or `description` → skill ignored (not installed, no error)
 - Wrong types (e.g., `name: 42`) → skill ignored

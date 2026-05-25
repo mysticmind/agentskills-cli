@@ -15,7 +15,7 @@ A `@my-org/sample-toolkit-skills` package is fine; adding `skills/` to `@my-org/
     └── skill-two/SKILL.md
 ```
 
-When packed, the tarball roots at `package/`, so the on-the-wire structure is `package/skills/<name>/SKILL.md` - exactly what AgentSkills looks for first when extracting an npm source.
+When packed, the tarball roots at `package/`, so the on-the-wire structure is `package/skills/<name>/SKILL.md` - exactly what AgentSkills CLI looks for first when extracting an npm source.
 
 ## Minimum `package.json`
 
@@ -74,7 +74,7 @@ Add a top-level `skills/` directory and update `files`:
 }
 ```
 
-Now `npm pack` includes the skills in `package/skills/...`, and any user installing `@my-org/sample-toolkit` from npm has them available to AgentSkills automatically.
+Now `npm pack` includes the skills in `package/skills/...`, and any user installing `@my-org/sample-toolkit` from npm has them available to AgentSkills CLI automatically.
 
 ## Local testing with Verdaccio
 
@@ -114,7 +114,7 @@ Per-scope registry rules, longest-path-prefix token matching, and `${ENV_VAR}` e
 
 ## Prefer the convention
 
-`package/skills/<name>/SKILL.md` is auto-discovered with no extra flags. AgentSkills also falls back to a recursive scan, and users can install with `agentskills-cli add @your-org/your-package --path src/skills` when skills live elsewhere, but **every non-conventional layout is friction the user has to learn**. Use the convention unless you have a hard reason not to.
+`package/skills/<name>/SKILL.md` is auto-discovered with no extra flags. AgentSkills CLI also falls back to a recursive scan, and users can install with `agentskills-cli add @your-org/your-package --path src/skills` when skills live elsewhere, but **every non-conventional layout is friction the user has to learn**. Use the convention unless you have a hard reason not to.
 
 ## See the working sample
 

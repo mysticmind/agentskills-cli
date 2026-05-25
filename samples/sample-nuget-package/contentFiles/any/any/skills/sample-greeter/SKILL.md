@@ -1,6 +1,6 @@
 ---
 name: sample-greeter
-description: Sample skill packaged in a NuGet package for AgentSkills smoke tests.
+description: Sample skill packaged in a NuGet package for AgentSkills CLI smoke tests.
 ---
 # sample-greeter
 

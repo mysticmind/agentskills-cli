@@ -1,10 +1,10 @@
-# AgentSkills vs `npx skills`
+# AgentSkills CLI vs `npx skills`
 
-AgentSkills is a faithful .NET-native port of [`vercel-labs/skills`](https://github.com/vercel-labs/skills) that adds first-class NuGet and npm support plus a layer of ergonomics. This page is the full feature-by-feature table; the [FAQ entry](/faq#how-is-this-different-from-npx-skills) summarizes the highlights in prose.
+AgentSkills CLI is a faithful .NET-native port of [`vercel-labs/skills`](https://github.com/vercel-labs/skills) that adds first-class NuGet and npm support plus a layer of ergonomics. This page is the full feature-by-feature table; the [FAQ entry](/faq#how-is-this-different-from-npx-skills) summarizes the highlights in prose.
 
 ## Capability matrix
 
-| Capability | AgentSkills | `npx skills` |
+| Capability | AgentSkills CLI | `npx skills` |
 |---|---|---|
 | **NuGet packages** as a first-class source (public + private feeds, NuGet.config + credential providers) | yes | no NuGet path |
 | **npm registry fetch** as a first-class source (public + private, `.npmrc` + scoped registries + `_authToken`) | yes | only `experimental_sync` from pre-installed `node_modules` |
@@ -30,13 +30,13 @@ By design - the two tools interoperate, so being identical here is a feature, no
 - **Well-known endpoint** - both support `/.well-known/agent-skills/index.json` (modern) and `/.well-known/skills/index.json` (legacy fallback)
 - **GitHub auth chain** - both fall back through `GITHUB_TOKEN` -> `GH_TOKEN` -> `gh auth token` after an unauthenticated 403
 
-## What AgentSkills v1 deliberately doesn't ship
+## What AgentSkills CLI v1 deliberately doesn't ship
 
-| Feature | Why it's not in AgentSkills |
+| Feature | Why it's not in AgentSkills CLI |
 |---|---|
 | **Telemetry** | Privacy by default. Lock files give you everything you need to track usage internally. |
 | **`experimental_install`** | Still experimental in `npx skills`; holding for stability. |
-| **`experimental_sync`** | Same. AgentSkills' npm fetch covers the actual use case (install from registry). |
+| **`experimental_sync`** | Same. AgentSkills CLI' npm fetch covers the actual use case (install from registry). |
 | **The full 55-agent registry** | v1 ships the most-used 5: `claude-code`, `codex`, `cursor`, `opencode`, `universal`. Adding more is mechanical - [open an issue](https://github.com/mysticmind/agentskills-cli/issues) for any specific agent you need. |
 | **Live fzf-style `find` UI** | The current table-output `find` is responsive enough; a TUI variant may land in a later version if there's demand. |
 
@@ -47,5 +47,5 @@ If you have both tools installed, they coexist by design - different binaries (`
 ## Next
 
 - [FAQ](/faq) - common questions with concise answers
-- [Source formats](/sources/) - every input type AgentSkills accepts
+- [Source formats](/sources/) - every input type AgentSkills CLI accepts
 - [Search providers (extension point)](/reference/search-providers) - the contract for custom search backends

@@ -1,6 +1,6 @@
 # Search providers (extension point)
 
-[`find`](/commands/find) discovers skills through one or more **search providers**. AgentSkills ships one out of the box (`skills.sh`); you can register more without forking.
+[`find`](/commands/find) discovers skills through one or more **search providers**. AgentSkills CLI ships one out of the box (`skills.sh`); you can register more without forking.
 
 ## The contract
 

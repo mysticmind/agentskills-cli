@@ -1,12 +1,12 @@
-# Why AgentSkills
+# Why AgentSkills CLI
 
-If you write .NET code and use Claude Code, Cursor, Codex, or any agent that reads the universal `.agents/skills/` directory, you want a CLI that feels native: installs from NuGet, respects your `NuGet.config`, ships through `dnx`. AgentSkills exists because that CLI didn't exist.
+If you write .NET code and use Claude Code, Cursor, Codex, or any agent that reads the universal `.agents/skills/` directory, you want a CLI that feels native: installs from NuGet, respects your `NuGet.config`, ships through `dnx`. AgentSkills CLI exists because that CLI didn't exist.
 
 ## The short version
 
 - **Install agent skills the way .NET devs install everything else** - from NuGet (public or private), with your existing credentials and feeds. No new auth surface, no JavaScript runtime, no second package manager.
 - **Skills can ship inside the libraries they describe.** A `Contoso.SampleLib` NuGet package can carry the agent guidance for using `Contoso.SampleLib`. Users who install your library get the skills automatically; the SDK and its agent docs version together, distribute together, stay in sync.
-- **First-class npm too** - because TypeScript skills shipped on npm are still the bulk of the ecosystem, and AgentSkills is the only tool that does proper registry fetch with `.npmrc` scoped-registry support (not just `node_modules` sync).
+- **First-class npm too** - because TypeScript skills shipped on npm are still the bulk of the ecosystem, and AgentSkills CLI is the only tool that does proper registry fetch with `.npmrc` scoped-registry support (not just `node_modules` sync).
 - **Runs as `dnx`** - one-shot invocation on .NET 10, exactly like `npx`. CI runners need nothing pre-installed.
 
 ## The bigger insight: skills inside libraries
@@ -26,9 +26,9 @@ The dedicated skills-only package is still a fine option when there's no library
 
 ## How it compares to `npx skills`
 
-AgentSkills is a faithful .NET-native port of [`vercel-labs/skills`](https://github.com/vercel-labs/skills) that adds first-class NuGet and npm support plus ergonomics. The highlights:
+AgentSkills CLI is a faithful .NET-native port of [`vercel-labs/skills`](https://github.com/vercel-labs/skills) that adds first-class NuGet and npm support plus ergonomics. The highlights:
 
-| | AgentSkills | `npx skills` |
+| | AgentSkills CLI | `npx skills` |
 |---|---|---|
 | **NuGet packages** as a first-class source | yes | no NuGet path |
 | **npm registry fetch** (not just `node_modules` sync) | yes | only `experimental_sync` |
@@ -42,11 +42,11 @@ AgentSkills is a faithful .NET-native port of [`vercel-labs/skills`](https://git
 
 ## Lock-file interop, not lock-in
 
-By design, AgentSkills writes to the **same** `~/.agents/.skill-lock.json` and `./skills-lock.json` files that `npx skills` uses. A skill installed by either tool is visible to the other. You can switch tools without losing tracked state, you can use both on the same machine, and a polyglot team can have `npx skills` users and `agentskills-cli` users in the same repo with no friction.
+By design, AgentSkills CLI writes to the **same** `~/.agents/.skill-lock.json` and `./skills-lock.json` files that `npx skills` uses. A skill installed by either tool is visible to the other. You can switch tools without losing tracked state, you can use both on the same machine, and a polyglot team can have `npx skills` users and `agentskills-cli` users in the same repo with no friction.
 
 ## Built on the open spec
 
-The `SKILL.md` format and the well-known discovery endpoint follow the open [Agent Skills specification](https://agentskills.io). Skills published for `npx skills`, the broader ecosystem, or any other spec-compliant client work here too. AgentSkills implements the spec; it doesn't fork it.
+The `SKILL.md` format and the well-known discovery endpoint follow the open [Agent Skills specification](https://agentskills.io). Skills published for `npx skills`, the broader ecosystem, or any other spec-compliant client work here too. AgentSkills CLI implements the spec; it doesn't fork it.
 
 ## Next
 

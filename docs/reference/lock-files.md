@@ -1,6 +1,6 @@
 # Lock files
 
-AgentSkills writes two lock files so installs are reproducible and [`update`](/commands/update) has something to diff against.
+AgentSkills CLI writes two lock files so installs are reproducible and [`update`](/commands/update) has something to diff against.
 
 ## Global lock - `~/.agents/.skill-lock.json`
 

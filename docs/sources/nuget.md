@@ -25,7 +25,7 @@ That last rule means single-segment NuGet IDs without a dot (rare in practice) n
 
 ## Feeds and auth
 
-AgentSkills uses `NuGet.Protocol` with `Settings.LoadDefaultSettings()`, so **every feed listed in your machine, user, or project `NuGet.Config` is searched in order**. Credential providers (Azure Artifacts Credential Provider, GitHub Packages PAT in NuGet.Config, etc.) are honored automatically - no flag needed.
+AgentSkills CLI uses `NuGet.Protocol` with `Settings.LoadDefaultSettings()`, so **every feed listed in your machine, user, or project `NuGet.Config` is searched in order**. Credential providers (Azure Artifacts Credential Provider, GitHub Packages PAT in NuGet.Config, etc.) are honored automatically - no flag needed.
 
 If `dotnet restore` works against your feed, `agentskills-cli add <pkg>` works against the same feed.
 
@@ -48,7 +48,7 @@ mypackage.nupkg
 
 Multiple skills per package allowed; each subfolder with a `SKILL.md` is its own skill.
 
-If the package doesn't follow the convention, AgentSkills falls back to a recursive scan inside the extracted `.nupkg`. Pass [`--path <subdir>`](/commands/add) to point discovery somewhere specific.
+If the package doesn't follow the convention, AgentSkills CLI falls back to a recursive scan inside the extracted `.nupkg`. Pass [`--path <subdir>`](/commands/add) to point discovery somewhere specific.
 
 ## Versions
 

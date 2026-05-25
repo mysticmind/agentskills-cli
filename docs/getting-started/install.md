@@ -2,35 +2,37 @@
 
 AgentSkills CLI is a [.NET tool](https://learn.microsoft.com/en-us/dotnet/core/tools/global-tools) targeting **.NET 8 LTS** and **.NET 10**. Pick whichever invocation style fits the moment.
 
-## Option A: one-shot via `dnx` (.NET 10+)
-
-No install step required. `dnx` is the .NET 10 SDK's equivalent of `npx` - it downloads the tool on first use, caches it, and runs it.
-
-```bash
-# --prerelease required while AgentSkills CLI is in the 0.2.0-preview phase
-dnx agentskills-cli --prerelease -- --help
-dnx agentskills-cli --prerelease -- add ./my-skill -a claude-code
-```
-
-When the stable `0.2.0` ships, `--prerelease` becomes optional - omit it to track stable, keep it to track previews.
-
-Best when you want to try the tool once or run it in CI without polluting the global tool space.
-
-## Option B: global tool
+## Option A: global tool (recommended for daily use)
 
 Install once, type `agentskills-cli` from anywhere.
 
 ```bash
-dotnet tool install --global agentskills-cli
+# --prerelease required while AgentSkills CLI is in the 0.2.0-preview phase
+dotnet tool install --global agentskills-cli --prerelease
 agentskills-cli --help
 ```
 
 Update or uninstall:
 
 ```bash
-dotnet tool update --global agentskills-cli
+dotnet tool update --global agentskills-cli --prerelease
 dotnet tool uninstall --global agentskills-cli
 ```
+
+When the stable `0.2.0` ships, `--prerelease` becomes optional - omit it to track stable, keep it to track previews.
+
+## Option B: one-shot via `dnx` (CI / no-install scenarios)
+
+No install step required. `dnx` is the .NET 10 SDK's equivalent of `npx` - it downloads the tool on first use, caches it, and runs it.
+
+```bash
+dnx agentskills-cli --prerelease -- --help
+dnx agentskills-cli --prerelease -- add ./my-skill -a claude-code
+```
+
+The `--prerelease` is the preview-phase requirement; the `--` separator passes args after it through to the tool (not to `dnx`).
+
+Best when you want to try the tool once, run it in CI without polluting the global tool space, or pin to a specific preview version (`dnx agentskills-cli@0.2.0-preview.2 -- add ...`). For interactive daily use, prefer Option A - it's much less typing.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 # AgentSkills CLI
 
-[![NuGet](https://img.shields.io/nuget/v/agentskills-cli?logo=nuget&label=nuget&color=4F46E5)](https://www.nuget.org/packages/agentskills-cli) [![GitHub release](https://img.shields.io/github/v/release/mysticmind/agentskills-cli?logo=github&label=release&color=4F46E5)](https://github.com/mysticmind/agentskills-cli/releases)
+[![NuGet](https://img.shields.io/nuget/v/agentskills-cli?logo=nuget&label=nuget)](https://www.nuget.org/packages/agentskills-cli) [![GitHub release](https://img.shields.io/github/v/release/mysticmind/agentskills-cli?logo=github&label=release)](https://github.com/mysticmind/agentskills-cli/releases)
 
 **The .NET commandline tool for the open [Agent Skills](https://agentskills.io) ecosystem.**
 

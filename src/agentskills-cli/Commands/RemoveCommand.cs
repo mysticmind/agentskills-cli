@@ -86,6 +86,7 @@ public sealed class RemoveCommand : Command<RemoveCommand.Settings>
             var picked = _console.Prompt(new MultiSelectionPrompt<string>()
                 .Title("[bold]Select skills to remove[/]")
                 .NotRequired()
+                .InstructionsText("[grey](Press <space> to toggle, <enter> to confirm, Ctrl+C to cancel)[/]")
                 .AddChoices(byLabel.Keys));
             toRemove = picked.Select(p => byLabel[p]).ToList();
             if (toRemove.Count == 0) return 0;

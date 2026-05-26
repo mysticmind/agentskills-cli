@@ -2,6 +2,14 @@
 
 All notable changes are documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [SemVer](https://semver.org). API may evolve in any `0.x` release.
 
+## 0.2.2 - 2026-05-26
+
+Patch release. Interactive-prompt UX fix.
+
+### Bug fixes
+
+- **`add` no longer silently installs every skill when you hit Enter on an empty selection.** The skill picker treated "nothing checked" as "install all," which made it impossible to back out of the prompt without Ctrl+C (and Esc isn't bound by Spectre.Console). Empty selection now exits cleanly with "Nothing selected, skipping." Same fix applied to the agent picker. All three multi-select prompts (`add` skills, `add` agents, `remove`) now show "Ctrl+C to cancel" in the instructions.
+
 ## 0.2.1 - 2026-05-26
 
 Patch release. Bug fixes + housekeeping; no new features.

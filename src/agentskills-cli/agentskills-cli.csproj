@@ -20,7 +20,7 @@
     <PackageType>DotnetTool</PackageType>
     <PackageId>agentskills-cli</PackageId>
     <Title>AgentSkills CLI</Title>
-    <Version>0.2.1</Version>
+    <Version>0.2.2</Version>
     <Authors>Babu Annamalai</Authors>
     <Copyright>Copyright (c) 2026 Babu Annamalai</Copyright>
     <Description>The .NET commandline tool for the open Agent Skills ecosystem. Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders into Claude Code, Cursor, Codex, OpenCode, and any spec-compliant agent.</Description>

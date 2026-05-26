@@ -29,11 +29,11 @@ public static class Prompts
             .Title("[bold]Select skills to install[/]")
             .NotRequired()
             .PageSize(15)
-            .InstructionsText("[grey](Press <space> to toggle, <enter> to confirm)[/]")
+            .InstructionsText("[grey](Press <space> to toggle, <enter> to confirm, Ctrl+C to cancel)[/]")
             .AddChoices(byLabel.Keys);
 
         var selected = console.Prompt(prompt);
-        return selected.Count == 0 ? skills.ToList() : selected.Select(s => byLabel[s]).ToList();
+        return selected.Select(s => byLabel[s]).ToList();
     }
 
     /// <summary>
@@ -69,14 +69,15 @@ public static class Prompts
             a => a);
         var prompt = new MultiSelectionPrompt<string>()
             .Title("[bold]Install for which agents?[/]")
+            .NotRequired()
             .PageSize(15)
-            .InstructionsText("[grey](Press <space> to toggle, <enter> to confirm. Universal agents are always included.)[/]")
+            .InstructionsText("[grey](Press <space> to toggle, <enter> to confirm, Ctrl+C to cancel. Universal agents are always included.)[/]")
             .AddChoices(byLabel.Keys);
 
         var selected = console.Prompt(prompt);
         var chosen = selected.Select(s => byLabel[s]).ToList();
         chosen.AddRange(universal);
-        return chosen.Count == 0 ? detected.ToList() : chosen;
+        return chosen;
     }
 
     public static bool Confirm(IAnsiConsole console, string question, bool defaultValue = false)

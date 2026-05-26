@@ -14,8 +14,6 @@ First-class NuGet & npm · library-bundled skill packages · extension points by
 
 ---
 
-> **Initial release (`0.2.0`).** Feedback welcome on the install path, on any feature you expected and didn't find, and on anything that reads as confusing in the docs - [open an issue](https://github.com/mysticmind/agentskills-cli/issues).
-
 ## Install
 
 ```bash

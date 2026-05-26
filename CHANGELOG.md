@@ -2,15 +2,21 @@
 
 All notable changes are documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [SemVer](https://semver.org). API may evolve in any `0.x` release.
 
-## 0.3.0 - 2026-05-26
+## 0.2.1 - 2026-05-26
 
-_In development - changes since `0.2.0` accumulate here as they land._
+Patch release. Bug fixes + housekeeping; no new features.
+
+### Bug fixes
+
+- **`-v` / `--verbose` / `-q` / `--quiet` / `--trace` flags now actually work.** The parser was reading them for the logger pipeline but not removing them from the args array before Spectre.Console.Cli's parser saw them, so the global flags errored out with "Unexpected option ...". Strip the flags from args after parsing so Spectre only sees the rest.
+- **NuGet install errors now name *which* feed failed and *why*.** Previously: "Failed to download NuGet package 'X' from any configured source" - users had to dig through `-v` output to see per-source failures (and `-v` was broken, see above). Now the per-source reasons are embedded directly in the visible error message - 401 / 404 / network errors / etc. surface immediately.
 
 ### Housekeeping (post-0.2.0)
 
 - `LICENSE`: dropped the "Portions Copyright (c) Vercel Labs..." line. AgentSkills CLI is a clean-room C# port with no source code copied, so MIT's notice clause isn't triggered. Attribution now lives in `NOTICE` where it belongs.
 - `NOTICE`: rewritten to use the current product name + a proper attribution block. Names what's shared with upstream (behavior, design, lock format) and what isn't (source code).
 - README badges: NuGet + GitHub release badges now track stable releases only (not prereleases) and use shields.io default colors instead of the custom indigo.
+- Repo-level `NuGet.config` added at root with `<clear />` + nuget.org only. Insulates the build from whatever feeds individual contributors have configured at the user level (fixes NU1507 build break under Central Package Management when extra feeds are registered globally).
 
 ## 0.2.0 - 2026-05-26
 

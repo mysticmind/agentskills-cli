@@ -1,6 +1,10 @@
 # Changelog
 
-All notable changes are documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [SemVer](https://semver.org). API may evolve in any `0.x` release.
+All notable changes are documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [SemVer](https://semver.org).
+
+## 1.0.0 - 2026-06-03
+
+First stable release. The CLI, source resolvers, lock format, and install layout are considered stable; future changes follow SemVer with no further breaking changes expected before 2.0.0. No functional changes since 0.2.2.
 
 ## 0.2.2 - 2026-05-26
 

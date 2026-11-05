@@ -51,6 +51,8 @@ To add a feed **just for skills**, without touching your normal NuGet configurat
 agentskills-cli feed add https://pkgs.contoso.com/v3/index.json --name contoso
 ```
 
+[Package source mapping](/sources/private-feeds#package-source-mapping) is honored: a package only comes from the feeds mapped to it.
+
 Use a single feed for one command with `--nuget-source`, which takes a URL, a folder, or a configured feed's name:
 
 ```bash

@@ -62,6 +62,28 @@ agentskills-cli feed list
 agentskills-cli registry list
 ```
 
+## Package source mapping
+
+If your NuGet configuration has a `<packageSourceMapping>` section, AgentSkills CLI follows it exactly as `dotnet restore` does: **a package only comes from the feeds whose patterns match its id**. Use it for private skill packages:
+
+```xml
+<packageSourceMapping>
+  <packageSource key="contoso">
+    <package pattern="Contoso.*" />
+  </packageSource>
+  <packageSource key="nuget.org">
+    <package pattern="*" />
+  </packageSource>
+</packageSourceMapping>
+```
+
+With this, `Contoso.AgentSkills` is only ever looked up on the `contoso` feed. Without it, a package with the same id published to nuget.org, perhaps with a higher version number, could be picked up by `add`, reported by `outdated` and installed by `update`. Your agents follow skills as instructions, so this kind of mix-up (dependency confusion) matters.
+
+- Mapping can live in any of the files listed above, including the skills files.
+- When mapping is on, a package that matches no feed fails with an error that says so.
+- `feed list` shows each feed's patterns.
+- `--nuget-source` is an explicit choice and isn't filtered by mapping.
+
 ## Credentials
 
 **NuGet**, in order of preference:

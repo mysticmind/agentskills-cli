@@ -23,7 +23,7 @@ agentskills-cli feed add <url-or-folder> [--name <name>] [-g]
 agentskills-cli feed list [--json]
 ```
 
-Shows every NuGet feed in effect, in the order the tool tries them, with whether it's enabled, whether stored credentials exist, and which file defines it. Credentials supplied by a credential provider aren't shown.
+Shows every NuGet feed in effect, in the order the tool tries them, with whether it's enabled, whether stored credentials exist, and which file defines it. Credentials supplied by a credential provider aren't shown. When [package source mapping](/sources/private-feeds#package-source-mapping) is configured, a **Packages** column shows which package patterns each feed serves.
 
 ## `feed remove`
 

@@ -40,6 +40,7 @@ These fix unsafe or surprising behavior; check them if you script the tool.
 - **`remove` and `list` respect scope** when matching by package: removing a project package no longer touches a same-named global skill or its global lock entry, and `list` shows each row's source from its own scope's lock.
 - **`remove -a <agent>` no longer breaks other agents.** It used to delete the shared canonical copy and the lock entry even when other agents still used the skill (through a symlink).
 - **Corrupt lock files are no longer silently discarded.** An unparseable lock is backed up to `<lock>.corrupt-<timestamp>` with a warning. A lock written in a newer format is never overwritten, and lock writes are atomic.
+- **NuGet package source mapping was ignored.** Every feed was tried in order, so a same-named package on a public feed (possibly with a higher version) could be installed, or offered by `outdated`/`update`, in place of a private one: a dependency-confusion risk. Packages now only come from the feeds mapped to them, as with `dotnet restore`, and `feed list` shows the patterns.
 - **The project's `NuGet.config` was ignored.** NuGet settings were loaded without the project folder, so only user and machine-wide feeds were searched.
 - **NuGet credential providers weren't used** (for example the Azure Artifacts Credential Provider), although the docs said they were. They're now set up the way `dotnet restore` does.
 - `--nuget-source` with a URL dropped the credentials configured for that feed.

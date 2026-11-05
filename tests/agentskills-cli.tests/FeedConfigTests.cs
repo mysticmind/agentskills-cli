@@ -116,6 +116,74 @@ public sealed class NuGetFeedConfigTests : IDisposable
         Assert.Equal(["b", "a"], feeds.Select(f => f.Name));
     }
 
+    private void WriteMappedConfig()
+    {
+        // <clear /> in both sections keeps the machine's own NuGet.config out of the result.
+        Directory.CreateDirectory(Path.GetDirectoryName(ProjectSkillsConfig)!);
+        File.WriteAllText(ProjectSkillsConfig, """
+            <?xml version="1.0"?>
+            <configuration>
+              <packageSources>
+                <clear />
+                <add key="public" value="https://public.example.com/v3/index.json" />
+                <add key="private" value="https://private.example.com/v3/index.json" />
+              </packageSources>
+              <packageSourceMapping>
+                <clear />
+                <packageSource key="private"><package pattern="Contoso.*" /></packageSource>
+                <packageSource key="public"><package pattern="Newtonsoft.*" /></packageSource>
+              </packageSourceMapping>
+            </configuration>
+            """);
+    }
+
+    [Fact]
+    public void Mapping_OnlyMappedFeedsAreUsed()
+    {
+        WriteMappedConfig();
+
+        Assert.Equal(["private"], NuGetFeedConfig.ResolveFeeds(null, cwd: _project, packageId: "Contoso.Skills").Select(f => f.Name));
+        Assert.Equal(["public"], NuGetFeedConfig.ResolveFeeds(null, cwd: _project, packageId: "Newtonsoft.Json").Select(f => f.Name));
+    }
+
+    [Fact]
+    public void Mapping_PreferredFeedOutsideTheMapping_IsNotAdded()
+    {
+        WriteMappedConfig();
+
+        var feeds = NuGetFeedConfig.ResolveFeeds(null, preferredSource: "https://public.example.com/v3/index.json", cwd: _project, packageId: "Contoso.Skills");
+
+        Assert.Equal(["private"], feeds.Select(f => f.Name));
+    }
+
+    [Fact]
+    public void Mapping_UnmappedPackage_Throws()
+    {
+        WriteMappedConfig();
+
+        var ex = Assert.Throws<InvalidOperationException>(() => NuGetFeedConfig.ResolveFeeds(null, cwd: _project, packageId: "Fabrikam.Skills"));
+        Assert.Contains("Fabrikam.Skills", ex.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Mapping_ExplicitNuGetSource_IsNotFiltered()
+    {
+        WriteMappedConfig();
+
+        Assert.Equal(["public"], NuGetFeedConfig.ResolveFeeds("public", cwd: _project, packageId: "Contoso.Skills").Select(f => f.Name));
+    }
+
+    [Fact]
+    public void Mapping_PatternsAreListed()
+    {
+        WriteMappedConfig();
+
+        var feeds = NuGetFeedConfig.List(_project);
+
+        Assert.Equal(["Contoso.*"], feeds.Single(f => f.Name == "private").PackagePatterns);
+        Assert.Equal(["Newtonsoft.*"], feeds.Single(f => f.Name == "public").PackagePatterns);
+    }
+
     [Fact]
     public void FeedAdd_LocalFolder_IsStoredRelativeToTheConfigFile()
     {

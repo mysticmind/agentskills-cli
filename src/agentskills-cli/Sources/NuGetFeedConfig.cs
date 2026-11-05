@@ -43,7 +43,11 @@ public static class NuGetFeedConfig
     }
 
     /// <summary>One feed as seen by the tool, with the file that defines it.</summary>
-    public sealed record FeedInfo(string Name, string Source, bool Enabled, bool HasCredentials, string? DefinedIn);
+    /// <param name="PackagePatterns">
+    /// Package source mapping patterns for this feed. Null when mapping is off (any package may
+    /// come from any feed); empty when mapping is on but no package is mapped to this feed.
+    /// </param>
+    public sealed record FeedInfo(string Name, string Source, bool Enabled, bool HasCredentials, string? DefinedIn, IReadOnlyList<string>? PackagePatterns = null);
 
     /// <summary>Every feed in effect, in the order the tool tries them.</summary>
     public static List<FeedInfo> List(string? cwd = null)
@@ -52,13 +56,22 @@ public static class NuGetFeedConfig
         var settings = Load(root);
         var sources = new PackageSourceProvider(settings).LoadPackageSources().ToList();
         var files = settings.GetConfigFilePaths().ToList();
+        var mapping = PackageSourceMapping.GetPackageSourceMapping(settings);
+        var patterns = new PackageSourceMappingProvider(settings).GetPackageSourceMappingItems()
+            .GroupBy(i => i.Key, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                g => g.Key,
+                g => (IReadOnlyList<string>)g.SelectMany(i => i.Patterns).Select(p => p.Pattern).ToList(),
+                StringComparer.OrdinalIgnoreCase);
 
         return sources.Select(s => new FeedInfo(
             s.Name,
             s.Source,
             s.IsEnabled,
             s.Credentials is not null,
-            files.FirstOrDefault(f => DefinesSource(f, s.Name)))).ToList();
+            files.FirstOrDefault(f => DefinesSource(f, s.Name)),
+            !mapping.IsEnabled ? null
+                : patterns.TryGetValue(s.Name, out var p) ? p : [])).ToList();
     }
 
     private static bool DefinesSource(string configPath, string name)
@@ -146,12 +159,18 @@ public static class NuGetFeedConfig
     /// <summary>
     /// The feeds to try for one operation. <paramref name="overrideSource"/> (<c>--nuget-source</c>)
     /// may be a feed URL, a local folder, or the <b>name</b> of a configured feed; a configured
-    /// match keeps its credentials. <paramref name="preferredSource"/> (the feed a package was
-    /// installed from) is moved to the front without hiding the others.
+    /// match keeps its credentials, and an explicit choice isn't filtered further.
+    /// Otherwise, when <c>packageSourceMapping</c> is configured, only the feeds mapped to
+    /// <paramref name="packageId"/> are returned, exactly as <c>dotnet restore</c> does; this
+    /// stops a same-named package on a public feed from replacing a private one.
+    /// <paramref name="preferredSource"/> (the feed a package was installed from) is moved to the
+    /// front without hiding the others.
     /// </summary>
-    public static List<PackageSource> ResolveFeeds(string? overrideSource, string? preferredSource = null, string? cwd = null)
+    /// <exception cref="InvalidOperationException">Mapping is on and no enabled feed is mapped to the package.</exception>
+    public static List<PackageSource> ResolveFeeds(string? overrideSource, string? preferredSource = null, string? cwd = null, string? packageId = null)
     {
-        var configured = new PackageSourceProvider(Load(cwd)).LoadPackageSources().ToList();
+        var settings = Load(cwd);
+        var configured = new PackageSourceProvider(settings).LoadPackageSources().ToList();
 
         if (!string.IsNullOrWhiteSpace(overrideSource))
         {
@@ -161,6 +180,24 @@ public static class NuGetFeedConfig
         }
 
         var enabled = configured.Where(s => s.IsEnabled).ToList();
+
+        if (!string.IsNullOrWhiteSpace(packageId))
+        {
+            var mapping = PackageSourceMapping.GetPackageSourceMapping(settings);
+            if (mapping.IsEnabled)
+            {
+                var allowed = mapping.GetConfiguredPackageSources(packageId);
+                enabled = enabled.Where(s => allowed.Contains(s.Name, StringComparer.OrdinalIgnoreCase)).ToList();
+                if (enabled.Count == 0)
+                {
+                    throw new InvalidOperationException(
+                        $"Package source mapping doesn't allow '{packageId}' from any enabled feed. " +
+                        "Add a <package pattern=\"...\" /> for it under the right feed in <packageSourceMapping> " +
+                        "(`agentskills-cli feed list` shows the current patterns), or pick a feed explicitly with --nuget-source.");
+                }
+            }
+        }
+
         if (!string.IsNullOrWhiteSpace(preferredSource))
         {
             var preferred = enabled.FirstOrDefault(s => SameSource(s.Source, preferredSource));

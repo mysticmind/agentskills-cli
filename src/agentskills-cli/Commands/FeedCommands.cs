@@ -136,6 +136,7 @@ public sealed class FeedListCommand : Command<FeedListCommand.Settings>
                 enabled = f.Enabled,
                 hasCredentials = f.HasCredentials,
                 definedIn = f.DefinedIn,
+                packagePatterns = f.PackagePatterns,
             }));
             return 0;
         }
@@ -147,17 +148,30 @@ public sealed class FeedListCommand : Command<FeedListCommand.Settings>
         }
 
         var table = new Table().Border(TableBorder.Rounded).LeftAligned().Title("[bold]NuGet feeds, in the order they're tried[/]");
+        var mappingOn = feeds.Any(f => f.PackagePatterns is not null);
         table.AddColumns("Name", "Source", "Enabled", "Credentials", "Defined in");
+        if (mappingOn) table.AddColumn("Packages");
         foreach (var f in feeds)
         {
-            table.AddRow(
+            var cells = new List<string>
+            {
                 Markup.Escape(f.Name),
                 Markup.Escape(f.Source),
                 f.Enabled ? "[green]yes[/]" : "[grey]no[/]",
                 f.HasCredentials ? "yes" : "[grey]-[/]",
-                $"[grey]{Markup.Escape(ConfigDisplay.ShortPath(f.DefinedIn))}[/]");
+                $"[grey]{Markup.Escape(ConfigDisplay.ShortPath(f.DefinedIn))}[/]",
+            };
+            if (mappingOn)
+            {
+                cells.Add(f.PackagePatterns is { Count: > 0 } p ? Markup.Escape(string.Join(", ", p)) : "[grey]none[/]");
+            }
+            table.AddRow(cells.ToArray());
         }
         _console.Write(table);
+        if (mappingOn)
+        {
+            _console.MarkupLine("[grey]Package source mapping is on: each package only comes from the feeds whose patterns match it.[/]");
+        }
         _console.MarkupLine("[grey]Credential providers (e.g. Azure Artifacts) can supply credentials that aren't shown here.[/]");
         return 0;
     }

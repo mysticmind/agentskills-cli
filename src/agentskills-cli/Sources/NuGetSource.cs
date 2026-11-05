@@ -49,7 +49,7 @@ public sealed class NuGetSource : ISkillSource
         var packageId = parsed.PackageId
             ?? throw new ArgumentException("Parsed source is not a NuGet source", nameof(parsed));
 
-        var sources = LoadSources(overrideSource, preferredSource);
+        var sources = LoadSources(overrideSource, preferredSource, packageId);
         var providers = Repository.Provider.GetCoreV3().ToList();
 
         var logger = new SpectreNuGetLogger(log);
@@ -170,10 +170,10 @@ public sealed class NuGetSource : ISkillSource
         }
     }
 
-    private static List<PackageSource> LoadSources(string? overrideSource, string? preferredSource = null)
+    private static List<PackageSource> LoadSources(string? overrideSource, string? preferredSource, string packageId)
     {
         EnsureCredentialProviders();
-        var sources = NuGetFeedConfig.ResolveFeeds(overrideSource, preferredSource);
+        var sources = NuGetFeedConfig.ResolveFeeds(overrideSource, preferredSource, packageId: packageId);
         if (sources.Count == 0)
         {
             throw new InvalidOperationException(
@@ -211,7 +211,7 @@ public sealed class NuGetSource : ISkillSource
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(packageId);
 
-        var sources = LoadSources(overrideSource);
+        var sources = LoadSources(overrideSource, preferredSource: null, packageId);
         var providers = Repository.Provider.GetCoreV3().ToList();
         var logger = new SpectreNuGetLogger(null);
         using var cache = new SourceCacheContext { NoCache = true };

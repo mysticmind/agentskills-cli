@@ -19,7 +19,11 @@ public static class Installer
     private static readonly HashSet<string> ExcludeFiles = new(StringComparer.Ordinal) { "metadata.json" };
     private static readonly HashSet<string> ExcludeDirs = new(StringComparer.Ordinal) { ".git", "__pycache__", "__pypackages__" };
 
-    public sealed record Options(bool Global = false, string? Cwd = null, InstallMode Mode = InstallMode.Symlink);
+    /// <param name="RewriteName">
+    /// Set when <c>skill.Name</c> is an alias: after copying, the installed SKILL.md's
+    /// <c>name:</c> is rewritten to match (the source is never modified).
+    /// </param>
+    public sealed record Options(bool Global = false, string? Cwd = null, InstallMode Mode = InstallMode.Symlink, bool RewriteName = false);
 
     public static InstallResult InstallForAgent(Skill skill, AgentConfig agent, Options options)
     {
@@ -48,13 +52,13 @@ public static class Installer
             if (options.Mode == InstallMode.Copy)
             {
                 CleanAndCreate(agentDir);
-                CopyDirectory(skill.Path, agentDir);
+                CopySkill(skill, agentDir, options);
                 return new InstallResult(true, agentDir, InstallMode.Copy);
             }
 
             // Symlink mode: stage to canonical, then symlink agentDir -> canonical
             CleanAndCreate(canonicalDir);
-            CopyDirectory(skill.Path, canonicalDir);
+            CopySkill(skill, canonicalDir, options);
 
             // Global + universal: canonical IS the agent dir, nothing more to do.
             if (options.Global && agent.IsUniversal)
@@ -78,7 +82,7 @@ public static class Installer
             if (!symlinked)
             {
                 CleanAndCreate(agentDir);
-                CopyDirectory(skill.Path, agentDir);
+                CopySkill(skill, agentDir, options);
                 return new InstallResult(true, agentDir, InstallMode.Symlink,
                     CanonicalPath: canonicalDir, SymlinkFailed: true);
             }
@@ -193,6 +197,16 @@ public static class Installer
             {
                 map[key] = new InstalledSkill(skill.Name, skill.Description, sub, sub, scopeKey, [agent.Name]);
             }
+        }
+    }
+
+    private static void CopySkill(Skill skill, string dest, Options options)
+    {
+        CopyDirectory(skill.Path, dest);
+        if (options.RewriteName)
+        {
+            var skillMd = Path.Combine(dest, "SKILL.md");
+            if (File.Exists(skillMd)) SkillManifest.RewriteName(skillMd, skill.Name);
         }
     }
 

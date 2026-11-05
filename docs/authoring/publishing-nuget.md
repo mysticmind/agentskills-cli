@@ -3,30 +3,44 @@
 ::: tip Two patterns work, pick what fits.
 
 - **Skills-only package** - the package's only purpose is shipping skills. Examples: a team's curated prompts library, a consultancy's set of code-review skills. Use this when there's no underlying library to attach to.
-- **Skills bundled into your existing library package** - drop `contentFiles/any/any/skills/<name>/SKILL.md` into the same `.nupkg` you already publish. The skills version-lock with the library (no drift between an SDK release and its agent guidance), live at the same package id users already depend on (zero discovery friction), and reuse your existing publishing pipeline. A `Contoso.SampleLib.Skills.nupkg` is fine; a `Contoso.SampleLib.nupkg` that *contains* skills is often better.
+- **Skills bundled into your existing library package** - add a `skills/` folder to the `.nupkg` you already publish. The skills version-lock with the library (no drift between an SDK release and its agent guidance), live at the same package id users already depend on (zero discovery friction), and reuse your existing publishing pipeline. A `Contoso.SampleLib.Skills.nupkg` is fine; a `Contoso.SampleLib.nupkg` that *contains* skills is often better.
 
 :::
 
-## The convention
+## The layout
 
-AgentSkills CLI uses the standard NuGet `contentFiles` layout:
+Put each skill in its own folder under `skills/` at the **package root**:
 
 ```
-my-skills.csproj
-contentFiles/
-└── any/
-    └── any/
-        └── skills/
-            ├── skill-one/
-            │   ├── SKILL.md
-            │   └── reference.md
-            └── skill-two/
-                └── SKILL.md
+Contoso.Widgets.nupkg
+└── skills/
+    ├── contoso-widgets-usage/
+    │   ├── SKILL.md
+    │   └── references/
+    │       └── batching.md
+    └── contoso-widgets-testing/
+        └── SKILL.md
 ```
 
-The `contentFiles/any/any/skills/` path means "for any target framework, any language - just files for content." Users get them via AgentSkills CLI, not via the C# compilation pipeline.
+This is the layout NuGet's own [`dotnet-package-skills`](https://github.com/NuGet/Client.Tools/tree/main/dotnet-package-skills) tool reads, and AgentSkills CLI reads it too, so one package works with both tools.
 
-## Minimum `.csproj`
+Rules that keep a package working everywhere:
+
+- **One folder per skill**, directly under `skills/`, each with its own `SKILL.md`. A lone `skills/SKILL.md` isn't picked up by `dotnet-package-skills`.
+- **Prefix folder names with your package id**, so skills from different packages can't collide in a user's skills folder. Use the id lowercased with dots turned into hyphens (`Contoso.Widgets` becomes `contoso-widgets-...`). The Agent Skills spec allows only lowercase letters, digits, and hyphens in a skill name.
+- **Make the folder name and the `name` in `SKILL.md` identical.** `dotnet-package-skills` installs a skill under its folder name and AgentSkills CLI under its `name`; when they match, both tools produce the same result. The spec requires them to match anyway.
+- **Write a useful `description`.** It's what users see when they choose which skills to install.
+
+```yaml
+---
+name: contoso-widgets-usage
+description: >
+  Correct usage patterns for Contoso.Widgets, including lifetime rules and batching.
+  Use when creating, configuring, or disposing a Widget.
+---
+```
+
+## Minimum `.csproj` for a skills-only package
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -45,18 +59,15 @@ The `contentFiles/any/any/skills/` path means "for any target framework, any lan
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="contentFiles\any\any\skills\**\*">
-      <Pack>true</Pack>
-      <PackagePath>contentFiles\any\any\skills\</PackagePath>
-      <BuildAction>None</BuildAction>
-      <CopyToOutput>false</CopyToOutput>
-    </Content>
+    <!-- %(RecursiveDir) keeps each skill's folder structure; without it every file
+         lands in one directory and the skill loses its reference documents. -->
+    <None Include="skills/**/*" Pack="true" PackagePath="skills/%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
 ```
 
-`IncludeBuildOutput=false` and `NoWarn=NU5128;NU5127` matter: this package has no managed assembly to ship, only content, and the warnings about empty `lib/` and missing dependencies aren't useful.
+`IncludeBuildOutput=false` and `NoWarn=NU5128;NU5127` matter: this package has no managed assembly to ship, only skills, and the warnings about an empty `lib/` folder and missing dependencies aren't useful.
 
 ## Build and push
 
@@ -67,6 +78,8 @@ dotnet nuget push ./out/MyOrg.AgentSkills.1.0.0.nupkg \
   --api-key $NUGET_API_KEY
 ```
 
+Check the package before pushing: `unzip -l ./out/MyOrg.AgentSkills.1.0.0.nupkg` should list `skills/<name>/SKILL.md` for every skill.
+
 Users install with:
 
 ```bash
@@ -75,52 +88,37 @@ agentskills-cli add MyOrg.AgentSkills -y
 
 ## Bundle into an existing library package
 
-If you maintain a library NuGet package, **adding skills is a few extra lines in the same `.csproj`**. No new package, no new publishing pipeline.
-
-Existing structure:
+If you maintain a library NuGet package, **adding skills is one `ItemGroup` in the same `.csproj`**. No new package, no new publishing pipeline.
 
 ```
-src/Contoso.SampleLib/
-├── Contoso.SampleLib.csproj         # your normal library project
-└── (library code)
-```
-
-Add a skills folder and ItemGroup:
-
-```
-src/Contoso.SampleLib/
-├── Contoso.SampleLib.csproj
+src/Contoso.Widgets/
+├── Contoso.Widgets.csproj
 ├── (library code)
-└── contentFiles/
-    └── any/
-        └── any/
-            └── skills/
-                ├── samplelib-fundamentals/
-                │   └── SKILL.md
-                ├── samplelib-middleware/
-                │   └── SKILL.md
-                └── ...
+└── skills/
+    ├── contoso-widgets-usage/
+    │   └── SKILL.md
+    └── contoso-widgets-testing/
+        └── SKILL.md
 ```
 
-Add to `Contoso.SampleLib.csproj`:
+Add to `Contoso.Widgets.csproj`:
 
 ```xml
 <ItemGroup>
-  <Content Include="contentFiles\any\any\skills\**\*">
-    <Pack>true</Pack>
-    <PackagePath>contentFiles\any\any\skills\</PackagePath>
-    <BuildAction>None</BuildAction>
-    <CopyToOutput>false</CopyToOutput>
-  </Content>
+  <None Include="skills/**/*" Pack="true" PackagePath="skills/%(RecursiveDir)%(Filename)%(Extension)" />
 </ItemGroup>
 ```
 
-Next `dotnet pack`, the `.nupkg` contains the skills. Users who install `Contoso.SampleLib` for the library code get the skills as a bonus.
+On the next `dotnet pack`, the `.nupkg` contains the skills. Users who install `Contoso.Widgets` for the library get its skills at the same version, and `agentskills-cli update Contoso.Widgets` keeps them in step when they upgrade.
 
-## Prefer the convention
+## Older layout: `contentFiles/any/any/skills/`
 
-`contentFiles/any/any/skills/<name>/SKILL.md` is auto-discovered with no extra flags - users just run `agentskills-cli add YourPackage` and it works. AgentSkills CLI also falls back to a recursive scan, and users can install with `agentskills-cli add YourPackage --path some/custom/path` when skills live somewhere else, but **every non-conventional layout is friction the user has to learn**. Use the convention unless you have a hard reason not to.
+Earlier versions of this guide recommended `contentFiles/any/any/skills/<name>/SKILL.md`. AgentSkills CLI still reads it, but `dotnet-package-skills` doesn't, so move existing packages to `skills/` at the root on their next release. When a package has both folders, AgentSkills CLI uses `skills/`.
+
+## Other locations
+
+AgentSkills CLI falls back to a recursive scan, and users can point it anywhere with `agentskills-cli add YourPackage --path some/custom/path`. **Every non-standard layout is friction your users have to learn**, and other tools may not find it at all, so use `skills/` unless you have a hard reason not to.
 
 ## See the working sample
 
-A complete example lives at [`samples/sample-nuget-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-nuget-package). Includes pack + push instructions for a local file feed for testing.
+A complete example lives at [`samples/sample-nuget-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-nuget-package), including pack instructions and a local-folder feed for testing.

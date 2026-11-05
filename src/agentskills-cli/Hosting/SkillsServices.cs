@@ -53,6 +53,12 @@ public static class SkillsServices
 
         services.AddSingleton<ISourceResolver, SourceResolver>();
         services.AddSingleton<IInstallService, InstallService>();
+        services.AddSingleton<IPackageVersionLookup, PackageVersionLookup>();
+        services.AddSingleton(sp => new UpdateService(
+            sp.GetRequiredService<ISourceResolver>(),
+            sp.GetRequiredService<IInstallService>(),
+            sp.GetRequiredService<IPackageVersionLookup>(),
+            sp.GetRequiredService<ILogger<UpdateService>>()));
 
         // Search providers: the extension point for `find`. Register additional
         // ones with services.AddSingleton<ISkillSearchProvider, MyProvider>().
@@ -65,6 +71,15 @@ public static class SkillsServices
         services.AddTransient<InitCommand>();
         services.AddTransient<FindCommand>();
         services.AddTransient<UpdateCommand>();
+        services.AddTransient<OutdatedCommand>();
+        services.AddTransient<RestoreCommand>();
+        services.AddTransient<VersionCommand>();
+        services.AddTransient<FeedAddCommand>();
+        services.AddTransient<FeedListCommand>();
+        services.AddTransient<FeedRemoveCommand>();
+        services.AddTransient<RegistryAddCommand>();
+        services.AddTransient<RegistryListCommand>();
+        services.AddTransient<RegistryRemoveCommand>();
 
         return services;
     }

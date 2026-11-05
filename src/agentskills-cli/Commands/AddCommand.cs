@@ -69,6 +69,15 @@ public sealed class AddCommand : AsyncCommand<AddCommand.Settings>
         [Description("Override the default npm registry (otherwise ~/.npmrc / project .npmrc + per-scope rules apply).")]
         public string? NpmRegistry { get; init; }
 
+        [CommandOption("--as <NAME>")]
+        [Description("Install a skill under a different name, to avoid a name conflict: --as <skill>=<new-name>, " +
+                     "or just --as <new-name> when installing one skill. Repeatable.")]
+        public string[] As { get; init; } = [];
+
+        [CommandOption("--replace")]
+        [Description("Replace existing skills from other sources that have the same name, without asking.")]
+        public bool Replace { get; init; }
+
         [CommandOption("--path <PATH>")]
         [Description("Restrict discovery to a subdirectory of the source. Overrides any subpath the source string carried (e.g. a GitHub /tree/.../path URL). Use when a package puts its skills somewhere non-conventional.")]
         public string? Path { get; init; }
@@ -84,6 +93,8 @@ public sealed class AddCommand : AsyncCommand<AddCommand.Settings>
         // the InstallService re-resolves below so this stays a pure preview path
         // when the user might cancel from the prompts.
         IReadOnlyList<Skill> skillsToInstall;
+        Dictionary<string, string> aliases;
+        var replace = settings.Replace;
         using (var preview = await StageWithSpinner(settings.Source, resolveOptions, _cancellation.Token))
         {
             var includeInternal = settings.Skills.Length > 0 && !settings.Skills.Contains("*");
@@ -129,6 +140,15 @@ public sealed class AddCommand : AsyncCommand<AddCommand.Settings>
                 _console.MarkupLine("[yellow]Nothing selected, skipping.[/]");
                 return 0;
             }
+
+            var resolution = ResolveNameConflicts(settings, InstallService.TrackedSource(preview), skillsToInstall);
+            if (resolution is null) return 2;
+            (skillsToInstall, aliases, replace) = resolution.Value;
+            if (skillsToInstall.Count == 0)
+            {
+                _console.MarkupLine("[yellow]Nothing left to install.[/]");
+                return 0;
+            }
         }
 
         var agents = ResolveAgents(settings);
@@ -146,11 +166,105 @@ public sealed class AddCommand : AsyncCommand<AddCommand.Settings>
             Mode: settings.Copy ? InstallMode.Copy : InstallMode.Symlink,
             ResolveOptions: resolveOptions,
             IncludeInternal: settings.Skills.Length > 0 && !settings.Skills.Contains("*"),
-            SubpathOverride: settings.Path);
+            SubpathOverride: settings.Path,
+            Aliases: aliases,
+            Replace: replace);
 
         var summary = await _installer.InstallAsync(request, _cancellation.Token);
         Render(summary);
         return summary.Outcomes.Any(o => !o.Result.Success) ? 1 : 0;
+    }
+
+    /// <summary>
+    /// Applies <c>--as</c>, reuses aliases from an earlier install of the same source, and
+    /// resolves name conflicts with skills from other sources: prompts when interactive,
+    /// otherwise prints the conflicts with the commands that resolve them and returns null.
+    /// </summary>
+    private (IReadOnlyList<Skill> Skills, Dictionary<string, string> Aliases, bool Replace)? ResolveNameConflicts(
+        Settings settings, string incomingSource, IReadOnlyList<Skill> skills)
+    {
+        var names = skills.Select(s => s.Name).ToList();
+        var aliases = SkillConflicts.ParseAliases(settings.As, names);
+
+        foreach (var (original, alias) in SkillConflicts.RememberedAliases(incomingSource, names, settings.Global))
+        {
+            if (aliases.TryAdd(original, alias))
+            {
+                _console.MarkupLine($"[grey]Installing {Markup.Escape(original)} as {Markup.Escape(alias)} (the name it was given last time).[/]");
+            }
+        }
+
+        if (settings.Replace) return (skills, aliases, true);
+
+        var conflicts = SkillConflicts.Find(
+            incomingSource, names.Select(n => (n, aliases.GetValueOrDefault(n, n))), settings.Global);
+        if (conflicts.Count == 0) return (skills, aliases, false);
+
+        var interactive = _console.Profile.Capabilities.Interactive && !settings.Yes;
+        if (!interactive)
+        {
+            ReportConflicts(settings, incomingSource, conflicts);
+            return null;
+        }
+
+        var kept = skills.ToList();
+        var replace = false;
+        var scopeNames = SkillConflicts.NamesInScope(settings.Global);
+
+        foreach (var conflict in conflicts)
+        {
+            bool Taken(string candidate) =>
+                scopeNames.Contains(candidate) ||
+                aliases.Where(kv => !string.Equals(kv.Key, conflict.SkillName, StringComparison.OrdinalIgnoreCase))
+                       .Any(kv => string.Equals(kv.Value, candidate, StringComparison.Ordinal)) ||
+                names.Any(n => !string.Equals(n, conflict.SkillName, StringComparison.OrdinalIgnoreCase) &&
+                               !aliases.ContainsKey(n) &&
+                               string.Equals(SkillNameSanitizer.Sanitize(n), candidate, StringComparison.Ordinal));
+
+            var suggestion = SkillConflicts.SuggestAlias(conflict.SkillName, incomingSource, Taken);
+            var decision = Prompts.ResolveConflict(_console, conflict, incomingSource, suggestion, candidate =>
+                !SkillConflicts.IsValidAlias(candidate)
+                    ? $"Use lowercase letters, digits and hyphens (for example '{SkillNameSanitizer.Sanitize(candidate)}')."
+                    : Taken(candidate) ? $"'{candidate}' is already used in the {conflict.Scope} scope." : null);
+
+            switch (decision.Choice)
+            {
+                case Prompts.ConflictChoice.Rename:
+                    aliases[conflict.SkillName] = decision.Alias!;
+                    _console.MarkupLine($"[grey]{Markup.Escape(conflict.SkillName)} will be installed as {Markup.Escape(decision.Alias!)}.[/]");
+                    break;
+                case Prompts.ConflictChoice.Replace:
+                    replace = true;
+                    break;
+                default:
+                    kept.RemoveAll(s => string.Equals(s.Name, conflict.SkillName, StringComparison.OrdinalIgnoreCase));
+                    aliases.Remove(conflict.SkillName);
+                    _console.MarkupLine($"[grey]Skipping {Markup.Escape(conflict.SkillName)}.[/]");
+                    break;
+            }
+        }
+        return (kept, aliases, replace);
+    }
+
+    private void ReportConflicts(Settings settings, string incomingSource, IReadOnlyList<SkillConflict> conflicts)
+    {
+        _console.MarkupLine("[red]Skill name conflict - nothing was installed.[/]");
+        foreach (var c in conflicts)
+        {
+            _console.MarkupLine(
+                $"  [yellow]{Markup.Escape(c.SkillName)}[/] from {Markup.Escape(incomingSource)} conflicts with " +
+                $"{Markup.Escape(c.DescribeExisting())} in the {c.Scope} scope.");
+        }
+
+        var taken = SkillConflicts.NamesInScope(settings.Global);
+        var asArgs = string.Join(" ", conflicts.Select(c =>
+            $"--as {c.SkillName}={SkillConflicts.SuggestAlias(c.SkillName, incomingSource, taken.Contains)}"));
+        var source = settings.Source.Contains(' ', StringComparison.Ordinal) ? $"\"{settings.Source}\"" : settings.Source;
+
+        _console.MarkupLine("[grey]Keep both by installing under another name (add your other options as before):[/]");
+        _console.MarkupLine($"  agentskills-cli add {Markup.Escape(source)} {Markup.Escape(asArgs)}");
+        _console.MarkupLine("[grey]Or replace the existing skill(s):[/]");
+        _console.MarkupLine($"  agentskills-cli add {Markup.Escape(source)} --replace");
     }
 
     private async Task<ISkillSource> StageWithSpinner(string input, ResolveOptions options, CancellationToken ct) =>
@@ -164,7 +278,7 @@ public sealed class AddCommand : AsyncCommand<AddCommand.Settings>
     {
         if (settings.Agents.Length > 0)
         {
-            return settings.Agents.Select(AgentRegistry.Get).ToList();
+            return AgentRegistry.GetMany(settings.Agents);
         }
 
         var detected = AgentRegistry.DetectInstalled();
@@ -199,7 +313,9 @@ public sealed class AddCommand : AsyncCommand<AddCommand.Settings>
                 : string.Empty;
 
             table.AddRow(
-                Markup.Escape(outcome.Skill.Name),
+                outcome.InstallName is null
+                    ? Markup.Escape(outcome.Skill.Name)
+                    : $"{Markup.Escape(outcome.InstallName)} [grey](as alias of {Markup.Escape(outcome.Skill.Name)})[/]",
                 Markup.Escape(outcome.Agent.DisplayName),
                 status,
                 $"[grey]{Markup.Escape(displayPath)}[/]");

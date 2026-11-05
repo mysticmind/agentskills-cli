@@ -60,30 +60,33 @@ Requires `.NET 10` SDK on the runner (`dnx` ships with .NET 10). For .NET 8-only
 
 ## Refresh everything from source
 
-The [`update`](/commands/update) command queries the GitHub Trees API for every tracked GitHub source and reinstalls any that have drifted. Always preview with `--check` first.
+[`outdated`](/commands/outdated) shows what changed upstream for every tracked source (NuGet and npm versions, git repos, well-known endpoints, local folders); [`update`](/commands/update) reinstalls it, keeping each skill's scope, agents, and symlink/copy mode.
 
 ```bash
-agentskills-cli update --check                          # dry-run table
-agentskills-cli update -g -y                            # actually update globals
-agentskills-cli update -y                               # update the current project
+agentskills-cli outdated                                # what would change
+agentskills-cli update -y                               # update everything
+agentskills-cli update Contoso.AgentSkills -y           # one package
+agentskills-cli update Contoso.AgentSkills@2.1.0 -y     # exact version
+agentskills-cli outdated --exit-code                    # CI gate: exit 1 when out of date
 ```
-
-Sources that can't be checked automatically (local paths, generic git URLs, GitLab, NuGet, npm) are listed as skipped in the output. See [`update`](/commands/update) for the full behavior and GitHub auth chain.
 
 ## Set up a private NuGet feed for team skills
 
-If your team publishes skills to an internal feed (Azure Artifacts, GitHub Packages, ProGet, MyGet, etc.), AgentSkills CLI reads your existing `NuGet.config` and credential providers automatically - no new auth surface.
+If your team publishes skills to an internal feed (Azure Artifacts, GitHub Packages, ProGet, MyGet, etc.), register it for skills only, so your normal NuGet setup is untouched:
 
 ```bash
-# One-time, machine-wide:
-dotnet nuget add source https://pkgs.contoso.com/v3/index.json \
-  -n contoso -u $USER -p $TOKEN --store-password-in-clear-text
+# Once, in the repo (commit .agents/nuget.config):
+agentskills-cli feed add https://pkgs.contoso.com/v3/index.json --name contoso
 
-# Daily use - no auth flags needed, credentials picked up from NuGet.config:
+# Once per machine, your credentials (kept out of the repo):
+agentskills-cli feed add https://pkgs.contoso.com/v3/index.json --name contoso -g \
+  --username $USER --password $TOKEN --store-password-in-clear-text
+
+# Daily use, no flags:
 agentskills-cli add Contoso.AgentSkills -y
 ```
 
-For Azure Artifacts specifically, install the [Azure Artifacts Credential Provider](https://github.com/microsoft/artifacts-credprovider) once and `dotnet`/`agentskills-cli` auth seamlessly.
+For Azure Artifacts, install the [Azure Artifacts Credential Provider](https://github.com/microsoft/artifacts-credprovider) instead of storing a password. npm registries work the same way with [`registry add`](/commands/registry). See [Private feeds and registries](/sources/private-feeds).
 
 ## Mirror the install on a teammate's box
 
@@ -91,14 +94,13 @@ Clone the project, run one command, your teammate has the same skills.
 
 ```bash
 git clone <project repo> && cd <project>
-# If the project lock pins to public sources, this just works:
-agentskills-cli add $(cat skills-lock.json | jq -r '.skills | to_entries[] | .value.source')
+agentskills-cli restore -y
 ```
 
-A `agentskills-cli install --from-lock` command is on the roadmap; for now the loop above (or a tiny script) covers it.
+[`restore`](/commands/restore) installs every skill in `skills-lock.json` at its locked version or ref. In CI, add `--frozen` to fail when a source's content no longer matches the lock.
 
 ## Next
 
 - [Ship skills with your library](/tutorials/ship-skills-with-library) - the long-form tutorial
-- [`add`](/commands/add), [`list`](/commands/list), [`remove`](/commands/remove), [`update`](/commands/update) - full command reference
+- [`add`](/commands/add), [`list`](/commands/list), [`remove`](/commands/remove), [`update`](/commands/update), [`outdated`](/commands/outdated), [`restore`](/commands/restore) - full command reference
 - [Source formats](/sources/) - every supported source type

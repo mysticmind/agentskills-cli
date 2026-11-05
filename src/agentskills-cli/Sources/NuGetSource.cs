@@ -1,5 +1,6 @@
 using NuGet.Common;
 using NuGet.Configuration;
+using NuGet.Credentials;
 using NuGet.Packaging;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
@@ -32,6 +33,7 @@ public sealed class NuGetSource : ISkillSource
         ParsedSource parsed,
         string? overrideSource = null,
         Action<string>? log = null,
+        string? preferredSource = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(parsed);
@@ -47,22 +49,8 @@ public sealed class NuGetSource : ISkillSource
         var packageId = parsed.PackageId
             ?? throw new ArgumentException("Parsed source is not a NuGet source", nameof(parsed));
 
-        var settings = Settings.LoadDefaultSettings(root: null);
-        var packageSourceProvider = new PackageSourceProvider(settings);
-        var sources = (overrideSource is null
-                ? packageSourceProvider.LoadPackageSources()
-                : new[] { new PackageSource(overrideSource) })
-            .Where(s => s.IsEnabled)
-            .ToList();
-
-        if (sources.Count == 0)
-        {
-            throw new InvalidOperationException(
-                "No enabled NuGet sources found. Add one with `dotnet nuget add source` or pass --nuget-source.");
-        }
-
-        var providers = new List<Lazy<INuGetResourceProvider>>();
-        providers.AddRange(Repository.Provider.GetCoreV3());
+        var sources = LoadSources(overrideSource, preferredSource, packageId);
+        var providers = Repository.Provider.GetCoreV3().ToList();
 
         var logger = new SpectreNuGetLogger(log);
         using var cache = new SourceCacheContext { NoCache = false, DirectDownload = false };
@@ -147,10 +135,7 @@ public sealed class NuGetSource : ISkillSource
 
                     File.Delete(nupkgPath);
 
-                    var conventional = Path.Combine(extractDir, "contentFiles", "any", "any", "skills");
-                    var subpath = Directory.Exists(conventional)
-                        ? Path.Combine("contentFiles", "any", "any", "skills")
-                        : null;
+                    var subpath = FindSkillsSubpath(extractDir);
 
                     var resolvedParsed = parsed with { PackageVersion = resolved.ToFullString() };
                     return new NuGetSource(
@@ -183,6 +168,78 @@ public sealed class NuGetSource : ISkillSource
             try { Directory.Delete(stagingRoot, recursive: true); } catch { /* swallow */ }
             throw;
         }
+    }
+
+    private static List<PackageSource> LoadSources(string? overrideSource, string? preferredSource, string packageId)
+    {
+        EnsureCredentialProviders();
+        var sources = NuGetFeedConfig.ResolveFeeds(overrideSource, preferredSource, packageId: packageId);
+        if (sources.Count == 0)
+        {
+            throw new InvalidOperationException(
+                "No enabled NuGet sources found. Add one with `agentskills-cli feed add <url> --name <name>` " +
+                "or `dotnet nuget add source`, or pass --nuget-source.");
+        }
+        return sources;
+    }
+
+    private static int _credentialProvidersReady;
+
+    /// <summary>
+    /// Registers NuGet's credential service so credential providers (Azure Artifacts and other
+    /// plugins) and stored credentials are used, like `dotnet restore` does. Once per process.
+    /// Interactive sign-in is only offered when a person is at the terminal.
+    /// </summary>
+    private static void EnsureCredentialProviders()
+    {
+        if (Interlocked.Exchange(ref _credentialProvidersReady, 1) == 1) return;
+        var interactive = Environment.UserInteractive && !Console.IsInputRedirected &&
+                          string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CI"));
+        DefaultCredentialServiceUtility.SetupDefaultCredentialService(NullLogger.Instance, nonInteractive: !interactive);
+    }
+
+    /// <summary>
+    /// Lists every version of <paramref name="packageId"/> across the enabled feeds (or just
+    /// <paramref name="overrideSource"/>) without downloading anything. Used by
+    /// <c>update</c> / <c>outdated</c> to detect newer package versions.
+    /// </summary>
+    /// <exception cref="NuGetFeedException">No feed answered and at least one failed.</exception>
+    public static async Task<IReadOnlyList<NuGetVersion>> GetAllVersionsAsync(
+        string packageId,
+        string? overrideSource = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(packageId);
+
+        var sources = LoadSources(overrideSource, preferredSource: null, packageId);
+        var providers = Repository.Provider.GetCoreV3().ToList();
+        var logger = new SpectreNuGetLogger(null);
+        using var cache = new SourceCacheContext { NoCache = true };
+
+        var all = new HashSet<NuGetVersion>();
+        var errors = new List<string>();
+        foreach (var packageSource in sources)
+        {
+            try
+            {
+                var repo = new SourceRepository(packageSource, providers);
+                var finder = await repo.GetResourceAsync<FindPackageByIdResource>(cancellationToken).ConfigureAwait(false);
+                if (finder is null) continue;
+                var versions = await finder.GetAllVersionsAsync(packageId, cache, logger, cancellationToken).ConfigureAwait(false);
+                all.UnionWith(versions);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                errors.Add($"{packageSource.Name}: {ex.Message}");
+            }
+        }
+
+        if (all.Count == 0 && errors.Count > 0)
+        {
+            throw new NuGetFeedException(packageId,
+                $"Could not list versions of '{packageId}': {string.Join("; ", errors)}");
+        }
+        return all.OrderBy(v => v).ToList();
     }
 
     public void Dispose()
@@ -231,10 +288,7 @@ public sealed class NuGetSource : ISkillSource
                 }
             }
 
-            var conventional = Path.Combine(extractDir, "contentFiles", "any", "any", "skills");
-            var subpath = Directory.Exists(conventional)
-                ? Path.Combine("contentFiles", "any", "any", "skills")
-                : null;
+            var subpath = FindSkillsSubpath(extractDir);
 
             var resolvedParsed = parsed with
             {
@@ -254,6 +308,21 @@ public sealed class NuGetSource : ISkillSource
             try { Directory.Delete(stagingRoot, recursive: true); } catch { /* swallow */ }
             throw;
         }
+    }
+
+    /// <summary>
+    /// Where skills live inside an extracted package. Prefers <c>skills/</c> at the package root
+    /// (the layout NuGet's own <c>dotnet-package-skills</c> reads, matched case-insensitively),
+    /// then the older <c>contentFiles/any/any/skills/</c> layout. Null means "scan the package".
+    /// </summary>
+    internal static string? FindSkillsSubpath(string extractDir)
+    {
+        var root = Directory.EnumerateDirectories(extractDir)
+            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), "skills", StringComparison.OrdinalIgnoreCase));
+        if (root is not null) return Path.GetFileName(root);
+
+        var contentFiles = Path.Combine(extractDir, "contentFiles", "any", "any", "skills");
+        return Directory.Exists(contentFiles) ? Path.Combine("contentFiles", "any", "any", "skills") : null;
     }
 
     private sealed class SpectreNuGetLogger(Action<string>? sink) : LoggerBase

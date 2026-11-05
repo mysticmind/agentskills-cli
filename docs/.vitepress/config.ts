@@ -72,6 +72,11 @@ export default defineConfig({
           { text: 'init', link: '/commands/init' },
           { text: 'find', link: '/commands/find' },
           { text: 'update', link: '/commands/update' },
+          { text: 'outdated', link: '/commands/outdated' },
+          { text: 'restore', link: '/commands/restore' },
+          { text: 'version', link: '/commands/version' },
+          { text: 'feed', link: '/commands/feed' },
+          { text: 'registry', link: '/commands/registry' },
         ],
       },
       {
@@ -86,6 +91,7 @@ export default defineConfig({
           { text: 'NuGet', link: '/sources/nuget' },
           { text: 'npm', link: '/sources/npm' },
           { text: 'Well-known endpoints', link: '/sources/well-known' },
+          { text: 'Private feeds and registries', link: '/sources/private-feeds' },
         ],
       },
       {
@@ -108,6 +114,7 @@ export default defineConfig({
           { text: 'Search providers (extension point)', link: '/reference/search-providers' },
           { text: 'Samples', link: '/reference/samples' },
           { text: 'AgentSkills CLI vs vercel-labs/skills', link: '/reference/comparison' },
+          { text: 'AgentSkills CLI vs dotnet-package-skills', link: '/reference/vs-dotnet-package-skills' },
         ],
       },
       {

@@ -10,16 +10,16 @@ Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders i
 
 First-class NuGet & npm · library-bundled skill packages · extension points by design.
 
-[📖 Documentation](https://mysticmind.github.io/agentskills-cli/) · [Why AgentSkills CLI?](https://mysticmind.github.io/agentskills-cli/why) · [Quick start](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start) · [vs vercel-labs/skills](https://mysticmind.github.io/agentskills-cli/reference/comparison)
+[📖 Documentation](https://mysticmind.github.io/agentskills-cli/) · [Why AgentSkills CLI?](https://mysticmind.github.io/agentskills-cli/why) · [Quick start](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start) · [vs vercel-labs/skills](https://mysticmind.github.io/agentskills-cli/reference/comparison) · [vs dotnet-package-skills](https://mysticmind.github.io/agentskills-cli/reference/vs-dotnet-package-skills)
 
 ---
 
 ## Install
 
 ```bash
-# Global tool (recommended for daily use; .NET 8 LTS or .NET 10)
+# Global tool (recommended for daily use; .NET 10, .NET 8, or later)
 dotnet tool install --global agentskills-cli
-agentskills-cli --help
+agentskills-cli --version
 
 # Or one-shot via dnx (.NET 10+) for CI / no-install scenarios
 dnx agentskills-cli -- --help
@@ -44,6 +44,14 @@ agentskills-cli list --by package
 # Search community skills
 agentskills-cli find testing
 
+# What changed upstream? Then update one package, or everything
+agentskills-cli outdated
+agentskills-cli update Contoso.AgentSkills -y
+agentskills-cli update -y
+
+# Fresh clone or CI: install everything in skills-lock.json
+agentskills-cli restore -y
+
 # Remove an entire package's worth of skills
 agentskills-cli remove @my-org/agent-skills -y
 ```
@@ -64,10 +72,12 @@ The `--` separates `dnx`'s own flags from the args passed through to the tool. F
 
 - **NuGet as a first-class source** - public *and* private feeds via your existing `NuGet.config` and credential providers. No new auth surface.
 - **npm registry fetch** (not just `node_modules` sync) - public *and* private registries via your existing `.npmrc`, scoped registries, `_authToken`.
+- **Private feeds just for skills** - `agentskills-cli feed add <url>` and `agentskills-cli registry add <url>` keep skills feeds in `.agents/` (committed) and `~/.agents/` (credentials), standard `nuget.config` / `.npmrc` format, without touching your normal .NET or npm setup.
 - **Skills can ship inside library packages** - drop a `skills/` folder into your existing `.nupkg` or `.tgz`. Users get the skills for free when they install your library. [How →](https://mysticmind.github.io/agentskills-cli/tutorials/ship-skills-with-library)
-- **Versioned install units** - skills from a NuGet or npm package are tracked together as a managed set. `agentskills-cli remove MyOrg.SkillPack -y` wipes all of them at once; `agentskills-cli update` checks the whole package for drift; `agentskills-cli list --by package` groups them. Same dependency-like semantics .NET devs already use for NuGet packages - no orphan skills when you uninstall.
+- **Versioned install units** - skills from a NuGet or npm package are tracked together as a managed set. `agentskills-cli remove MyOrg.SkillPack -y` wipes all of them at once; `agentskills-cli update MyOrg.SkillPack` moves them to the newest version on your feed (or `@2.1.0` for an exact one); `agentskills-cli list --by package` groups them.
+- **Updates for every source** - `outdated` / `update` check NuGet and npm versions, GitHub, GitLab, any git URL, well-known endpoints, and local folders, and keep each skill's agents and symlink/copy mode. `restore` rebuilds a project from `skills-lock.json`. Same dependency-like semantics .NET devs already use for NuGet packages - no orphan skills when you uninstall.
 - **Extension points by design** - register `ISkillSourceFactory` for new source types and `ISkillSearchProvider` for new search backends with a single DI registration.
-- **Multi-targeted** - one `.nupkg` ships both .NET 8 LTS and .NET 10 builds.
+- **Multi-targeted** - one `.nupkg` ships .NET 8 and .NET 10 builds and rolls forward to .NET 11 and later.
 - **Lock-file interop** - same `~/.agents/.skill-lock.json` and `./skills-lock.json` format as upstream `vercel-labs/skills`, so the two tools share state.
 
 [Full feature matrix vs vercel-labs/skills →](https://mysticmind.github.io/agentskills-cli/reference/comparison)
@@ -82,7 +92,7 @@ Comprehensive guides at **[mysticmind.github.io/agentskills-cli](https://mysticm
 | [Install](https://mysticmind.github.io/agentskills-cli/getting-started/install) | `dnx`, global tool, shell aliases, runtime requirements |
 | [Quick start](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start) | Five-minute hands-on tour |
 | [Concepts](https://mysticmind.github.io/agentskills-cli/getting-started/concepts) | Skill, source, agent, scope - the five terms |
-| [Commands](https://mysticmind.github.io/agentskills-cli/commands/add) | Full reference: `add`, `list`, `remove`, `init`, `find`, `update` |
+| [Commands](https://mysticmind.github.io/agentskills-cli/commands/add) | Full reference: `add`, `list`, `remove`, `init`, `find`, `update`, `outdated`, `restore`, `version` |
 | [Source formats](https://mysticmind.github.io/agentskills-cli/sources/) | Local, GitHub, GitLab, git, NuGet, npm, well-known endpoints |
 | [Authoring + publishing](https://mysticmind.github.io/agentskills-cli/authoring/skill-format) | SKILL.md format + NuGet + npm publishing patterns |
 | [Common workflows](https://mysticmind.github.io/agentskills-cli/tutorials/common-workflows) | Bootstrap a project, drive `dnx` in CI, set up private feeds, etc. |
@@ -113,7 +123,7 @@ dotnet build agentskills-cli.sln
 dotnet test agentskills-cli.sln
 ```
 
-Requires the **.NET 10 SDK** (it can build both `net8.0` and `net10.0` outputs; the .NET 8 SDK cannot build the net10 output).
+Requires the **.NET 10 SDK** (it can build both `net8.0` and `net10.0` outputs; the .NET 8 SDK cannot build the net10 output). Running the `net8.0` tests also needs the .NET 8 runtime.
 
 ## License
 

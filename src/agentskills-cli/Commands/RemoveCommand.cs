@@ -26,8 +26,12 @@ public sealed class RemoveCommand : Command<RemoveCommand.Settings>
         public string[] Targets { get; init; } = [];
 
         [CommandOption("-g|--global")]
-        [Description("Remove globally installed skills.")]
+        [Description("Only remove globally installed skills.")]
         public bool Global { get; init; }
+
+        [CommandOption("-p|--project")]
+        [Description("Only remove project-installed skills.")]
+        public bool Project { get; init; }
 
         [CommandOption("-a|--agent <AGENTS>")]
         [Description("Limit removal to specific agents.")]
@@ -43,10 +47,15 @@ public sealed class RemoveCommand : Command<RemoveCommand.Settings>
         ArgumentNullException.ThrowIfNull(settings);
 
         var agentFilter = settings.Agents.Length > 0
-            ? settings.Agents.Select(AgentRegistry.Get).ToList()
+            ? AgentRegistry.GetMany(settings.Agents)
             : null;
 
-        var installed = Installer.List(global: settings.Global ? true : (bool?)null, agentFilter: agentFilter);
+        bool? scope = settings.Global == settings.Project ? null : settings.Global;
+        var installed = Installer.List(global: scope, agentFilter: agentFilter);
+        if (agentFilter is not null)
+        {
+            installed = installed.Where(s => s.Agents.Any(a => agentFilter.Any(f => f.Name == a))).ToList();
+        }
         if (installed.Count == 0)
         {
             _console.MarkupLine("[grey]Nothing installed to remove.[/]");
@@ -56,7 +65,7 @@ public sealed class RemoveCommand : Command<RemoveCommand.Settings>
         List<InstalledSkill> toRemove;
         if (settings.Targets.Length > 0)
         {
-            toRemove = PackageMatcher.ResolveTargets(settings.Targets, installed, s => s.Name);
+            toRemove = PackageMatcher.ResolveTargets(settings.Targets, installed, s => s.Name, s => s.Scope);
 
             if (toRemove.Count == 0)
             {
@@ -70,7 +79,7 @@ public sealed class RemoveCommand : Command<RemoveCommand.Settings>
             {
                 _console.MarkupLine(
                     $"[grey]Matched {toRemove.Count} skill(s):[/] " +
-                    string.Join(", ", toRemove.Select(s => Markup.Escape(s.Name))));
+                    string.Join(", ", toRemove.Select(s => $"{Markup.Escape(s.Name)} [grey]({s.Scope})[/]")));
             }
         }
         else if (!_console.Profile.Capabilities.Interactive)
@@ -99,41 +108,62 @@ public sealed class RemoveCommand : Command<RemoveCommand.Settings>
             return 0;
         }
 
-        var lockDoc = SkillLock.Load();
+        var globalLock = SkillLock.Load();
+        var localLock = LocalLock.Load();
+        var globalLockChanged = false;
+        var localLockChanged = false;
+
         foreach (var skill in toRemove)
         {
-            var agentsForSkill = agentFilter
-                ?? skill.Agents.Select(a => AgentRegistry.Get(a)).ToList();
+            var isGlobal = skill.Scope == "global";
+            var agentsForSkill = (agentFilter ?? skill.Agents.Select(a => AgentRegistry.All.GetValueOrDefault(a)).OfType<AgentConfig>())
+                .ToList();
 
+            // Agents can share one folder (every universal agent uses .agents/skills), so
+            // remove each folder once and credit every agent that reads from it.
             var removedFrom = new List<string>();
-            foreach (var agent in agentsForSkill)
+            var byFolder = agentsForSkill
+                .Where(a => !isGlobal || a.GlobalSkillsDir is not null || a.IsUniversal)
+                .GroupBy(a => Path.GetFullPath(Path.Combine(
+                    AgentRegistry.GetAgentBaseDir(a, isGlobal), SkillNameSanitizer.Sanitize(skill.Name))),
+                    StringComparer.Ordinal);
+            foreach (var folder in byFolder)
             {
-                if (Installer.RemoveForAgent(skill.Name, agent, global: skill.Scope == "global"))
+                if (Installer.RemoveForAgent(skill.Name, folder.First(), global: isGlobal))
                 {
-                    removedFrom.Add(agent.DisplayName);
+                    removedFrom.AddRange(folder.Select(a => a.DisplayName));
                 }
             }
 
-            _console.MarkupLine(removedFrom.Count > 0
-                ? $"[green]removed[/] {Markup.Escape(skill.Name)} [grey]({string.Join(", ", removedFrom.Select(Markup.Escape))})[/]"
+            // With --agent, other agents may still use the skill (often through a symlink to
+            // the canonical copy). Only drop the canonical copy and the lock entry when no
+            // agent is left holding it.
+            var remaining = Installer.List(global: isGlobal)
+                .FirstOrDefault(s => string.Equals(s.Name, skill.Name, StringComparison.Ordinal) && s.Scope == skill.Scope);
+            var stillUsed = agentFilter is not null && remaining is not null &&
+                            remaining.Agents.Any(a => !agentFilter.Any(f => f.Name == a));
+
+            if (!stillUsed)
+            {
+                var canonicalBase = AgentRegistry.GetCanonicalDir(global: isGlobal);
+                var canonical = Path.Combine(canonicalBase, SkillNameSanitizer.Sanitize(skill.Name));
+                if (Directory.Exists(canonical))
+                {
+                    try { Directory.Delete(canonical, recursive: true); } catch (IOException) { /* ignore */ }
+                }
+
+                if (isGlobal) globalLockChanged |= globalLock.Skills.Remove(skill.Name);
+                else localLockChanged |= localLock.Skills.Remove(skill.Name);
+            }
+
+            var suffix = stillUsed ? " [grey](still installed for other agents)[/]" : string.Empty;
+            _console.MarkupLine(removedFrom.Count > 0 || !stillUsed
+                ? $"[green]removed[/] {Markup.Escape(skill.Name)} [grey]({skill.Scope}{(removedFrom.Count > 0 ? ": " + string.Join(", ", removedFrom.Select(Markup.Escape)) : string.Empty)})[/]{suffix}"
                 : $"[grey]skipped[/] {Markup.Escape(skill.Name)} [grey](not present for any selected agent)[/]");
-
-            // Also try canonical
-            var canonicalBase = AgentRegistry.GetCanonicalDir(global: skill.Scope == "global");
-            var canonical = Path.Combine(canonicalBase, SkillNameSanitizer.Sanitize(skill.Name));
-            if (Directory.Exists(canonical))
-            {
-                try { Directory.Delete(canonical, recursive: true); } catch { /* ignore */ }
-            }
-
-            lockDoc.Skills.Remove(skill.Name);
-            if (skill.Scope == "project")
-            {
-                LocalLock.Remove(skill.Name);
-            }
         }
 
-        SkillLock.Save(lockDoc);
+        if (globalLockChanged) SkillLock.Save(globalLock);
+        if (localLockChanged) LocalLock.Save(localLock);
         return 0;
     }
 }

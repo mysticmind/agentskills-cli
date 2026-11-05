@@ -7,7 +7,7 @@ Working samples live under [`samples/`](https://github.com/mysticmind/agentskill
 | Sample | What it shows | Try it |
 |---|---|---|
 | [`samples/hello-skill`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/hello-skill) | The minimal valid skill: one folder, one `SKILL.md` with required frontmatter. | `agentskills-cli add ./samples/hello-skill -a universal -y --copy` |
-| [`samples/sample-nuget-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-nuget-package) | A `.csproj` that packs one skill into the standard `contentFiles/any/any/skills/` NuGet layout. Includes pack + push instructions for a local file feed. | `dotnet pack samples/sample-nuget-package -o ./local-feed && agentskills-cli add Sample.SkillPackage --nuget-source ./local-feed -a universal -y --copy` |
+| [`samples/sample-nuget-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-nuget-package) | A `.csproj` that packs one skill into `skills/<name>/` at the package root, the layout both AgentSkills CLI and NuGet's `dotnet-package-skills` read. Includes pack + push instructions for a local file feed. | `dotnet pack samples/sample-nuget-package -o ./local-feed && agentskills-cli add Sample.SkillPackage --nuget-source ./local-feed -a universal -y --copy` |
 | [`samples/sample-npm-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-npm-package) | A `package.json` plus `skills/<name>/SKILL.md` showing the npm-tarball layout (`package/skills/...` on the wire). Sample README covers Verdaccio-based local testing without publishing to npmjs.org. | `npm pack samples/sample-npm-package` (then publish to Verdaccio or npmjs.org and `agentskills-cli add @acme/agent-skills-sample`) |
 
 Each sample's own README has the full step-by-step verification commands.
@@ -15,7 +15,7 @@ Each sample's own README has the full step-by-step verification commands.
 ## When to look at which sample
 
 - **Authoring your first standalone skill?** Start with [`hello-skill`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/hello-skill). It is the minimum viable shape - one `SKILL.md`, the required frontmatter, nothing else. The [SKILL.md format](/authoring/skill-format) page explains every field.
-- **Adding skills to a .NET library you publish to NuGet?** Open [`sample-nuget-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-nuget-package). The `.csproj` shows the `<Content Include="contentFiles\...\skills\**" Pack="true">` pattern that any existing library can adopt. See [Publishing to NuGet](/authoring/publishing-nuget) for the broader pattern.
+- **Adding skills to a .NET library you publish to NuGet?** Open [`sample-nuget-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-nuget-package). The `.csproj` shows the one `<None Include="skills/**/*" Pack="true" ...>` line that any existing library can adopt. See [Publishing to NuGet](/authoring/publishing-nuget) for the broader pattern.
 - **Adding skills to an npm package?** Open [`sample-npm-package`](https://github.com/mysticmind/agentskills-cli/tree/main/samples/sample-npm-package). The `package.json` `"files": ["skills/"]` entry is the whole publishing trick. See [Publishing to npm](/authoring/publishing-npm) for Verdaccio-based local testing.
 
 ## Smoke-testing AgentSkills CLI itself

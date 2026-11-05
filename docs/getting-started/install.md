@@ -1,6 +1,6 @@
 # Install
 
-AgentSkills CLI is a [.NET tool](https://learn.microsoft.com/en-us/dotnet/core/tools/global-tools) targeting **.NET 8 LTS** and **.NET 10**. Pick whichever invocation style fits the moment.
+AgentSkills CLI is a [.NET tool](https://learn.microsoft.com/en-us/dotnet/core/tools/global-tools) targeting **.NET 8** and **.NET 10**, and it runs on .NET 11 and later too. Pick whichever invocation style fits the moment.
 
 ## Option A: global tool (recommended for daily use)
 
@@ -33,7 +33,7 @@ Best when you want to try the tool once, run it in CI without polluting the glob
 
 ## Requirements
 
-- **.NET 8 LTS or .NET 10 runtime** for the global-tool path. The package is multi-targeted; `dotnet tool install` picks the right build automatically.
+- **.NET 10 or .NET 8 runtime, or any later one** for the global-tool path. The package is multi-targeted; `dotnet tool install` picks the right build automatically, and the tool rolls forward to newer runtimes (for example .NET 11).
 - **`dnx agentskills-cli` requires .NET 10** specifically - `dnx` itself ships only with the .NET 10 SDK. On .NET 8 use the global-tool path.
 - **`git` on PATH** when installing from git URLs (GitHub, GitLab, arbitrary git). Local and NuGet/npm sources don't need git.
 - **Building from source** requires the .NET 10 SDK (it can build both target frameworks; the .NET 8 SDK cannot build the net10 output).
@@ -140,9 +140,10 @@ function as {
 After installing, confirm the version and that all commands are wired up:
 
 ```bash
+agentskills-cli --version
 agentskills-cli --help
 ```
 
-You should see six commands: `add`, `list`, `remove`, `init`, `find`, `update`.
+You should see these commands: `add`, `list`, `remove`, `init`, `find`, `update`, `outdated`, `restore`, `feed`, `registry`, `version`.
 
 Next: [Concepts →](/getting-started/concepts)

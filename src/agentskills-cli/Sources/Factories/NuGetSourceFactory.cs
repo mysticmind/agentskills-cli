@@ -23,6 +23,7 @@ public sealed class NuGetSourceFactory : ISkillSourceFactory
             return await NuGetSource.DownloadAsync(
                 parsed,
                 overrideSource: options.NuGetSource,
+                preferredSource: options.PreferredNuGetSource,
                 log: msg => _logger.LogDebug("{Message}", msg),
                 cancellationToken: cancellationToken).ConfigureAwait(false);
         }

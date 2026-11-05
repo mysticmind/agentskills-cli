@@ -26,6 +26,6 @@ A source is treated as GitLab if it's a URL with hostname `gitlab.com` or its pa
 
 Self-hosted GitLab URLs (e.g., `https://git.contoso.com/group/repo`) are treated as [arbitrary git URLs](/sources/git) by default - they still clone correctly, just without GitLab-specific URL parsing for subpaths. If you have a use case for first-class self-hosted GitLab detection, open an issue.
 
-## `update` limitation
+## `update`
 
-GitLab tree-SHA detection isn't implemented in v1; [`update`](/commands/update) reports GitLab sources as **Skipped** with the reason `GitLab - Trees API not implemented in v1`. To refresh a GitLab-sourced skill, re-run `add` manually.
+[`update`](/commands/update) and [`outdated`](/commands/outdated) shallow-clone the recorded repo and ref and compare the skill folder with the baseline recorded at install. Skills installed globally before 1.1.0 have no baseline; refresh them once with `update --force`.

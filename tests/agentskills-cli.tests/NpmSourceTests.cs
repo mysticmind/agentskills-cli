@@ -39,31 +39,31 @@ public class NpmSourceParserTests
 public class NpmRegistryTests : IDisposable
 {
     private readonly string _home;
-    private readonly string _origHome;
+    private readonly string _cwd;
     private readonly string _rcPath;
 
     public NpmRegistryTests()
     {
+        // Point the loader at temp dirs explicitly. Overriding HOME/USERPROFILE doesn't work on
+        // Windows (the profile folder comes from the OS) and would leak into parallel tests.
         _home = Path.Combine(Path.GetTempPath(), "agentskills-cli-npmrc-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(_home);
+        _cwd = Path.Combine(_home, "project");
+        Directory.CreateDirectory(_cwd);
         _rcPath = Path.Combine(_home, ".npmrc");
-        _origHome = Environment.GetEnvironmentVariable("HOME") ?? string.Empty;
-        Environment.SetEnvironmentVariable("HOME", _home);
-        Environment.SetEnvironmentVariable("USERPROFILE", _home);
     }
 
     public void Dispose()
     {
-        Environment.SetEnvironmentVariable("HOME", _origHome);
-        Environment.SetEnvironmentVariable("USERPROFILE", _origHome);
         try { Directory.Delete(_home, recursive: true); } catch { /* ignore */ }
     }
+
+    private NpmRegistry Load() => NpmRegistry.Load(cwd: _cwd, home: _home);
 
     [Fact]
     public void DefaultRegistryFromRc()
     {
         File.WriteAllText(_rcPath, "registry=https://custom.example.com/npm/\n");
-        var reg = NpmRegistry.Load();
+        var reg = Load();
         Assert.Equal("https://custom.example.com/npm/", reg.DefaultRegistryUrl);
     }
 
@@ -72,7 +72,7 @@ public class NpmRegistryTests : IDisposable
     {
         File.WriteAllText(_rcPath,
             "registry=https://registry.npmjs.org/\n@my-org:registry=https://npm.contoso.com/team/\n");
-        var reg = NpmRegistry.Load();
+        var reg = Load();
         Assert.Equal("https://npm.contoso.com/team/", reg.ResolveRegistry("@my-org/foo"));
         Assert.Equal("https://registry.npmjs.org/", reg.ResolveRegistry("@other/bar"));
         Assert.Equal("https://registry.npmjs.org/", reg.ResolveRegistry("plain"));
@@ -85,7 +85,7 @@ public class NpmRegistryTests : IDisposable
             registry=https://npm.contoso.com/team/
             //npm.contoso.com/team/:_authToken=secret-xyz
             """);
-        var reg = NpmRegistry.Load();
+        var reg = Load();
         var auth = reg.GetAuthHeader("https://npm.contoso.com/team/");
         Assert.NotNull(auth);
         Assert.Equal("Bearer", auth!.Scheme);
@@ -97,7 +97,7 @@ public class NpmRegistryTests : IDisposable
     {
         File.WriteAllText(_rcPath,
             "//npm.contoso.com/:_authToken=secret\n");
-        var reg = NpmRegistry.Load();
+        var reg = Load();
         Assert.Null(reg.GetAuthHeader("https://registry.npmjs.org/"));
     }
 
@@ -109,7 +109,7 @@ public class NpmRegistryTests : IDisposable
         {
             File.WriteAllText(_rcPath,
                 "//npm.contoso.com/:_authToken=${SKILLS_TEST_NPM_TOKEN}\n");
-            var reg = NpmRegistry.Load();
+            var reg = Load();
             var auth = reg.GetAuthHeader("https://npm.contoso.com/");
             Assert.Equal("from-env", auth?.Parameter);
         }

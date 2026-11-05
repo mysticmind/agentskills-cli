@@ -2,6 +2,7 @@ using System.ComponentModel;
 using AgentSkills.Agents;
 using AgentSkills.Install;
 using AgentSkills.Sources;
+using AgentSkills.UI;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -159,11 +160,40 @@ public sealed class FindCommand : AsyncCommand<FindCommand.Settings>
             ResolveOptions: ResolveOptions.Default,
             IncludeInternal: false);
 
-        var summary = await _installer.InstallAsync(request, _cancellation.Token);
+        InstallSummary summary;
+        try
+        {
+            summary = await _installer.InstallAsync(request, _cancellation.Token);
+        }
+        catch (SkillConflictException ex) when (ex.Conflicts.Count == 1)
+        {
+            // Same choice `add` offers: keep both under another name, replace, or skip.
+            var conflict = ex.Conflicts[0];
+            var taken = SkillConflicts.NamesInScope(settings.Global);
+            var decision = Prompts.ResolveConflict(
+                _console, conflict, installSource,
+                SkillConflicts.SuggestAlias(conflict.SkillName, installSource, taken.Contains),
+                candidate => !SkillConflicts.IsValidAlias(candidate)
+                    ? "Use lowercase letters, digits and hyphens."
+                    : taken.Contains(candidate) ? $"'{candidate}' is already used in the {conflict.Scope} scope." : null);
+
+            if (decision.Choice == Prompts.ConflictChoice.Skip)
+            {
+                _console.MarkupLine("[grey]Cancelled.[/]");
+                return 0;
+            }
+
+            request = decision.Choice == Prompts.ConflictChoice.Replace
+                ? request with { Replace = true }
+                : request with { Aliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [conflict.SkillName] = decision.Alias! } };
+            summary = await _installer.InstallAsync(request, _cancellation.Token);
+        }
+
+        var installedAs = summary.Outcomes.Count > 0 ? summary.Outcomes[0].Name : chosen.Hit.Name;
         var failures = summary.Outcomes.Count(o => !o.Result.Success);
         _console.MarkupLine(failures == 0
-            ? $"[green]Installed {Markup.Escape(chosen.Hit.Name)}.[/]"
-            : $"[yellow]Installed {Markup.Escape(chosen.Hit.Name)} with {failures} failure(s).[/]");
+            ? $"[green]Installed {Markup.Escape(installedAs)}.[/]"
+            : $"[yellow]Installed {Markup.Escape(installedAs)} with {failures} failure(s).[/]");
         return failures == 0 ? 0 : 1;
     }
 

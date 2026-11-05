@@ -24,8 +24,12 @@ public sealed class ListCommand : Command<ListCommand.Settings>
         public string[] Targets { get; init; } = [];
 
         [CommandOption("-g|--global")]
-        [Description("List globally installed skills.")]
+        [Description("Only list globally installed skills.")]
         public bool Global { get; init; }
+
+        [CommandOption("-p|--project")]
+        [Description("Only list project-installed skills.")]
+        public bool Project { get; init; }
 
         [CommandOption("-a|--agent <AGENTS>")]
         [Description("Limit to specific agents.")]
@@ -38,6 +42,10 @@ public sealed class ListCommand : Command<ListCommand.Settings>
         [CommandOption("--paths")]
         [Description("Include a column with each skill's on-disk install path.")]
         public bool ShowPaths { get; init; }
+
+        [CommandOption("--json")]
+        [Description("Write the installed skills as JSON to stdout (ignores --by).")]
+        public bool Json { get; init; }
     }
 
     private enum Grouping { None, Package, Path, Agent, Scope }
@@ -47,22 +55,32 @@ public sealed class ListCommand : Command<ListCommand.Settings>
         ArgumentNullException.ThrowIfNull(settings);
 
         var filter = settings.Agents.Length > 0
-            ? settings.Agents.Select(AgentRegistry.Get).ToList()
+            ? AgentRegistry.GetMany(settings.Agents)
             : null;
 
         var installed = Installer.List(
-            global: settings.Global ? true : (bool?)null,
+            global: settings.Global == settings.Project ? null : settings.Global,
             agentFilter: filter);
+        if (filter is not null)
+        {
+            installed = installed.Where(s => s.Agents.Any(a => filter.Any(f => f.Name == a))).ToList();
+        }
 
         if (installed.Count == 0)
         {
-            _console.MarkupLine("[grey]No skills installed.[/]");
+            if (settings.Json) JsonOutput.Write(_console, Array.Empty<object>());
+            else _console.MarkupLine("[grey]No skills installed.[/]");
             return 0;
         }
 
         if (settings.Targets.Length > 0)
         {
-            installed = PackageMatcher.ResolveTargets(settings.Targets, installed, s => s.Name);
+            installed = PackageMatcher.ResolveTargets(settings.Targets, installed, s => s.Name, s => s.Scope);
+            if (installed.Count == 0 && settings.Json)
+            {
+                JsonOutput.Write(_console, Array.Empty<object>());
+                return 0;
+            }
             if (installed.Count == 0)
             {
                 _console.MarkupLine(
@@ -73,6 +91,27 @@ public sealed class ListCommand : Command<ListCommand.Settings>
         }
 
         var rows = installed.Select(BuildRow).ToList();
+
+        if (settings.Json)
+        {
+            JsonOutput.Write(_console, rows
+                .OrderBy(r => r.Skill.Scope, StringComparer.Ordinal)
+                .ThenBy(r => r.Skill.Name, StringComparer.Ordinal)
+                .Select(r => new
+                {
+                    name = r.Skill.Name,
+                    originalName = r.Source?.OriginalName,
+                    scope = r.Skill.Scope,
+                    agents = r.Skill.Agents,
+                    source = r.Source?.Source,
+                    sourceType = r.Source?.SourceType,
+                    package = r.Source?.BaseId,
+                    version = r.Source is { SourceType: "nuget" or "npm" } src ? PackageMatcher.ExtractVersion(src.Source) : null,
+                    path = r.Skill.Path,
+                    description = r.Skill.Description,
+                }));
+            return 0;
+        }
 
         var grouping = ParseGrouping(settings.GroupBy);
         if (grouping is null)
@@ -98,19 +137,21 @@ public sealed class ListCommand : Command<ListCommand.Settings>
 
     private sealed record Row(
         InstalledSkill Skill,
-        string? PackageBaseId,        // null when the skill isn't tracked in any lock
+        PackageMatcher.SourceInfo? Source, // null when the skill isn't tracked in its scope's lock
+        string? PackageBaseId,
         string? PackageDisplay,       // "@scope/name@1.0.0 (npm)" - for grouping headers
         string PathDisplay);
 
     private static Row BuildRow(InstalledSkill skill)
     {
-        var source = PackageMatcher.LookupSource(skill.Name);
+        var source = PackageMatcher.LookupSource(skill.Name, skill.Scope);
         return new Row(
             Skill: skill,
+            Source: source,
             PackageBaseId: source?.BaseId,
             PackageDisplay: source is null
                 ? null
-                : $"{source.Source} [grey]({source.SourceType})[/]",
+                : $"{Markup.Escape(source.Source)} [grey]({Markup.Escape(source.SourceType)})[/]",
             PathDisplay: skill.Path);
     }
 
@@ -143,7 +184,7 @@ public sealed class ListCommand : Command<ListCommand.Settings>
         {
             var values = new List<string>
             {
-                Markup.Escape(row.Skill.Name),
+                SkillLabel(row),
                 row.Skill.Scope == "global" ? "[blue]global[/]" : "[green]project[/]",
                 Markup.Escape(string.Join(", ", row.Skill.Agents)),
                 row.PackageDisplay ?? "[grey]-[/]",
@@ -189,7 +230,7 @@ public sealed class ListCommand : Command<ListCommand.Settings>
             {
                 var values = new List<string>
                 {
-                    Markup.Escape(row.Skill.Name),
+                    SkillLabel(row),
                     row.Skill.Scope == "global" ? "[blue]global[/]" : "[green]project[/]",
                     Markup.Escape(string.Join(", ", row.Skill.Agents)),
                 };
@@ -201,6 +242,10 @@ public sealed class ListCommand : Command<ListCommand.Settings>
             _console.Write(table);
         }
     }
+
+    private static string SkillLabel(Row row) => row.Source?.OriginalName is { } original
+        ? $"{Markup.Escape(row.Skill.Name)} [grey](alias of {Markup.Escape(original)})[/]"
+        : Markup.Escape(row.Skill.Name);
 
     /// <summary>Returns the parent directory of an install path, used as a grouping key.</summary>
     private static string GroupingPath(string installPath) =>

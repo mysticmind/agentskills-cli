@@ -61,4 +61,4 @@ The clone timeout defaults to 5 minutes; override with `SKILLS_CLONE_TIMEOUT_MS`
 
 For GitHub specifically, [`add`](/commands/add) also records the git tree SHA of the installed skill's folder (`skillFolderHash`) into the lock file. This is what powers [`update`](/commands/update) - it can call the GitHub Trees API to detect remote changes without cloning.
 
-[GitLab](/sources/gitlab) and [arbitrary git URLs](/sources/git) install the same way but don't get this update-detection automation in v1.
+[GitLab](/sources/gitlab) and [arbitrary git URLs](/sources/git) are checked by cloning instead of through an API, so they work with `update` too.

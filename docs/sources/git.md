@@ -34,4 +34,4 @@ For pinning a specific branch on a generic git URL, the simplest workaround is t
 
 ## `update`
 
-Same as [GitLab](/sources/gitlab): no automated drift detection in v1; reported as **Skipped** with reason `Generic git URL - re-install manually`. Re-run `add` to refresh.
+[`update`](/commands/update) and [`outdated`](/commands/outdated) shallow-clone the recorded URL and ref and compare the skill folder with the baseline recorded at install. Skills installed globally before 1.1.0 have no baseline; refresh them once with `update --force`.

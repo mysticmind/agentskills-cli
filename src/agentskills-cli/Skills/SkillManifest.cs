@@ -72,6 +72,45 @@ public static partial class SkillManifest
             Metadata: metadata);
     }
 
+    [GeneratedRegex(@"^name[ \t]*:[^\r\n]*", RegexOptions.Multiline)]
+    private static partial Regex TopLevelNameLine();
+
+    /// <summary>
+    /// Returns <paramref name="raw"/> with the frontmatter's top-level <c>name:</c> set to
+    /// <paramref name="newName"/>. Everything else (other keys, comments, the body, line
+    /// endings) is left untouched. Used when a skill is installed under an alias: the
+    /// Agent Skills spec requires <c>name</c> to match the skill's directory.
+    /// </summary>
+    public static string WithName(string raw, string newName)
+    {
+        ArgumentNullException.ThrowIfNull(raw);
+        ArgumentException.ThrowIfNullOrWhiteSpace(newName);
+
+        var match = FrontmatterRegex().Match(raw);
+        var newline = raw.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+        if (!match.Success)
+        {
+            return $"---{newline}name: {newName}{newline}---{newline}{raw}";
+        }
+
+        var yaml = match.Groups[1];
+        var replaced = TopLevelNameLine().IsMatch(yaml.Value)
+            ? TopLevelNameLine().Replace(yaml.Value, $"name: {newName}", 1)
+            : $"name: {newName}{newline}{yaml.Value}";
+        return raw[..yaml.Index] + replaced + raw[(yaml.Index + yaml.Length)..];
+    }
+
+    /// <summary>Rewrites the <c>name:</c> of the SKILL.md at <paramref name="skillMdPath"/> in place.</summary>
+    public static void RewriteName(string skillMdPath, string newName)
+    {
+        var raw = File.ReadAllText(skillMdPath);
+        var updated = WithName(raw, newName);
+        if (!string.Equals(raw, updated, StringComparison.Ordinal))
+        {
+            File.WriteAllText(skillMdPath, updated);
+        }
+    }
+
     public static bool ShouldInstallInternalSkills()
     {
         var value = Environment.GetEnvironmentVariable("INSTALL_INTERNAL_SKILLS");

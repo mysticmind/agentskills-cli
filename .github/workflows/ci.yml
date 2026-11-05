@@ -1,0 +1,101 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+
+jobs:
+  test:
+    name: build & test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The .NET 10 SDK builds both TFMs; the 8.0 runtime runs the net8.0 tests.
+      - name: Setup .NET 8 runtime + .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Restore
+        run: dotnet restore agentskills-cli.sln
+
+      - name: Build
+        run: dotnet build agentskills-cli.sln --configuration Release --no-restore
+
+      - name: Test (net8.0 + net10.0)
+        run: dotnet test agentskills-cli.sln --configuration Release --no-build
+
+  roll-forward:
+    # The tool ships net8.0 + net10.0 with RollForward=LatestMajor, so .NET 11+ users run
+    # the net10.0 build. This job proves that on the newest runtime without adding a TFM.
+    name: net10.0 build on the .NET 11 runtime
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # .NET only rolls forward onto a prerelease runtime when asked. Needed while .NET 11 is
+      # a preview/RC on the runner; harmless once it ships.
+      DOTNET_ROLL_FORWARD_TO_PRERELEASE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      # Two steps so `dotnet-quality: preview` applies only to .NET 11, not to the 10 SDK.
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup .NET 11
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 11.0.x
+          dotnet-quality: preview
+
+      - name: Show SDKs and runtimes (the build is pinned to the 10 SDK by global.json)
+        run: |
+          dotnet --version
+          dotnet --list-runtimes
+
+      - name: Build
+        run: dotnet build agentskills-cli.sln --configuration Release
+
+      - name: Test net10.0 on the newest runtime
+        env:
+          DOTNET_ROLL_FORWARD: LatestMajor
+        run: dotnet test tests/agentskills-cli.tests/agentskills-cli.tests.csproj --configuration Release --no-build --framework net10.0
+
+      - name: Smoke-test the tool on the newest runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          dll=src/agentskills-cli/bin/Release/net10.0/agentskills-cli.dll
+          dotnet "$dll" --version
+          dotnet "$dll" version
+          # Check the JSON form: the table output carries color codes in CI.
+          dotnet "$dll" version --json | tee version.json
+          grep -E '"runtime": "\.NET 1[1-9]' version.json || {
+            echo "::error::Expected the net10.0 build to roll forward to .NET 11+"
+            exit 1
+          }

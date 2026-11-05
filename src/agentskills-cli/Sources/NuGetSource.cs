@@ -1,5 +1,6 @@
 using NuGet.Common;
 using NuGet.Configuration;
+using NuGet.Credentials;
 using NuGet.Packaging;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
@@ -32,6 +33,7 @@ public sealed class NuGetSource : ISkillSource
         ParsedSource parsed,
         string? overrideSource = null,
         Action<string>? log = null,
+        string? preferredSource = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(parsed);
@@ -47,7 +49,7 @@ public sealed class NuGetSource : ISkillSource
         var packageId = parsed.PackageId
             ?? throw new ArgumentException("Parsed source is not a NuGet source", nameof(parsed));
 
-        var sources = LoadSources(overrideSource);
+        var sources = LoadSources(overrideSource, preferredSource);
         var providers = Repository.Provider.GetCoreV3().ToList();
 
         var logger = new SpectreNuGetLogger(log);
@@ -168,22 +170,32 @@ public sealed class NuGetSource : ISkillSource
         }
     }
 
-    private static List<PackageSource> LoadSources(string? overrideSource)
+    private static List<PackageSource> LoadSources(string? overrideSource, string? preferredSource = null)
     {
-        var settings = Settings.LoadDefaultSettings(root: null);
-        var packageSourceProvider = new PackageSourceProvider(settings);
-        var sources = (overrideSource is null
-                ? packageSourceProvider.LoadPackageSources()
-                : new[] { new PackageSource(overrideSource) })
-            .Where(s => s.IsEnabled)
-            .ToList();
-
+        EnsureCredentialProviders();
+        var sources = NuGetFeedConfig.ResolveFeeds(overrideSource, preferredSource);
         if (sources.Count == 0)
         {
             throw new InvalidOperationException(
-                "No enabled NuGet sources found. Add one with `dotnet nuget add source` or pass --nuget-source.");
+                "No enabled NuGet sources found. Add one with `agentskills-cli feed add <url> --name <name>` " +
+                "or `dotnet nuget add source`, or pass --nuget-source.");
         }
         return sources;
+    }
+
+    private static int _credentialProvidersReady;
+
+    /// <summary>
+    /// Registers NuGet's credential service so credential providers (Azure Artifacts and other
+    /// plugins) and stored credentials are used, like `dotnet restore` does. Once per process.
+    /// Interactive sign-in is only offered when a person is at the terminal.
+    /// </summary>
+    private static void EnsureCredentialProviders()
+    {
+        if (Interlocked.Exchange(ref _credentialProvidersReady, 1) == 1) return;
+        var interactive = Environment.UserInteractive && !Console.IsInputRedirected &&
+                          string.IsNullOrEmpty(Environment.GetEnvironmentVariable("CI"));
+        DefaultCredentialServiceUtility.SetupDefaultCredentialService(NullLogger.Instance, nonInteractive: !interactive);
     }
 
     /// <summary>

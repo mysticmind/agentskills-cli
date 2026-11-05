@@ -24,9 +24,18 @@ public interface ISkillSourceFactory
 /// Per-invocation overrides for source resolution. Extend this record as new source
 /// types ship; existing factories ignore fields they don't recognize.
 /// </summary>
+/// <param name="NuGetSource">
+/// <c>--nuget-source</c>: a feed URL, local folder, or the name of a configured feed. Only this
+/// feed is used.
+/// </param>
+/// <param name="PreferredNuGetSource">
+/// The feed a package was installed from (from the lock). Tried first; the other configured
+/// feeds are still used if it fails.
+/// </param>
 public sealed record ResolveOptions(
     string? NuGetSource = null,
-    string? NpmRegistry = null)
+    string? NpmRegistry = null,
+    string? PreferredNuGetSource = null)
 {
     public static ResolveOptions Default { get; } = new();
 }

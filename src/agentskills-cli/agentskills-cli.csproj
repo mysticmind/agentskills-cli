@@ -47,6 +47,7 @@
     <PackageReference Include="NuGet.Protocol" />
     <PackageReference Include="NuGet.Configuration" />
     <PackageReference Include="NuGet.Packaging" />
+    <PackageReference Include="NuGet.Credentials" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />

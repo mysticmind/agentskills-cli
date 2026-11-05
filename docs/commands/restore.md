@@ -25,12 +25,12 @@ agentskills-cli restore [-a agent...] [-y] [--copy] [--force] [--frozen]
 
 | Lock `sourceType` | Restored from |
 |---|---|
-| `nuget`, `npm` | The exact locked version (`Package@1.2.0`) from your configured feeds and registries. |
-| `github`, `gitlab` | The recorded repo at the recorded ref. GitLab entries resolve against gitlab.com. |
+| `nuget`, `npm` | The exact locked version (`Package@1.2.0`) from your configured feeds and registries, trying the recorded feed first. |
+| `github`, `gitlab` | The recorded repo at the recorded ref. GitLab entries use the recorded clone URL, so self-hosted GitLab works; entries written before 1.1.0 have none and resolve against gitlab.com. |
 | `git`, `well-known` | The recorded URL (and ref). |
 | `local` | The recorded path, so it only works when that path exists on this machine. |
 
-Packages that were added from a local `.nupkg` or `.tgz` file are restored from your feeds by id and version; publish them to a feed (even a local folder feed with `--nuget-source ./feed`) for restore to work on other machines.
+Packages added from a local `.nupkg` or `.tgz` file are restored from that file when it still exists at the recorded path, otherwise from your feeds by id and version. For restores on other machines, publish them to a feed; a folder feed inside the repo works (`agentskills-cli feed add ./feed --name local`).
 
 Skills installed under another name (`add --as`) are restored under that name.
 

@@ -43,15 +43,18 @@ Useful for testing skill packages before publishing to a feed, installing packag
 
 ## Feeds and auth
 
-AgentSkills CLI uses `NuGet.Protocol` with `Settings.LoadDefaultSettings()`, so **every feed listed in your machine, user, or project `NuGet.Config` is searched in order**. Credential providers (Azure Artifacts Credential Provider, GitHub Packages PAT in NuGet.Config, etc.) are honored automatically - no flag needed.
+Every feed in your normal NuGet configuration is searched: `nuget.config` files from the project folder upwards, then your user and machine-wide files, the same ones `dotnet restore` reads. Credential providers (such as the Azure Artifacts Credential Provider) and stored credentials are used like `dotnet restore` uses them. If `dotnet restore` works against your feed, `agentskills-cli add <pkg>` works against it too.
 
-If `dotnet restore` works against your feed, `agentskills-cli add <pkg>` works against the same feed.
-
-Override the feed list for a single command with `--nuget-source <URL>`:
+To add a feed **just for skills**, without touching your normal NuGet configuration, use [`feed add`](/commands/feed). It writes `.agents/nuget.config` (committed with the project) or `~/.agents/nuget.config` (yours, for credentials), and those files take precedence. See [Private feeds and registries](/sources/private-feeds).
 
 ```bash
-agentskills-cli add MyOrg.AgentSkills \
-  --nuget-source https://pkgs.contoso.com/v3/index.json
+agentskills-cli feed add https://pkgs.contoso.com/v3/index.json --name contoso
+```
+
+Use a single feed for one command with `--nuget-source`, which takes a URL, a folder, or a configured feed's name:
+
+```bash
+agentskills-cli add MyOrg.AgentSkills --nuget-source contoso
 ```
 
 ## Package layout

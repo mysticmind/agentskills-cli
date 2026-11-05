@@ -72,18 +72,21 @@ agentskills-cli outdated --exit-code                    # CI gate: exit 1 when o
 
 ## Set up a private NuGet feed for team skills
 
-If your team publishes skills to an internal feed (Azure Artifacts, GitHub Packages, ProGet, MyGet, etc.), AgentSkills CLI reads your existing `NuGet.config` and credential providers automatically - no new auth surface.
+If your team publishes skills to an internal feed (Azure Artifacts, GitHub Packages, ProGet, MyGet, etc.), register it for skills only, so your normal NuGet setup is untouched:
 
 ```bash
-# One-time, machine-wide:
-dotnet nuget add source https://pkgs.contoso.com/v3/index.json \
-  -n contoso -u $USER -p $TOKEN --store-password-in-clear-text
+# Once, in the repo (commit .agents/nuget.config):
+agentskills-cli feed add https://pkgs.contoso.com/v3/index.json --name contoso
 
-# Daily use - no auth flags needed, credentials picked up from NuGet.config:
+# Once per machine, your credentials (kept out of the repo):
+agentskills-cli feed add https://pkgs.contoso.com/v3/index.json --name contoso -g \
+  --username $USER --password $TOKEN --store-password-in-clear-text
+
+# Daily use, no flags:
 agentskills-cli add Contoso.AgentSkills -y
 ```
 
-For Azure Artifacts specifically, install the [Azure Artifacts Credential Provider](https://github.com/microsoft/artifacts-credprovider) once and `dotnet`/`agentskills-cli` auth seamlessly.
+For Azure Artifacts, install the [Azure Artifacts Credential Provider](https://github.com/microsoft/artifacts-credprovider) instead of storing a password. npm registries work the same way with [`registry add`](/commands/registry). See [Private feeds and registries](/sources/private-feeds).
 
 ## Mirror the install on a teammate's box
 

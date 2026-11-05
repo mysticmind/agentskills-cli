@@ -48,6 +48,10 @@ AgentSkills CLI reads `.npmrc` files in this order (later wins):
 
 1. `~/.npmrc`
 2. Project `./.npmrc`
+3. `~/.agents/.npmrc`: your registries and tokens for skills
+4. Project `.agents/.npmrc`: the project's registries for skills (committed)
+
+Files 3 and 4 hold skills-only settings, so adding a registry for skills doesn't change how `npm install` behaves. Manage them with [`registry`](/commands/registry); see [Private feeds and registries](/sources/private-feeds).
 
 The default registry comes from the `registry=` setting (falls back to `https://registry.npmjs.org/`). Per-scope overrides are honored:
 
@@ -78,6 +82,8 @@ Bearer tokens (`_authToken`), basic auth (`_auth`), and username/password forms 
 `${ENV_VAR}` expansion happens at load time, just like npm. The token is matched against the registry URL by **longest path prefix** - so a token under `//npm.contoso.com/team/` is used for the `team/` registry but not for `//npm.contoso.com/other/`.
 
 If `npm install <pkg>` works in your shell, `agentskills-cli add <pkg>` works the same way. Zero new auth surface.
+
+To store a token for skills only: `agentskills-cli registry add <url> -g --token <token>`, or `--token-env <VAR>` to reference an environment variable (safe in a committed file).
 
 ## Package layout
 

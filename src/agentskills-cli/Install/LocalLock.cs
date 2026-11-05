@@ -12,6 +12,14 @@ public sealed class LocalLockEntry
     [JsonPropertyName("ref")] public string? Ref { get; set; }
     [JsonPropertyName("skillPath")] public string? SkillPath { get; set; }
 
+    /// <summary>
+    /// Where the source was fetched from: the NuGet feed or npm registry for packages, the clone
+    /// URL for git sources, a <c>file://</c> URI for a local package file. Lets <c>restore</c> and
+    /// <c>update</c> go back to the same place (e.g. a self-hosted GitLab, or a private feed).
+    /// Same meaning as the global lock's <c>sourceUrl</c>.
+    /// </summary>
+    [JsonPropertyName("sourceUrl")] public string? SourceUrl { get; set; }
+
     /// <summary>SHA-256 content hash of the skill folder at install time (<see cref="LocalLock.ComputeFolderHash"/>).</summary>
     [JsonPropertyName("computedHash")] public string ComputedHash { get; set; } = string.Empty;
 

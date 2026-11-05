@@ -219,7 +219,7 @@ public sealed class UpdateService
         {
             foreach (var (name, e) in LocalLock.Load(query.Cwd).Skills)
             {
-                Add("project", name, e.Source, e.SourceType, sourceUrl: null, e.Ref, e.SkillPath, e.ComputedHash, e.OriginalName);
+                Add("project", name, e.Source, e.SourceType, e.SourceUrl, e.Ref, e.SkillPath, e.ComputedHash, e.OriginalName);
             }
         }
         return items;
@@ -429,7 +429,7 @@ public sealed class UpdateService
             try
             {
                 progress?.Report($"Updating from {group.Key.Spec}...");
-                source = await StageAsync(plan, group.Key.Spec, query.ResolveOptions, cancellationToken).ConfigureAwait(false);
+                source = await StageAsync(plan, group.Key.Spec, WithPreferredFeed(query.ResolveOptions, group.First().Item.SourceType, group.First().Item.SourceUrl), cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -514,6 +514,23 @@ public sealed class UpdateService
     }
 
     // ─── Shared helpers ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// For a NuGet package, tries the feed it was installed from first (unless --nuget-source
+    /// already pins one). Local package files and other source types are unaffected.
+    /// </summary>
+    public static ResolveOptions WithPreferredFeed(ResolveOptions options, string sourceType, string? sourceUrl)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        if (sourceType != "nuget" || string.IsNullOrWhiteSpace(sourceUrl) || options.NuGetSource is not null) return options;
+        if (sourceUrl.StartsWith("file:", StringComparison.OrdinalIgnoreCase)) return options;
+
+        // A project-relative feed folder (see InstallService.ProjectRelative) is resolved against
+        // the project root, which is where update and restore run.
+        var isUrl = Uri.TryCreate(sourceUrl, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https";
+        var preferred = isUrl || Path.IsPathRooted(sourceUrl) ? sourceUrl : Path.GetFullPath(sourceUrl);
+        return options with { PreferredNuGetSource = preferred };
+    }
 
     private static bool RemoveAll<TValue>(SortedDictionary<string, TValue> skills, IEnumerable<string> names)
     {

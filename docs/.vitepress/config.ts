@@ -75,6 +75,8 @@ export default defineConfig({
           { text: 'outdated', link: '/commands/outdated' },
           { text: 'restore', link: '/commands/restore' },
           { text: 'version', link: '/commands/version' },
+          { text: 'feed', link: '/commands/feed' },
+          { text: 'registry', link: '/commands/registry' },
         ],
       },
       {
@@ -89,6 +91,7 @@ export default defineConfig({
           { text: 'NuGet', link: '/sources/nuget' },
           { text: 'npm', link: '/sources/npm' },
           { text: 'Well-known endpoints', link: '/sources/well-known' },
+          { text: 'Private feeds and registries', link: '/sources/private-feeds' },
         ],
       },
       {

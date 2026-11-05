@@ -106,7 +106,7 @@ public sealed class InstallService : IInstallService
 
             if (anySuccess)
             {
-                UpdateLocks(source, skill, installName, globalLock, localLock);
+                UpdateLocks(source, skill, installName, globalLock, localLock, request.Cwd);
             }
         }
 
@@ -188,7 +188,22 @@ public sealed class InstallService : IInstallService
         return plan;
     }
 
-    private static void UpdateLocks(ISkillSource source, Skill skill, string installName, GlobalLockDocument? globalLock, LocalLockDocument? localLock)
+    /// <summary>
+    /// The project lock is committed, so a local folder inside the project (e.g. a NuGet feed
+    /// folder) is stored relative to the project root instead of as this machine's absolute path.
+    /// URLs and paths outside the project are kept as they are.
+    /// </summary>
+    internal static string? ProjectRelative(string? sourceUrl, string? cwd)
+    {
+        if (string.IsNullOrEmpty(sourceUrl) || !Path.IsPathRooted(sourceUrl)) return sourceUrl;
+        var root = Path.GetFullPath(cwd ?? Directory.GetCurrentDirectory()).TrimEnd(Path.DirectorySeparatorChar);
+        var full = Path.GetFullPath(sourceUrl);
+        return full.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+            ? Path.GetRelativePath(root, full).Replace('\\', '/')
+            : sourceUrl;
+    }
+
+    private static void UpdateLocks(ISkillSource source, Skill skill, string installName, GlobalLockDocument? globalLock, LocalLockDocument? localLock, string? cwd)
     {
         var skillPath = ComputeSkillPath(source, skill);
         var trackedSource = TrackedSource(source);
@@ -223,6 +238,7 @@ public sealed class InstallService : IInstallService
             }
             local.Source = trackedSource;
             local.SourceType = source.SourceTypeLabel;
+            local.SourceUrl = source.Parsed.Type == SourceType.Local ? null : ProjectRelative(source.SourceUrl, cwd);
             local.Ref = source.Reference;
             local.SkillPath = skillPath;
             local.ComputedHash = LocalLock.ComputeFolderHash(skill.Path);

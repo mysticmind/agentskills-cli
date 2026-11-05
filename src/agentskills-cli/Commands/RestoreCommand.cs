@@ -111,9 +111,7 @@ public sealed class RestoreCommand : AsyncCommand<RestoreCommand.Settings>
         var failures = new List<(string Skill, string Reason)>();
         var drifted = new List<string>();
 
-        var groups = todo.GroupBy(
-            kv => UpdateService.BuildSpec(kv.Value.SourceType, kv.Value.Source, sourceUrl: null, kv.Value.Ref) ?? string.Empty,
-            StringComparer.Ordinal);
+        var groups = todo.GroupBy(kv => RestoreSpec(kv.Value), StringComparer.Ordinal);
 
         foreach (var group in groups)
         {
@@ -129,7 +127,10 @@ public sealed class RestoreCommand : AsyncCommand<RestoreCommand.Settings>
                 source = await _console.Status()
                     .Spinner(Spinner.Known.Dots)
                     .StartAsync($"Fetching {Markup.Escape(group.Key)}...",
-                        _ => _resolver.ResolveAsync(group.Key, resolveOptions, _cancellation.Token))
+                        _ => _resolver.ResolveAsync(
+                            group.Key,
+                            UpdateService.WithPreferredFeed(resolveOptions, group.First().Value.SourceType, group.First().Value.SourceUrl),
+                            _cancellation.Token))
                     .ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -228,6 +229,22 @@ public sealed class RestoreCommand : AsyncCommand<RestoreCommand.Settings>
         _console.MarkupLine(failures.Count > 0 ? $"[red]{summaryLine}.[/]" : $"[green]{summaryLine}.[/]");
 
         return failures.Count > 0 ? 1 : 0;
+    }
+
+    /// <summary>
+    /// The source string to restore an entry from. A package added from a local file comes back
+    /// from that file when it still exists; otherwise from the feeds by id and exact version.
+    /// </summary>
+    internal static string RestoreSpec(LocalLockEntry entry)
+    {
+        if (entry.SourceType is "nuget" or "npm" &&
+            entry.SourceUrl?.StartsWith("file:", StringComparison.OrdinalIgnoreCase) == true &&
+            Uri.TryCreate(entry.SourceUrl, UriKind.Absolute, out var fileUri) &&
+            File.Exists(fileUri.LocalPath))
+        {
+            return fileUri.LocalPath;
+        }
+        return UpdateService.BuildSpec(entry.SourceType, entry.Source, entry.SourceUrl, entry.Ref) ?? string.Empty;
     }
 
     private List<AgentConfig> ResolveAgents(Settings settings)

@@ -28,6 +28,9 @@ These fix unsafe or surprising behavior; check them if you script the tool.
 - **Name conflicts are detected and can be resolved with an alias.** When `add` would install a skill whose name is already used in that scope by a skill from a different source (or by an untracked skill), it now stops before installing anything. Interactively it asks whether to install under another name (with a suggested name), replace, or skip. With `-y` or in CI it lists the conflicts with the commands that resolve them and exits `2`. Before, the existing skill was silently overwritten. `find` asks the same question.
 - **`add --as <skill>=<new-name>`** installs a skill under another name; `add --replace` overwrites without asking. The installed `SKILL.md` gets the new `name` (the spec requires it to match the folder); the lock records `originalName`, so `update`, `restore`, and later `add`s of the same source keep the alias. `list` shows aliases.
 - Lock entries keep fields they don't recognize when rewritten, so additions by other tools aren't lost.
+- **Private feeds and registries just for skills.** `feed add/list/remove` manages NuGet feeds in `.agents/nuget.config` (project, committed) and `~/.agents/nuget.config` (user, credentials); `registry add/list/remove` does the same for npm in `.agents/.npmrc` and `~/.agents/.npmrc`. Standard `nuget.config` and `.npmrc` formats, layered on top of your normal configuration, which stays untouched. Credentials and tokens are refused in project files (`--token-env` writes a `${VAR}` reference instead), and user files holding them are made owner-only on Linux and macOS.
+- `--nuget-source` accepts a configured feed's name, and keeps that feed's credentials.
+- `skills-lock.json` records each source's `sourceUrl` (feed, registry, or clone URL), so `update` and `restore` try the feed a package came from first, self-hosted GitLab sources restore from the right host, and skills added from a local package file restore from that file while it exists.
 - **NuGet packages: `skills/` at the package root is now the recommended layout**, the same one NuGet's `dotnet-package-skills` reads, so one package works with both tools. The older `contentFiles/any/any/skills/` layout is still read; when a package has both, `skills/` wins. The authoring guide and `samples/sample-nuget-package` use the new layout, and a new docs page compares AgentSkills CLI with `dotnet-package-skills`.
 
 ### Bug fixes
@@ -37,6 +40,9 @@ These fix unsafe or surprising behavior; check them if you script the tool.
 - **`remove` and `list` respect scope** when matching by package: removing a project package no longer touches a same-named global skill or its global lock entry, and `list` shows each row's source from its own scope's lock.
 - **`remove -a <agent>` no longer breaks other agents.** It used to delete the shared canonical copy and the lock entry even when other agents still used the skill (through a symlink).
 - **Corrupt lock files are no longer silently discarded.** An unparseable lock is backed up to `<lock>.corrupt-<timestamp>` with a warning. A lock written in a newer format is never overwritten, and lock writes are atomic.
+- **The project's `NuGet.config` was ignored.** NuGet settings were loaded without the project folder, so only user and machine-wide feeds were searched.
+- **NuGet credential providers weren't used** (for example the Azure Artifacts Credential Provider), although the docs said they were. They're now set up the way `dotnet restore` does.
+- `--nuget-source` with a URL dropped the credentials configured for that feed.
 - Unknown `--agent` names produce a one-line error instead of a stack trace.
 - `remove` lists every agent a skill was removed from. When several agents share `.agents/skills`, only the first one used to be named.
 - Docs said `--copy` was the default install mode; the default has always been symlink.

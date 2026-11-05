@@ -144,6 +144,6 @@ agentskills-cli --version
 agentskills-cli --help
 ```
 
-You should see these commands: `add`, `list`, `remove`, `init`, `find`, `update`, `outdated`, `restore`, `version`.
+You should see these commands: `add`, `list`, `remove`, `init`, `find`, `update`, `outdated`, `restore`, `feed`, `registry`, `version`.
 
 Next: [Concepts →](/getting-started/concepts)

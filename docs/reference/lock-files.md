@@ -60,6 +60,7 @@ Schema v1, sorted alphabetically (for clean git diffs), **commit this to your re
 |---|---|
 | `source`, `sourceType`, `ref`, `skillPath` | Same as global lock |
 | `computedHash` | SHA-256 over the installed skill folder (relative path + bytes). Independent of git. Useful for CI to verify on-disk state matches what's tracked. |
+| `sourceUrl` | Where the source was fetched from: the NuGet feed or npm registry, the clone URL for git sources, or a `file://` URI for a local package file. `update` and `restore` go back there first. A folder inside the project is stored relative to the project root. Omitted for local skill folders. |
 
 The project lock is written on every project install. Skipped for global installs (those only touch the global lock). [`restore`](/commands/restore) reinstalls everything it lists.
 

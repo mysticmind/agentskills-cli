@@ -74,6 +74,12 @@ public static class SkillsServices
         services.AddTransient<OutdatedCommand>();
         services.AddTransient<RestoreCommand>();
         services.AddTransient<VersionCommand>();
+        services.AddTransient<FeedAddCommand>();
+        services.AddTransient<FeedListCommand>();
+        services.AddTransient<FeedRemoveCommand>();
+        services.AddTransient<RegistryAddCommand>();
+        services.AddTransient<RegistryListCommand>();
+        services.AddTransient<RegistryRemoveCommand>();
 
         return services;
     }

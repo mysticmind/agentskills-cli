@@ -13,7 +13,7 @@ Both tools read skills from `skills/<name>/SKILL.md` at the root of a NuGet pack
 | Where skills come from | NuGet feeds, npm registries, GitHub, GitLab, any git URL, well-known endpoints, local folders and package files | NuGet packages a project already references, read from the local NuGet packages folder after `dotnet restore` |
 | How you pick them | You name a package or source: `add Contoso.Widgets` | It reads the project: `install` with no arguments finds the solution and its direct package references |
 | Network | Downloads what you add | None; works offline once the project is restored |
-| Where skills go | Every detected agent's folder (symlinked or copied), project or user-wide | One destination folder per run, project only |
+| Where skills go | Every detected agent's folder (symlinked or copied), project or user-wide | One destination folder per run (default `.agents/skills`) |
 | Tracking | `skills-lock.json` (project) and `~/.agents/.skill-lock.json` (global), shared with `vercel-labs/skills` | `.dotnet-package-skills.json` inside the destination folder |
 
 ## Where dotnet-package-skills is stronger today

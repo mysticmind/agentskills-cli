@@ -4,7 +4,7 @@ All notable changes are documented here. Format roughly follows [Keep a Changelo
 
 ## 1.1.0 - 2026-11-05
 
-Package-level updates for every source type, a `restore` command, name-conflict aliases, version reporting, and fixes to how the lock files track scopes. Lock file formats stay compatible with `vercel-labs/skills`; the only addition is the optional `originalName` field. The package still ships both `net8.0` and `net10.0` builds.
+Package-level updates for every source type, a `restore` command, name-conflict aliases, version reporting, and fixes to how the lock files track scopes. Lock file formats stay compatible with `vercel-labs/skills`; the only additions are optional fields: `originalName` in both locks and `sourceUrl` in the project lock. The package still ships both `net8.0` and `net10.0` builds.
 
 ### Behavior changes
 

@@ -68,4 +68,4 @@ If `agentskills-cli` is too long to type often, alias it in your shell. The [ins
 
 The package ships `net8.0` and `net10.0` builds with `RollForward=LatestMajor`, so it also runs on .NET 11 and any later runtime without a new release (CI tests this). There is no `net11.0` build because .NET 11 is a short-term (STS) release and the tool needs nothing from it; the next build target will be the next LTS.
 
-**.NET 8 is deprecated.** .NET 8 reaches end of support on November 10, 2026. The 1.x releases keep the `net8.0` build; 2.0 will drop it and require the .NET 10 (or later) runtime.
+Both builds stay in the package, so machines that only have the .NET 8 runtime keep working.

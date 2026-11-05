@@ -7,7 +7,6 @@
       `dnx AgentSkills` still requires .NET 10 (the dnx command itself ships with the
       10 SDK), but `dotnet tool install` succeeds on either runtime.
       .NET 11 and later run the net10.0 build via RollForward=LatestMajor (below).
-      net8.0 is deprecated (.NET 8 support ends 2026-11-10) and will be dropped in 2.0.
     -->
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <RootNamespace>AgentSkills</RootNamespace>

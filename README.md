@@ -76,7 +76,7 @@ The `--` separates `dnx`'s own flags from the args passed through to the tool. F
 - **Versioned install units** - skills from a NuGet or npm package are tracked together as a managed set. `agentskills-cli remove MyOrg.SkillPack -y` wipes all of them at once; `agentskills-cli update MyOrg.SkillPack` moves them to the newest version on your feed (or `@2.1.0` for an exact one); `agentskills-cli list --by package` groups them.
 - **Updates for every source** - `outdated` / `update` check NuGet and npm versions, GitHub, GitLab, any git URL, well-known endpoints, and local folders, and keep each skill's agents and symlink/copy mode. `restore` rebuilds a project from `skills-lock.json`. Same dependency-like semantics .NET devs already use for NuGet packages - no orphan skills when you uninstall.
 - **Extension points by design** - register `ISkillSourceFactory` for new source types and `ISkillSearchProvider` for new search backends with a single DI registration.
-- **Multi-targeted** - one `.nupkg` ships .NET 10 and .NET 8 builds and rolls forward to .NET 11 and later. .NET 8 is deprecated (end of support November 10, 2026) and will be dropped in 2.0.
+- **Multi-targeted** - one `.nupkg` ships .NET 8 and .NET 10 builds and rolls forward to .NET 11 and later.
 - **Lock-file interop** - same `~/.agents/.skill-lock.json` and `./skills-lock.json` format as upstream `vercel-labs/skills`, so the two tools share state.
 
 [Full feature matrix vs vercel-labs/skills →](https://mysticmind.github.io/agentskills-cli/reference/comparison)

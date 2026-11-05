@@ -4,7 +4,16 @@ All notable changes are documented here. Format roughly follows [Keep a Changelo
 
 ## 1.1.0 - Unreleased
 
-Package-level updates for every source type, a `restore` command, version reporting, and fixes to how the lock files track scopes. Lock file formats are unchanged and stay compatible with `vercel-labs/skills`.
+Package-level updates for every source type, a `restore` command, name-conflict aliases, version reporting, and fixes to how the lock files track scopes. Lock file formats stay compatible with `vercel-labs/skills`; the only addition is the optional `originalName` field. The package still ships both `net8.0` and `net10.0` builds.
+
+### Behavior changes
+
+These fix unsafe or surprising behavior; check them if you script the tool.
+
+- **`add -y` stops on a name conflict** instead of silently replacing a skill from another source. Nothing is installed and the exit code is `2`. Pass `--replace` to overwrite, or `--as <skill>=<new-name>` to keep both.
+- **`check` is now an alias of the read-only `outdated` command.** It used to be an alias of `update` and could install updates.
+- **Project installs no longer write to the global lock.** Tools or scripts that read `~/.agents/.skill-lock.json` to find project skills must read `./skills-lock.json` instead.
+- **`--json` output** is new on `list`, `outdated`, `update` and `version`; scripts that parsed the tables should switch to it.
 
 ### New
 
@@ -36,7 +45,7 @@ Package-level updates for every source type, a `restore` command, version report
 
 - **Builds were failing with `NU1902`** (`Microsoft.Build.Tasks.Git` 8.0.0, GHSA-23fw-v26w-5fgq) because warnings are errors. The explicit `Microsoft.SourceLink.GitHub` reference is removed; SourceLink is built into the .NET 8+ SDK, so packages keep their source links.
 - **.NET 11**: the tool already runs on .NET 11 and later through `RollForward=LatestMajor`; a new CI job tests the `net10.0` build on the .NET 11 runtime. No `net11.0` build is added (.NET 11 is an STS release).
-- **.NET 8 is deprecated.** .NET 8 support ends on November 10, 2026. 1.x keeps the `net8.0` build; 2.0 will remove it.
+- .NET 8 stays supported: the package keeps its `net8.0` build alongside `net10.0`.
 - New `ci` workflow: build and test on Linux, Windows, and macOS for every push and pull request.
 
 ## 1.0.0 - 2026-06-03

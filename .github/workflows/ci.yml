@@ -54,19 +54,29 @@ jobs:
     name: net10.0 build on the .NET 11 runtime
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # .NET only rolls forward onto a prerelease runtime when asked. Needed while .NET 11 is
+      # a preview/RC on the runner; harmless once it ships.
+      DOTNET_ROLL_FORWARD_TO_PRERELEASE: "1"
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET 10 SDK + .NET 11
+      # Two steps so `dotnet-quality: preview` applies only to .NET 11, not to the 10 SDK.
+      - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            10.0.x
-            11.0.x
+          dotnet-version: 10.0.x
+
+      - name: Setup .NET 11
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 11.0.x
           dotnet-quality: preview
 
-      - name: Pin the build to the .NET 10 SDK
-        run: dotnet --version
+      - name: Show SDKs and runtimes (the build is pinned to the 10 SDK by global.json)
+        run: |
+          dotnet --version
+          dotnet --list-runtimes
 
       - name: Build
         run: dotnet build agentskills-cli.sln --configuration Release

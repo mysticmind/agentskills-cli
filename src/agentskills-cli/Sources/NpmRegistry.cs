@@ -26,10 +26,14 @@ public sealed class NpmRegistry
 
     public string DefaultRegistryUrl => _defaultRegistry;
 
-    public static NpmRegistry Load(string? cwd = null, string? overrideRegistry = null)
+    /// <param name="home">
+    /// Directory holding the user <c>.npmrc</c>. Defaults to the user profile. Tests pass a
+    /// temp directory: on Windows the profile comes from the OS, not from HOME/USERPROFILE.
+    /// </param>
+    public static NpmRegistry Load(string? cwd = null, string? overrideRegistry = null, string? home = null)
     {
         var settings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        home ??= Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var userRc = Path.Combine(home, ".npmrc");
         var projectRc = Path.Combine(cwd ?? Directory.GetCurrentDirectory(), ".npmrc");
 

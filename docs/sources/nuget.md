@@ -56,13 +56,15 @@ agentskills-cli add MyOrg.AgentSkills \
 
 ## Package layout
 
-The convention is the standard NuGet `contentFiles` path:
+Skills live in `skills/` at the package root, one folder per skill:
 
 ```
 mypackage.nupkg
-└─ contentFiles/any/any/skills/<skill-name>/SKILL.md
-                                          /...other files
+└─ skills/<skill-name>/SKILL.md
+                      /...other files
 ```
+
+This is the layout NuGet's `dotnet-package-skills` reads too. AgentSkills CLI also reads the older `contentFiles/any/any/skills/<skill-name>/` layout, and prefers `skills/` when a package has both. See [Publishing to NuGet](/authoring/publishing-nuget).
 
 Multiple skills per package allowed; each subfolder with a `SKILL.md` is its own skill.
 

@@ -1,6 +1,6 @@
 # AgentSkills CLI vs vercel-labs/skills
 
-AgentSkills CLI is a faithful .NET-native port of [`vercel-labs/skills`](https://github.com/vercel-labs/skills) that adds first-class NuGet and npm support plus a layer of ergonomics. This page is the full feature-by-feature table; the [FAQ entry](/faq#how-is-this-different-from-npx-skills) summarizes the highlights in prose.
+AgentSkills CLI is a faithful .NET-native port of [`vercel-labs/skills`](https://github.com/vercel-labs/skills) that adds first-class NuGet and npm support plus a layer of ergonomics. This page is the full feature-by-feature table; the [FAQ entry](/faq#how-is-this-different-from-npx-skills) summarizes the highlights in prose. For NuGet's own tool, see [AgentSkills CLI vs dotnet-package-skills](/reference/vs-dotnet-package-skills).
 
 ## Capability matrix
 

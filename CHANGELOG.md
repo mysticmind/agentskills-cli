@@ -28,6 +28,7 @@ These fix unsafe or surprising behavior; check them if you script the tool.
 - **Name conflicts are detected and can be resolved with an alias.** When `add` would install a skill whose name is already used in that scope by a skill from a different source (or by an untracked skill), it now stops before installing anything. Interactively it asks whether to install under another name (with a suggested name), replace, or skip. With `-y` or in CI it lists the conflicts with the commands that resolve them and exits `2`. Before, the existing skill was silently overwritten. `find` asks the same question.
 - **`add --as <skill>=<new-name>`** installs a skill under another name; `add --replace` overwrites without asking. The installed `SKILL.md` gets the new `name` (the spec requires it to match the folder); the lock records `originalName`, so `update`, `restore`, and later `add`s of the same source keep the alias. `list` shows aliases.
 - Lock entries keep fields they don't recognize when rewritten, so additions by other tools aren't lost.
+- **NuGet packages: `skills/` at the package root is now the recommended layout**, the same one NuGet's `dotnet-package-skills` reads, so one package works with both tools. The older `contentFiles/any/any/skills/` layout is still read; when a package has both, `skills/` wins. The authoring guide and `samples/sample-nuget-package` use the new layout, and a new docs page compares AgentSkills CLI with `dotnet-package-skills`.
 
 ### Bug fixes
 

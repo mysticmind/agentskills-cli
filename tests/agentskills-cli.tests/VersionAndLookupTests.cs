@@ -159,3 +159,49 @@ public class MatchesByNameOrBaseIdTests
     [Fact]
     public void DifferentPackage_NoMatch() => Assert.False(Match(["Acme.Other"], "a", "Acme.Skills@1.0.0"));
 }
+
+public sealed class NuGetLayoutTests : IDisposable
+{
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), "agentskills-cli-nupkg-" + Guid.NewGuid().ToString("N"));
+
+    public NuGetLayoutTests() => Directory.CreateDirectory(_dir);
+
+    public void Dispose()
+    {
+        try { Directory.Delete(_dir, recursive: true); } catch { /* ignore */ }
+    }
+
+    private void Make(string relative) => Directory.CreateDirectory(Path.Combine(_dir, relative));
+
+    [Fact]
+    public void RootSkillsFolder_IsUsed()
+    {
+        Make("skills/contoso-widgets-usage");
+        Assert.Equal("skills", Sources.NuGetSource.FindSkillsSubpath(_dir));
+    }
+
+    [Fact]
+    public void RootSkillsFolder_MatchedCaseInsensitively()
+    {
+        Make("Skills/x");
+        Assert.Equal("Skills", Sources.NuGetSource.FindSkillsSubpath(_dir));
+    }
+
+    [Fact]
+    public void ContentFilesLayout_StillRead()
+    {
+        Make("contentFiles/any/any/skills/x");
+        Assert.Equal(Path.Combine("contentFiles", "any", "any", "skills"), Sources.NuGetSource.FindSkillsSubpath(_dir));
+    }
+
+    [Fact]
+    public void BothLayouts_RootWins()
+    {
+        Make("skills/x");
+        Make("contentFiles/any/any/skills/y");
+        Assert.Equal("skills", Sources.NuGetSource.FindSkillsSubpath(_dir));
+    }
+
+    [Fact]
+    public void NoSkillsFolder_ReturnsNull() => Assert.Null(Sources.NuGetSource.FindSkillsSubpath(_dir));
+}

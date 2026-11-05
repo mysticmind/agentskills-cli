@@ -17,32 +17,26 @@ When skills live **inside** the library package:
 
 ## Pattern 1: NuGet
 
-Assume you maintain `Contoso.SampleLib`. Add a `contentFiles` path:
+Assume you maintain `Contoso.SampleLib`. Add a `skills/` folder with one folder per skill, each prefixed with your package id:
 
 ```
 src/Contoso.SampleLib/
 ├── Contoso.SampleLib.csproj
 ├── (library code)
-└── contentFiles/
-    └── any/
-        └── any/
-            └── skills/
-                ├── samplelib-handlers/SKILL.md
-                └── samplelib-middleware/SKILL.md
+└── skills/
+    ├── contoso-samplelib-handlers/SKILL.md
+    └── contoso-samplelib-middleware/SKILL.md
 ```
 
 Add to the `.csproj`:
 
 ```xml
 <ItemGroup>
-  <Content Include="contentFiles\any\any\skills\**\*">
-    <Pack>true</Pack>
-    <PackagePath>contentFiles\any\any\skills\</PackagePath>
-    <BuildAction>None</BuildAction>
-    <CopyToOutput>false</CopyToOutput>
-  </Content>
+  <None Include="skills/**/*" Pack="true" PackagePath="skills/%(RecursiveDir)%(Filename)%(Extension)" />
 </ItemGroup>
 ```
+
+This puts `skills/<name>/SKILL.md` at the root of the package, the layout both AgentSkills CLI and NuGet's own `dotnet-package-skills` read. Keep each folder name identical to the `name` in its `SKILL.md`. See [Publishing to NuGet](/authoring/publishing-nuget) for the full set of rules.
 
 Next `dotnet pack`, the `.nupkg` ships with the skills. Users:
 

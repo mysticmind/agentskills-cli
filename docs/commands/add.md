@@ -127,7 +127,7 @@ After the fact you can recover the same paths any time with `agentskills-cli lis
 
 Without `--path`, skills are found via three layered passes:
 
-1. **Source-type conventions** - `contentFiles/any/any/skills/` for NuGet, `package/skills/` then `package/contentFiles/...` for npm, the priority directory list for git.
+1. **Source-type conventions** - `skills/` at the package root for NuGet (then the older `contentFiles/any/any/skills/`), `package/skills/` then `package/contentFiles/...` for npm, the priority directory list for git.
 2. **Recursive scan** up to 5 levels deep, skipping `node_modules`, `.git`, `dist`, `build`, `__pycache__`.
 3. With `--path`, the scan is restricted to that one subdirectory of the staged source.
 

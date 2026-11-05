@@ -17,6 +17,10 @@ Both tools share the same lock format and `.agents/skills/` directory by design,
 
 No. They coexist by design - different binaries (`skills` vs `agentskills-cli`), shared lock and install dirs. See [troubleshooting](/troubleshooting#agentskills-cli-and-npx-skills-coexistence).
 
+## Can I use it alongside NuGet's `dotnet-package-skills`?
+
+Yes. Both read the same package layout (`skills/<name>/` at the package root), and each refuses to overwrite skill folders the other installed. Let one tool own each skill. See [AgentSkills CLI vs dotnet-package-skills](/reference/vs-dotnet-package-skills) for what each does best.
+
 ## Why isn't my agent picking up an installed skill?
 
 Three things to check:

@@ -10,18 +10,17 @@
     <PackageId>Sample.SkillPackage</PackageId>
     <Version>0.1.0</Version>
     <Authors>AgentSkills sample</Authors>
-    <Description>A sample NuGet package shipping a single Skill via contentFiles.</Description>
+    <Description>A sample NuGet package shipping a single agent skill under skills/.</Description>
     <PackageTags>skills;sample</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="contentFiles\any\any\skills\**\*">
-      <Pack>true</Pack>
-      <PackagePath>contentFiles\any\any\skills\</PackagePath>
-      <BuildAction>None</BuildAction>
-      <CopyToOutput>false</CopyToOutput>
-    </Content>
+    <!-- skills/<name>/ at the package root: the layout both AgentSkills CLI and NuGet's
+         dotnet-package-skills read. %(RecursiveDir) keeps each skill's folder structure. -->
+    <None Include="skills/**/*"
+          Pack="true"
+          PackagePath="skills/%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 

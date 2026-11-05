@@ -133,10 +133,7 @@ public sealed class NuGetSource : ISkillSource
 
                     File.Delete(nupkgPath);
 
-                    var conventional = Path.Combine(extractDir, "contentFiles", "any", "any", "skills");
-                    var subpath = Directory.Exists(conventional)
-                        ? Path.Combine("contentFiles", "any", "any", "skills")
-                        : null;
+                    var subpath = FindSkillsSubpath(extractDir);
 
                     var resolvedParsed = parsed with { PackageVersion = resolved.ToFullString() };
                     return new NuGetSource(
@@ -279,10 +276,7 @@ public sealed class NuGetSource : ISkillSource
                 }
             }
 
-            var conventional = Path.Combine(extractDir, "contentFiles", "any", "any", "skills");
-            var subpath = Directory.Exists(conventional)
-                ? Path.Combine("contentFiles", "any", "any", "skills")
-                : null;
+            var subpath = FindSkillsSubpath(extractDir);
 
             var resolvedParsed = parsed with
             {
@@ -302,6 +296,21 @@ public sealed class NuGetSource : ISkillSource
             try { Directory.Delete(stagingRoot, recursive: true); } catch { /* swallow */ }
             throw;
         }
+    }
+
+    /// <summary>
+    /// Where skills live inside an extracted package. Prefers <c>skills/</c> at the package root
+    /// (the layout NuGet's own <c>dotnet-package-skills</c> reads, matched case-insensitively),
+    /// then the older <c>contentFiles/any/any/skills/</c> layout. Null means "scan the package".
+    /// </summary>
+    internal static string? FindSkillsSubpath(string extractDir)
+    {
+        var root = Directory.EnumerateDirectories(extractDir)
+            .FirstOrDefault(d => string.Equals(Path.GetFileName(d), "skills", StringComparison.OrdinalIgnoreCase));
+        if (root is not null) return Path.GetFileName(root);
+
+        var contentFiles = Path.Combine(extractDir, "contentFiles", "any", "any", "skills");
+        return Directory.Exists(contentFiles) ? Path.Combine("contentFiles", "any", "any", "skills") : null;
     }
 
     private sealed class SpectreNuGetLogger(Action<string>? sink) : LoggerBase

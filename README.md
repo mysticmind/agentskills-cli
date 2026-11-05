@@ -10,7 +10,7 @@ Install skills from GitHub, NuGet, npm, well-known endpoints, or local folders i
 
 First-class NuGet & npm · library-bundled skill packages · extension points by design.
 
-[📖 Documentation](https://mysticmind.github.io/agentskills-cli/) · [Why AgentSkills CLI?](https://mysticmind.github.io/agentskills-cli/why) · [Quick start](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start) · [vs vercel-labs/skills](https://mysticmind.github.io/agentskills-cli/reference/comparison)
+[📖 Documentation](https://mysticmind.github.io/agentskills-cli/) · [Why AgentSkills CLI?](https://mysticmind.github.io/agentskills-cli/why) · [Quick start](https://mysticmind.github.io/agentskills-cli/getting-started/quick-start) · [vs vercel-labs/skills](https://mysticmind.github.io/agentskills-cli/reference/comparison) · [vs dotnet-package-skills](https://mysticmind.github.io/agentskills-cli/reference/vs-dotnet-package-skills)
 
 ---
 

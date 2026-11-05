@@ -111,6 +111,7 @@ export default defineConfig({
           { text: 'Search providers (extension point)', link: '/reference/search-providers' },
           { text: 'Samples', link: '/reference/samples' },
           { text: 'AgentSkills CLI vs vercel-labs/skills', link: '/reference/comparison' },
+          { text: 'AgentSkills CLI vs dotnet-package-skills', link: '/reference/vs-dotnet-package-skills' },
         ],
       },
       {

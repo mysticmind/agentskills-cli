@@ -21,7 +21,7 @@ AgentSkills CLI accepts a wide range of input shapes. Detection is order-sensiti
 
 Most of the time, sources just work because they follow one of the conventional layouts AgentSkills CLI probes first:
 
-- **NuGet**: `contentFiles/any/any/skills/<name>/SKILL.md`
+- **NuGet**: `skills/<name>/SKILL.md` at the package root (also the older `contentFiles/any/any/skills/<name>/SKILL.md`)
 - **npm**: `package/skills/<name>/SKILL.md` (tarball roots at `package/`)
 - **git / local**: any of the priority directories: `skills/`, `.agents/skills/`, `.claude/skills/`, `.cursor/skills/`, `.codex/skills/`, … (full list in source-discovery code)
 

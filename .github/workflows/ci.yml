@@ -92,8 +92,10 @@ jobs:
           set -euo pipefail
           dll=src/agentskills-cli/bin/Release/net10.0/agentskills-cli.dll
           dotnet "$dll" --version
-          dotnet "$dll" version | tee version.txt
-          grep -E 'Runtime +\.NET 1[1-9]' version.txt || {
+          dotnet "$dll" version
+          # Check the JSON form: the table output carries color codes in CI.
+          dotnet "$dll" version --json | tee version.json
+          grep -E '"runtime": "\.NET 1[1-9]' version.json || {
             echo "::error::Expected the net10.0 build to roll forward to .NET 11+"
             exit 1
           }

@@ -23,9 +23,14 @@ on:
         required: false
         type: boolean
         default: false
+      ref:
+        description: "Tag, branch or commit to build (e.g. v1.1.0). Leave blank to build the branch the workflow runs from."
+        required: false
+        type: string
 
 permissions:
   contents: write   # only used when create_release == true (tag + release)
+  id-token: write   # NuGet trusted publishing: exchange GitHub's OIDC token for a short-lived API key
 
 concurrency:
   group: publish-nuget
@@ -48,6 +53,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0   # full history so we can tag
+          ref: ${{ inputs.ref }}   # blank = the ref the workflow runs from
 
       - name: Setup .NET 8 runtime + .NET 10 SDK
         uses: actions/setup-dotnet@v4
@@ -119,15 +125,21 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      # Trusted publishing: no long-lived API key in repo secrets. nuget.org checks this run's
+      # OIDC token against the trusted publishing policy for this repo and workflow file, and
+      # returns an API key that expires after about an hour.
+      - name: NuGet login (trusted publishing)
+        id: nuget-login
+        if: ${{ inputs.dry_run != true }}
+        uses: NuGet/login@v1
+        with:
+          user: mysticmind   # nuget.org account that owns the trusted publishing policy
+
       - name: Push to nuget.org
         if: ${{ inputs.dry_run != true }}
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: |
-          if [[ -z "${NUGET_API_KEY:-}" ]]; then
-            echo "::error::NUGET_API_KEY secret is not set on this repo."
-            exit 1
-          fi
           dotnet nuget push ./artifacts/agentskills-cli.${{ steps.version.outputs.value }}.nupkg \
             --source https://api.nuget.org/v3/index.json \
             --api-key "$NUGET_API_KEY" \

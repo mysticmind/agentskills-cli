@@ -78,6 +78,16 @@ dotnet nuget push ./out/MyOrg.AgentSkills.1.0.0.nupkg \
   --api-key $NUGET_API_KEY
 ```
 
+Publishing from GitHub Actions? Prefer nuget.org [trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing): add a trusted publishing policy for your repo and workflow on nuget.org, give the job `id-token: write`, and get a short-lived key with the `NuGet/login` action instead of storing a long-lived API key in secrets:
+
+```yaml
+- uses: NuGet/login@v1
+  id: login
+  with:
+    user: your-nuget-username
+- run: dotnet nuget push ./out/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+```
+
 Check the package before pushing: `unzip -l ./out/MyOrg.AgentSkills.1.0.0.nupkg` should list `skills/<name>/SKILL.md` for every skill.
 
 Users install with:

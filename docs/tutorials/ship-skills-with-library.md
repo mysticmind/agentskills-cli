@@ -126,7 +126,7 @@ When breaking changes happen:
 2. Bump the package version
 3. Publish
 
-Users who run `agentskills-cli update` after upgrading the library will see the skill folder hash change and pull the updated skills automatically.
+Users who run `agentskills-cli outdated` see the new package version, and `agentskills-cli update Contoso.SampleLib -y` pulls the updated skills (or `update Contoso.SampleLib@3.0.0 -y` to match the exact library version they upgraded to).
 
 ## Try it locally first
 

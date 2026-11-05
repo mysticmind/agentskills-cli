@@ -47,22 +47,8 @@ public sealed class NuGetSource : ISkillSource
         var packageId = parsed.PackageId
             ?? throw new ArgumentException("Parsed source is not a NuGet source", nameof(parsed));
 
-        var settings = Settings.LoadDefaultSettings(root: null);
-        var packageSourceProvider = new PackageSourceProvider(settings);
-        var sources = (overrideSource is null
-                ? packageSourceProvider.LoadPackageSources()
-                : new[] { new PackageSource(overrideSource) })
-            .Where(s => s.IsEnabled)
-            .ToList();
-
-        if (sources.Count == 0)
-        {
-            throw new InvalidOperationException(
-                "No enabled NuGet sources found. Add one with `dotnet nuget add source` or pass --nuget-source.");
-        }
-
-        var providers = new List<Lazy<INuGetResourceProvider>>();
-        providers.AddRange(Repository.Provider.GetCoreV3());
+        var sources = LoadSources(overrideSource);
+        var providers = Repository.Provider.GetCoreV3().ToList();
 
         var logger = new SpectreNuGetLogger(log);
         using var cache = new SourceCacheContext { NoCache = false, DirectDownload = false };
@@ -183,6 +169,68 @@ public sealed class NuGetSource : ISkillSource
             try { Directory.Delete(stagingRoot, recursive: true); } catch { /* swallow */ }
             throw;
         }
+    }
+
+    private static List<PackageSource> LoadSources(string? overrideSource)
+    {
+        var settings = Settings.LoadDefaultSettings(root: null);
+        var packageSourceProvider = new PackageSourceProvider(settings);
+        var sources = (overrideSource is null
+                ? packageSourceProvider.LoadPackageSources()
+                : new[] { new PackageSource(overrideSource) })
+            .Where(s => s.IsEnabled)
+            .ToList();
+
+        if (sources.Count == 0)
+        {
+            throw new InvalidOperationException(
+                "No enabled NuGet sources found. Add one with `dotnet nuget add source` or pass --nuget-source.");
+        }
+        return sources;
+    }
+
+    /// <summary>
+    /// Lists every version of <paramref name="packageId"/> across the enabled feeds (or just
+    /// <paramref name="overrideSource"/>) without downloading anything. Used by
+    /// <c>update</c> / <c>outdated</c> to detect newer package versions.
+    /// </summary>
+    /// <exception cref="NuGetFeedException">No feed answered and at least one failed.</exception>
+    public static async Task<IReadOnlyList<NuGetVersion>> GetAllVersionsAsync(
+        string packageId,
+        string? overrideSource = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(packageId);
+
+        var sources = LoadSources(overrideSource);
+        var providers = Repository.Provider.GetCoreV3().ToList();
+        var logger = new SpectreNuGetLogger(null);
+        using var cache = new SourceCacheContext { NoCache = true };
+
+        var all = new HashSet<NuGetVersion>();
+        var errors = new List<string>();
+        foreach (var packageSource in sources)
+        {
+            try
+            {
+                var repo = new SourceRepository(packageSource, providers);
+                var finder = await repo.GetResourceAsync<FindPackageByIdResource>(cancellationToken).ConfigureAwait(false);
+                if (finder is null) continue;
+                var versions = await finder.GetAllVersionsAsync(packageId, cache, logger, cancellationToken).ConfigureAwait(false);
+                all.UnionWith(versions);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                errors.Add($"{packageSource.Name}: {ex.Message}");
+            }
+        }
+
+        if (all.Count == 0 && errors.Count > 0)
+        {
+            throw new NuGetFeedException(packageId,
+                $"Could not list versions of '{packageId}': {string.Join("; ", errors)}");
+        }
+        return all.OrderBy(v => v).ToList();
     }
 
     public void Dispose()

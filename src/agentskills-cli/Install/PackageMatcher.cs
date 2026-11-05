@@ -101,39 +101,41 @@ public static class PackageMatcher
     /// installed skills it refers to. Skill-name and source matches are unioned, so a name
     /// that happens to look like a source matches both ways.
     /// </summary>
+    /// <param name="scopeSelector">
+    /// Optional. When supplied (returning <c>"global"</c> or <c>"project"</c>), source matches
+    /// are checked against the lock for that item's own scope, so a package installed in the
+    /// project never selects a same-named skill installed globally from a different source.
+    /// </param>
     public static List<TSkill> ResolveTargets<TSkill>(
         IReadOnlyList<string> arguments,
         IReadOnlyList<TSkill> installed,
-        Func<TSkill, string> nameSelector)
+        Func<TSkill, string> nameSelector,
+        Func<TSkill, string>? scopeSelector = null)
     {
+        ArgumentNullException.ThrowIfNull(arguments);
+        ArgumentNullException.ThrowIfNull(installed);
+        ArgumentNullException.ThrowIfNull(nameSelector);
         if (arguments.Count == 0) return installed.ToList();
 
-        var byName = installed
-            .GroupBy(nameSelector, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+        var names = new HashSet<string>(arguments, StringComparer.OrdinalIgnoreCase);
+        var sourceMatches = ResolveScopedSkillNamesFromPackages(arguments).ToList();
+        var anyScope = sourceMatches.Select(m => m.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var scoped = sourceMatches.Select(m => $"{m.Scope}:{m.Name}").ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var sourceMatches = ResolveSkillNamesFromPackages(arguments)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var picked = new Dictionary<string, TSkill>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var arg in arguments)
+        var picked = new List<TSkill>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in installed)
         {
-            if (byName.TryGetValue(arg, out var direct))
-            {
-                picked[nameSelector(direct)] = direct;
-            }
-        }
+            var name = nameSelector(item);
+            var scope = scopeSelector?.Invoke(item);
+            var key = scope is null ? name : $"{scope}:{name}";
 
-        foreach (var name in sourceMatches)
-        {
-            if (byName.TryGetValue(name, out var bySource))
-            {
-                picked[nameSelector(bySource)] = bySource;
-            }
-        }
+            var hit = names.Contains(name)
+                || (scope is null ? anyScope.Contains(name) : scoped.Contains(key));
 
-        return picked.Values.ToList();
+            if (hit && seen.Add(key)) picked.Add(item);
+        }
+        return picked;
     }
 
     /// <summary>
@@ -141,7 +143,11 @@ public static class PackageMatcher
     /// package(s). When a locator pins a version, only that version is matched; when no
     /// version is pinned, any installed version of the base id matches.
     /// </summary>
-    public static IEnumerable<string> ResolveSkillNamesFromPackages(IEnumerable<string> packages)
+    public static IEnumerable<string> ResolveSkillNamesFromPackages(IEnumerable<string> packages) =>
+        ResolveScopedSkillNamesFromPackages(packages).Select(m => m.Name).Distinct(StringComparer.Ordinal);
+
+    /// <summary>Same as <see cref="ResolveSkillNamesFromPackages"/> but keeps which lock (scope) each match came from.</summary>
+    public static IEnumerable<(string Scope, string Name)> ResolveScopedSkillNamesFromPackages(IEnumerable<string> packages)
     {
         var locators = packages
             .Select(NormalizeToLocator)
@@ -150,23 +156,31 @@ public static class PackageMatcher
 
         if (locators.Count == 0) yield break;
 
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-
         foreach (var (name, entry) in SkillLock.Load().Skills)
         {
-            if (Matches(entry.Source, locators) && seen.Add(name))
-            {
-                yield return name;
-            }
+            if (Matches(entry.Source, locators)) yield return ("global", name);
         }
 
         foreach (var (name, entry) in LocalLock.Load().Skills)
         {
-            if (Matches(entry.Source, locators) && seen.Add(name))
-            {
-                yield return name;
-            }
+            if (Matches(entry.Source, locators)) yield return ("project", name);
         }
+    }
+
+    /// <summary>
+    /// True when a lock entry is selected by <paramref name="arguments"/>: either an argument
+    /// equals the skill name, or it is a source locator whose base id matches the entry's
+    /// source. Unlike <c>list</c>/<c>remove</c>, a pinned version is <b>not</b> a filter here
+    /// (for <c>update</c> it is the version to move to), so only the base id is compared.
+    /// </summary>
+    public static bool MatchesByNameOrBaseId(IReadOnlyList<Locator> locators, IReadOnlyList<string> arguments, string skillName, string lockSource)
+    {
+        ArgumentNullException.ThrowIfNull(locators);
+        ArgumentNullException.ThrowIfNull(arguments);
+        if (arguments.Count == 0) return true;
+        if (arguments.Any(a => string.Equals(a, skillName, StringComparison.OrdinalIgnoreCase))) return true;
+        var entryBase = ExtractBaseSource(lockSource);
+        return locators.Any(l => l.BaseId.Length > 0 && string.Equals(l.BaseId, entryBase, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -225,24 +239,31 @@ public static class PackageMatcher
     /// <c>source</c> string (including version, e.g. <c>@jasperfx/ai-skills@1.0.0</c>)
     /// along with the stripped base id and source type.
     /// </summary>
-    public sealed record SourceInfo(string Source, string BaseId, string SourceType);
+    public sealed record SourceInfo(string Source, string BaseId, string SourceType, string? OriginalName = null);
 
     /// <summary>
-    /// Returns the source the skill was installed from, preferring the global lock
-    /// when the same name appears in both. Null when the skill isn't tracked
+    /// Returns the source the skill was installed from. With <paramref name="scope"/>
+    /// (<c>"global"</c> / <c>"project"</c>) only that scope's lock is consulted; without it the
+    /// global lock wins when the name appears in both. Null when the skill isn't tracked
     /// (installed manually, or before lock tracking).
     /// </summary>
-    public static SourceInfo? LookupSource(string skillName)
+    public static SourceInfo? LookupSource(string skillName, string? scope = null)
     {
-        var global = SkillLock.Load();
-        if (global.Skills.TryGetValue(skillName, out var g))
+        if (scope is null or "global")
         {
-            return new SourceInfo(g.Source, ExtractBaseSource(g.Source), g.SourceType);
+            var global = SkillLock.Load();
+            if (global.Skills.TryGetValue(skillName, out var g))
+            {
+                return new SourceInfo(g.Source, ExtractBaseSource(g.Source), g.SourceType, g.OriginalName);
+            }
         }
-        var local = LocalLock.Load();
-        if (local.Skills.TryGetValue(skillName, out var l))
+        if (scope is null or "project")
         {
-            return new SourceInfo(l.Source, ExtractBaseSource(l.Source), l.SourceType);
+            var local = LocalLock.Load();
+            if (local.Skills.TryGetValue(skillName, out var l))
+            {
+                return new SourceInfo(l.Source, ExtractBaseSource(l.Source), l.SourceType, l.OriginalName);
+            }
         }
         return null;
     }

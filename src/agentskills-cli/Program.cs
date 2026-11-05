@@ -21,6 +21,9 @@ var app = new CommandApp(registrar);
 app.Configure(config =>
 {
     config.SetApplicationName("agentskills-cli");
+    // Enables `--version` (prints just the version). `-v` stays --verbose: it is stripped
+    // by ParseVerbosity above before Spectre sees the args.
+    config.SetApplicationVersion(VersionInfo.Version);
     config.PropagateExceptions();
 
     config.AddCommand<AddCommand>("add")
@@ -43,8 +46,18 @@ app.Configure(config =>
         .WithDescription("Search registered providers (skills.sh and any you register) and install a result.");
 
     config.AddCommand<UpdateCommand>("update")
-        .WithAlias("upgrade").WithAlias("check")
-        .WithDescription("Check tracked skills for upstream updates and (optionally) reinstall.");
+        .WithAlias("upgrade")
+        .WithDescription("Check tracked skills (GitHub, GitLab, git, NuGet, npm, well-known, local) for changes and reinstall them.");
+
+    config.AddCommand<OutdatedCommand>("outdated")
+        .WithAlias("check")
+        .WithDescription("Report which tracked skills have updates available. Installs nothing.");
+
+    config.AddCommand<RestoreCommand>("restore")
+        .WithDescription("Install every skill recorded in ./skills-lock.json (fresh clone, CI).");
+
+    config.AddCommand<VersionCommand>("version")
+        .WithDescription("Show the tool version, runtime, and lock file locations.");
 });
 
 try

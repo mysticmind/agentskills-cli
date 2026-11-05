@@ -80,6 +80,48 @@ public static class Prompts
         return chosen;
     }
 
+    public enum ConflictChoice { Rename, Replace, Skip }
+
+    public sealed record ConflictDecision(ConflictChoice Choice, string? Alias = null);
+
+    /// <summary>
+    /// Explains one name conflict and asks what to do: install under another name (with a
+    /// suggested default), replace the existing skill, or skip this skill.
+    /// </summary>
+    /// <param name="validateAlias">Returns an error message for an unusable alias, or null when it's fine.</param>
+    public static ConflictDecision ResolveConflict(
+        IAnsiConsole console,
+        Install.SkillConflict conflict,
+        string incomingSource,
+        string suggestedAlias,
+        Func<string, string?> validateAlias)
+    {
+        ArgumentNullException.ThrowIfNull(console);
+        ArgumentNullException.ThrowIfNull(conflict);
+        ArgumentNullException.ThrowIfNull(validateAlias);
+
+        const string rename = "Install it under a different name (keep both)";
+        const string replace = "Replace the existing skill";
+        const string skip = "Skip this skill";
+
+        var choice = console.Prompt(new SelectionPrompt<string>()
+            .Title($"[yellow]'{Markup.Escape(conflict.SkillName)}' from {Markup.Escape(incomingSource)} conflicts with " +
+                   $"{Markup.Escape(conflict.DescribeExisting())} ({conflict.Scope}).[/] What should happen?")
+            .AddChoices(rename, replace, skip));
+
+        if (choice == skip) return new ConflictDecision(ConflictChoice.Skip);
+        if (choice == replace) return new ConflictDecision(ConflictChoice.Replace);
+
+        var alias = console.Prompt(new TextPrompt<string>($"Install '{Markup.Escape(conflict.SkillName)}' as:")
+            .DefaultValue(suggestedAlias)
+            .Validate(value =>
+            {
+                var error = validateAlias(value.Trim());
+                return error is null ? ValidationResult.Success() : ValidationResult.Error($"[red]{Markup.Escape(error)}[/]");
+            }));
+        return new ConflictDecision(ConflictChoice.Rename, alias.Trim());
+    }
+
     public static bool Confirm(IAnsiConsole console, string question, bool defaultValue = false)
     {
         ArgumentNullException.ThrowIfNull(console);

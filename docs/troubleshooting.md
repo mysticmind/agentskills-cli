@@ -42,9 +42,9 @@ Make sure the appropriate credential provider is installed:
 
 AgentSkills CLI uses `NuGet.Protocol` and doesn't introduce any new auth surface. If `dotnet restore` works against your feed, `agentskills-cli add` will too.
 
-## `update` shows "Could not fetch tree (rate-limited, private, or moved)"
+## `update` is slow or hits GitHub rate limits
 
-GitHub allows 60 unauthenticated requests per hour per IP. Set `GITHUB_TOKEN` (or `GH_TOKEN`) and re-run:
+For global GitHub skills, `update` uses the GitHub Trees API (one request per repo) and falls back to cloning when the API refuses. GitHub allows 60 unauthenticated requests per hour per IP. Set `GITHUB_TOKEN` (or `GH_TOKEN`) to stay on the fast path:
 
 ```bash
 export GITHUB_TOKEN=ghp_...
@@ -53,9 +53,28 @@ agentskills-cli update -g
 
 If you have `gh` CLI authenticated, AgentSkills CLI will fall back to `gh auth token` automatically after a 403 - no env var needed.
 
+## "lock file could not be parsed" warning
+
+A lock file with invalid JSON is copied to `<lock>.corrupt-<timestamp>` and treated as empty, so nothing is lost. Fix or delete the original, or restore entries from the backup. For the project lock you can also re-run [`restore`](/commands/restore) from a known-good commit.
+
+## "uses lock format vN, newer than this tool supports"
+
+Another tool (or a newer AgentSkills CLI) wrote the lock. AgentSkills CLI can still read it but refuses to overwrite it. Upgrade with `dotnet tool update --global agentskills-cli`.
+
+## "Skill name conflict - nothing was installed"
+
+Another skill with the same name is already installed in that scope from a different source. Install the new one under another name with `--as <skill>=<new-name>`, or overwrite the existing one with `--replace`. See [Name conflicts](/commands/add#name-conflicts).
+
+## Which version am I running?
+
+```bash
+agentskills-cli --version   # just the number
+agentskills-cli version     # plus runtime, OS, and lock file paths
+```
+
 ## Symlinks failing on Windows
 
-Pass `--copy` (the default) or enable Developer Mode in Windows Settings. The installer falls back to copy automatically when symlink creation fails.
+Pass `--copy` or enable Developer Mode in Windows Settings. The installer falls back to copy automatically when symlink creation fails.
 
 ## Tests can't bind to a TCP port
 

@@ -32,7 +32,7 @@ Schema v3, sorted by skill name, one entry per globally-installed skill:
 | `sourceUrl` | The actual URL the source was fetched from |
 | `ref` | Git ref (branch/tag) if specified |
 | `skillPath` | Path of the SKILL.md inside the source (e.g., `skills/foo/SKILL.md`) |
-| `skillFolderHash` | git tree SHA of the skill's folder (GitHub sources only - powers `update`) |
+| `skillFolderHash` | Change-detection baseline used by `update`: the git tree SHA of the skill's folder for git sources (GitHub, GitLab, generic git), otherwise the SHA-256 content hash of the folder. |
 | `installedAt` | ISO-8601 timestamp |
 | `updatedAt` | ISO-8601 timestamp - same as `installedAt` until `update` runs |
 
@@ -61,11 +61,43 @@ Schema v1, sorted alphabetically (for clean git diffs), **commit this to your re
 | `source`, `sourceType`, `ref`, `skillPath` | Same as global lock |
 | `computedHash` | SHA-256 over the installed skill folder (relative path + bytes). Independent of git. Useful for CI to verify on-disk state matches what's tracked. |
 
-The project lock is written on every project install. Skipped for global installs (those only touch the global lock).
+The project lock is written on every project install. Skipped for global installs (those only touch the global lock). [`restore`](/commands/restore) reinstalls everything it lists.
+
+## Aliases
+
+A skill installed under another name ([`add --as`](/commands/add#installing-under-another-name)) is keyed by the name it was installed under, and the entry records the skill's name in its source:
+
+```json
+"greeter-contoso": {
+  "source": "Contoso.AgentSkills@1.2.0",
+  "sourceType": "nuget",
+  "originalName": "greeter",
+  "computedHash": "..."
+}
+```
+
+`originalName` appears in both lock files and is omitted for skills installed under their own name. `vercel-labs/skills` doesn't know this field, so it can't update or restore aliased skills, but it leaves the rest of the lock usable.
+
+## Fields from other tools
+
+Fields AgentSkills CLI doesn't recognize are kept when it rewrites a lock entry, so a newer tool's (or upstream's) additions aren't lost.
+
+## Which lock is written
+
+Each scope has exactly one lock: global installs (`-g`) write only the global lock, project installs write only `./skills-lock.json`. `remove` and `update` change only the lock of the scope they act on.
+
+Before 1.1.0, project installs also added an entry to the global lock. `update` reports those leftovers as stale entries and removes them; `outdated` lists them without changing anything.
+
+## Safety
+
+- **Corrupt file**: an unparseable lock is copied to `<lock>.corrupt-<timestamp>`, a warning is printed, and the lock is treated as empty. The original is only replaced on the next successful write.
+- **Newer format**: a lock with a higher `version` than this tool understands is read but never overwritten; commands that would change it fail with an upgrade hint.
+- **Older global format** (before v3): reset to an empty v3 lock, matching upstream, after saving a copy to `<lock>.v<N>-<timestamp>`.
+- **Atomic writes**: locks are written to a temp file and moved into place, so an interrupted run can't leave a half-written file.
 
 ## Interop with `vercel-labs/skills`
 
-These schemas match the `vercel-labs/skills` lock format exactly. The two tools can share state - a skill installed via `npx skills add` is visible to `agentskills-cli update`, and vice versa.
+These schemas match the `vercel-labs/skills` lock format exactly. The two tools can share state - a skill installed via `npx skills add` is visible to `agentskills-cli list` and `update`, and vice versa.
 
 This is deliberate. The lock format isn't part of the published spec at agentskills.io, but matching the existing convention means users can use either tool interchangeably without losing tracked state.
 

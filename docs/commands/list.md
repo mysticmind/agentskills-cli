@@ -5,7 +5,7 @@ Inspect installed skills.
 ## Synopsis
 
 ```
-agentskills-cli list [<target>...] [-g] [-a agent...] [--by package|path|agent|scope] [--paths]
+agentskills-cli list [<target>...] [-g] [-p] [-a agent...] [--by package|path|agent|scope] [--paths] [--json]
 ```
 
 ## Arguments
@@ -19,9 +19,11 @@ agentskills-cli list [<target>...] [-g] [-a agent...] [--by package|path|agent|s
 | Flag | Meaning |
 |---|---|
 | `-g`, `--global` | Show only globally installed skills. Default shows both project and global. |
+| `-p`, `--project` | Show only project-installed skills. |
 | `-a`, `--agent <NAME>` | Limit the view to specific agents. |
 | `--by <KEY>` | Group the output. Values: `package`, `path`, `agent`, `scope`. Default is a single flat table. |
 | `--paths` | Add a column with each skill's on-disk install path. |
+| `--json` | Write the installed skills as a JSON array to stdout (name, originalName, scope, agents, source, sourceType, package, version, path, description). Ignores `--by`. |
 
 ## Examples
 
@@ -37,6 +39,9 @@ agentskills-cli list anthropics/skills                             # GitHub shor
 agentskills-cli list https://github.com/anthropics/skills          # GitHub URL - same lock entries
 agentskills-cli list https://gitlab.com/group/sub/repo             # GitLab
 agentskills-cli list /abs/path/to/local/skill                      # local path
+
+# Machine-readable
+agentskills-cli list -p --json
 
 # Mix skill names and sources - the union is shown
 agentskills-cli list hello-skill anthropics/skills MyOrg.AgentSkills
@@ -82,3 +87,5 @@ hint: @acme/sample-skills is installed at version(s) 1.4.0; drop the @version to
 ```
 
 GitHub refs (`anthropics/skills#main`) are not version constraints - the lock tracks them separately, so they're ignored when matching.
+
+Skills installed under another name ([`add --as`](/commands/add#installing-under-another-name)) are shown as `greeter-contoso (alias of greeter)`; in `--json` the source name is in `originalName`.

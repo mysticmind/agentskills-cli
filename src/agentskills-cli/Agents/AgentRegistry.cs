@@ -19,6 +19,25 @@ public static class AgentRegistry
                 $"Unknown agent: {name}. Known: {string.Join(", ", All.Keys)}",
                 nameof(name));
 
+    /// <summary>
+    /// Resolves <c>--agent</c> values. Unknown names raise a <see cref="UserInputException"/>
+    /// (a clean one-line error) instead of an unhandled <see cref="ArgumentException"/>.
+    /// </summary>
+    public static List<AgentConfig> GetMany(IEnumerable<string> names)
+    {
+        ArgumentNullException.ThrowIfNull(names);
+        var result = new List<AgentConfig>();
+        foreach (var name in names)
+        {
+            if (!All.TryGetValue(name, out var cfg))
+            {
+                throw new UserInputException($"Unknown agent: {name}. Known: {string.Join(", ", All.Keys)}");
+            }
+            if (!result.Contains(cfg)) result.Add(cfg);
+        }
+        return result;
+    }
+
     public static IReadOnlyList<AgentConfig> DetectInstalled() =>
         All.Values.Where(a => a.IsInstalled()).ToList();
 

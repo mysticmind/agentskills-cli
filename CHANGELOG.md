@@ -2,6 +2,43 @@
 
 All notable changes are documented here. Format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project adheres to [SemVer](https://semver.org).
 
+## 1.1.0 - Unreleased
+
+Package-level updates for every source type, a `restore` command, version reporting, and fixes to how the lock files track scopes. Lock file formats are unchanged and stay compatible with `vercel-labs/skills`.
+
+### New
+
+- **`update` works for every source type.** NuGet and npm skills are checked against your feeds and registries (using your `NuGet.config` and `.npmrc`) and moved to the newest version. GitLab, generic git, well-known, and local sources are checked by fetching them and comparing the skill folder. Before, only global GitHub skills were checked; everything else was reported as skipped.
+- **`update` and `outdated` accept packages and sources as targets**, the same way `list` and `remove` do: `update Contoso.AgentSkills`, `update @acme/skills`, `update anthropics/skills`. `update Contoso.AgentSkills@2.1.0` moves to exactly that version.
+- **Reinstalls keep the original layout**: same scope, same agents, and symlinked installs stay symlinked. Before, every update reinstalled in copy mode for whichever agents were detected.
+- New `update` options: `-a/--agent`, `--force` (reinstall even without a detected change), `--prerelease`, `--version-lock none|major|minor` (keep NuGet/npm updates on the installed major or major.minor version), `--json`, `--exit-code` (exit 1 when updates are available, 2 when a check failed), `--nuget-source`, `--npm-registry`.
+- **`outdated`** (alias `check`): the read-only report. `check` used to be an alias of `update` and could install updates.
+- **`restore`**: installs every skill in `./skills-lock.json` at its locked version or ref, for fresh clones and CI. Skips skills already present (`--force` reinstalls), and `--frozen` fails when a source's content no longer matches the lock.
+- **`--version`** prints the tool version; **`version`** also shows the commit, runtime, OS, and lock file paths (`--json` available).
+- `list --json` and `list -p/--project`; `remove -p/--project`.
+- **Name conflicts are detected and can be resolved with an alias.** When `add` would install a skill whose name is already used in that scope by a skill from a different source (or by an untracked skill), it now stops before installing anything. Interactively it asks whether to install under another name (with a suggested name), replace, or skip. With `-y` or in CI it lists the conflicts with the commands that resolve them and exits `2`. Before, the existing skill was silently overwritten. `find` asks the same question.
+- **`add --as <skill>=<new-name>`** installs a skill under another name; `add --replace` overwrites without asking. The installed `SKILL.md` gets the new `name` (the spec requires it to match the folder); the lock records `originalName`, so `update`, `restore`, and later `add`s of the same source keep the alias. `list` shows aliases.
+- Lock entries keep fields they don't recognize when rewritten, so additions by other tools aren't lost.
+
+### Bug fixes
+
+- **Project installs no longer write to the global lock.** Each scope now writes only its own lock file. Before, a project install also added a global lock entry, so `update -g` could reinstall project skills globally. `update` reports the leftover entries as stale and removes them; `outdated` only lists them.
+- **`update` never checked project-scope skills.** Every project skill was reported as "Missing folder hash". Project skills are now compared against the hash in `skills-lock.json`.
+- **`remove` and `list` respect scope** when matching by package: removing a project package no longer touches a same-named global skill or its global lock entry, and `list` shows each row's source from its own scope's lock.
+- **`remove -a <agent>` no longer breaks other agents.** It used to delete the shared canonical copy and the lock entry even when other agents still used the skill (through a symlink).
+- **Corrupt lock files are no longer silently discarded.** An unparseable lock is backed up to `<lock>.corrupt-<timestamp>` with a warning. A lock written in a newer format is never overwritten, and lock writes are atomic.
+- Unknown `--agent` names produce a one-line error instead of a stack trace.
+- `remove` lists every agent a skill was removed from. When several agents share `.agents/skills`, only the first one used to be named.
+- Docs said `--copy` was the default install mode; the default has always been symlink.
+- The git tree SHA recorded for a skill at the repository root is now the root tree SHA, which matches what the GitHub Trees API reports.
+
+### Build and platform
+
+- **Builds were failing with `NU1902`** (`Microsoft.Build.Tasks.Git` 8.0.0, GHSA-23fw-v26w-5fgq) because warnings are errors. The explicit `Microsoft.SourceLink.GitHub` reference is removed; SourceLink is built into the .NET 8+ SDK, so packages keep their source links.
+- **.NET 11**: the tool already runs on .NET 11 and later through `RollForward=LatestMajor`; a new CI job tests the `net10.0` build on the .NET 11 runtime. No `net11.0` build is added (.NET 11 is an STS release).
+- **.NET 8 is deprecated.** .NET 8 support ends on November 10, 2026. 1.x keeps the `net8.0` build; 2.0 will remove it.
+- New `ci` workflow: build and test on Linux, Windows, and macOS for every push and pull request.
+
 ## 1.0.0 - 2026-06-03
 
 First stable release. The CLI, source resolvers, lock format, and install layout are considered stable; future changes follow SemVer with no further breaking changes expected before 2.0.0. No functional changes since 0.2.2.

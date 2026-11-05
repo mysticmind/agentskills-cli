@@ -72,6 +72,9 @@ export default defineConfig({
           { text: 'init', link: '/commands/init' },
           { text: 'find', link: '/commands/find' },
           { text: 'update', link: '/commands/update' },
+          { text: 'outdated', link: '/commands/outdated' },
+          { text: 'restore', link: '/commands/restore' },
+          { text: 'version', link: '/commands/version' },
         ],
       },
       {

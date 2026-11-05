@@ -8,7 +8,7 @@ AgentSkills CLI is a faithful .NET-native port of [`vercel-labs/skills`](https:/
 - **npm registry fetch (not just `node_modules` sync).** `npx skills` only offers `experimental_sync` against pre-installed packages. AgentSkills CLI does full registry fetch with `.npmrc`-based auth.
 - **Version-aware target matching** on `list` / `remove` for NuGet and npm.
 - **`--path` works across every source**, not just GitHub URLs.
-- **Multi-targeted runtime** - one `.nupkg` ships both .NET 8 and .NET 10 builds.
+- **Multi-targeted runtime** - one `.nupkg` ships both .NET 8 and .NET 10 builds, and rolls forward to .NET 11 and later.
 - **Extension points** - register `ISkillSourceFactory` for new source types, `ISkillSearchProvider` for new search backends.
 
 Both tools share the same lock format and `.agents/skills/` directory by design, so you can switch between them without losing tracked state.
@@ -27,9 +27,7 @@ Three things to check:
 
 ## Does the project lock work like `package-lock.json`?
 
-Similar idea, different scope. The project lock (`./skills-lock.json`) records what skills are installed in the project, which source they came from, and a content hash. Commit it; teammates running `agentskills-cli add` against the same source get reproducible installs.
-
-It does **not** currently support `agentskills-cli install` (restore-from-lock). That's a planned feature; for now, scripts can iterate the lock and re-run `add` for each entry.
+Similar idea, different scope. The project lock (`./skills-lock.json`) records what skills are installed in the project, which source they came from, and a content hash. Commit it; teammates run [`agentskills-cli restore`](/commands/restore) to install the same skills at the same versions. `restore --frozen` fails when a source no longer matches the recorded hash, which is what you want in CI.
 
 ## Can I host my own skill registry?
 
@@ -65,3 +63,9 @@ If `agentskills-cli` is too long to type often, alias it in your shell. The [ins
 ## Is there a docs site for the spec itself?
 
 [agentskills.io](https://agentskills.io) and [schemas.agentskills.io](https://schemas.agentskills.io/). AgentSkills CLI implements the spec; the spec itself lives separately.
+
+## Which .NET versions are supported?
+
+The package ships `net8.0` and `net10.0` builds with `RollForward=LatestMajor`, so it also runs on .NET 11 and any later runtime without a new release (CI tests this). There is no `net11.0` build because .NET 11 is a short-term (STS) release and the tool needs nothing from it; the next build target will be the next LTS.
+
+**.NET 8 is deprecated.** .NET 8 reaches end of support on November 10, 2026. The 1.x releases keep the `net8.0` build; 2.0 will drop it and require the .NET 10 (or later) runtime.

@@ -13,8 +13,11 @@ AgentSkills CLI is a faithful .NET-native port of [`vercel-labs/skills`](https:/
 | **`--path` works across every source** (NuGet, npm, git, local) - overrides where discovery scans inside the staged source | yes | only `/tree/<ref>/<path>` in GitHub URLs |
 | **Unified positional targets** on `list` / `remove` - each arg matches as a skill name *or* any source format, union semantics | yes | separate positionals/flags |
 | **`--by package\|path\|agent\|scope`** grouping on `list` | yes | flat output |
+| **`update` / `outdated` for every source** - NuGet and npm version checks, GitHub, GitLab, generic git, well-known, local; package targets (`update Pkg`, `update Pkg@2.0.0`); keeps each skill's agents and symlink/copy mode | yes | GitHub sources |
+| **`restore`** from `./skills-lock.json` at locked versions, with `--frozen` for CI | yes | `experimental_install` (experimental) |
+| **`--json` output** on `list`, `outdated`, `update`, `version`; `--exit-code` for CI gates | yes | no |
 | **Install paths surfaced everywhere** - `Path` column on `add` output, `Installed under ...` summary, `--paths` on `list` | yes | success status without paths |
-| **Multi-targeted runtime** - LTS .NET 8 *and* latest .NET 10 from one .nupkg | yes | Node 18+ (single ecosystem) |
+| **Multi-targeted runtime** - .NET 10 LTS and .NET 8 from one .nupkg, rolls forward to .NET 11+ | yes | Node 18+ (single ecosystem) |
 | **DI extension points** - register `ISkillSourceFactory` for new source types (cargo, oci, conda, ...) and `ISkillSearchProvider` for new search backends (internal registries, GitHub topic search, ...) with no core changes | yes | procedural, no public extension contract |
 | **Typed exception hierarchy** with carried `ExitCode` - clean single-line errors, no stack-trace spam | yes | ad-hoc throws |
 | **Verbosity control** - `-v` / `-q` / `--trace` route through `Microsoft.Extensions.Logging` to a Spectre logger | yes | console writes only |
@@ -30,12 +33,11 @@ By design - the two tools interoperate, so being identical here is a feature, no
 - **Well-known endpoint** - both support `/.well-known/agent-skills/index.json` (modern) and `/.well-known/skills/index.json` (legacy fallback)
 - **GitHub auth chain** - both fall back through `GITHUB_TOKEN` -> `GH_TOKEN` -> `gh auth token` after an unauthenticated 403
 
-## What AgentSkills CLI v1 deliberately doesn't ship
+## What AgentSkills CLI deliberately doesn't ship
 
 | Feature | Why it's not in AgentSkills CLI |
 |---|---|
 | **Telemetry** | Privacy by default. Lock files give you everything you need to track usage internally. |
-| **`experimental_install`** | Still experimental in `npx skills`; holding for stability. |
 | **`experimental_sync`** | Same. AgentSkills CLI' npm fetch covers the actual use case (install from registry). |
 | **The full 55-agent registry** | v1 ships the most-used 5: `claude-code`, `codex`, `cursor`, `opencode`, `universal`. Adding more is mechanical - [open an issue](https://github.com/mysticmind/agentskills-cli/issues) for any specific agent you need. |
 | **Live fzf-style `find` UI** | The current table-output `find` is responsive enough; a TUI variant may land in a later version if there's demand. |

@@ -11,7 +11,7 @@ All optional. Reasonable defaults apply if unset.
 | `SKILLS_CLONE_TIMEOUT_MS` | Hard timeout for `git clone` in milliseconds (default `300000` = 5 min). |
 | `INSTALL_INTERNAL_SKILLS` | Set to `1` or `true` to include skills with `metadata.internal: true` in scans. |
 | `SKILLS_API_URL` | Override the search backend used by `find` (default `https://skills.sh`). |
-| `GITHUB_TOKEN` / `GH_TOKEN` | Used by `update` only after a rate-limit 403. Silent fallback. |
+| `GITHUB_TOKEN` / `GH_TOKEN` | Used by `update` / `outdated` for the GitHub Trees API only after a rate-limit 403. Silent fallback. |
 
 ## Git environment
 

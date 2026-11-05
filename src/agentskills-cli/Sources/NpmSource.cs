@@ -55,18 +55,7 @@ public sealed class NpmSource : ISkillSource
 
         log?.Invoke($"  using registry {registry}{(auth is null ? "" : " (auth)")}");
 
-        var packumentUrl = $"{registry.TrimEnd('/')}/{EscapePackageId(packageId)}";
-        using var request = new HttpRequestMessage(HttpMethod.Get, packumentUrl);
-        if (auth is not null) request.Headers.Authorization = auth;
-
-        using var packumentResponse = await http.SendAsync(request, cancellationToken).ConfigureAwait(false);
-        if (!packumentResponse.IsSuccessStatusCode)
-        {
-            throw new InvalidOperationException(
-                $"Failed to fetch packument for '{packageId}' from {registry}: HTTP {(int)packumentResponse.StatusCode}");
-        }
-
-        var json = await packumentResponse.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        var json = await FetchPackumentAsync(http, registry, auth, packageId, cancellationToken).ConfigureAwait(false);
         var (version, tarballUrl) = ResolveVersionAndTarball(json, packageId, parsed.PackageVersion);
         log?.Invoke($"  resolving {packageId}@{version} → {tarballUrl}");
 
@@ -211,6 +200,68 @@ public sealed class NpmSource : ISkillSource
             try { Directory.Delete(stagingRoot, recursive: true); } catch { /* swallow */ }
             throw;
         }
+    }
+
+    /// <summary>
+    /// Reads the packument for <paramref name="packageId"/> and returns its
+    /// <c>dist-tags.latest</c> plus every published version, without downloading a tarball.
+    /// Used by <c>update</c> / <c>outdated</c> to detect newer package versions.
+    /// </summary>
+    public static async Task<(string? Latest, IReadOnlyList<string> Versions)> GetVersionsAsync(
+        string packageId,
+        string? overrideRegistry = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(packageId);
+
+        var npmrc = NpmRegistry.Load(overrideRegistry: overrideRegistry);
+        var registry = npmrc.ResolveRegistry(packageId);
+        using var http = npmrc.CreateClient();
+        var auth = npmrc.GetAuthHeader(registry);
+
+        var json = await FetchPackumentAsync(http, registry, auth, packageId, cancellationToken).ConfigureAwait(false);
+        return ParseVersions(json);
+    }
+
+    internal static (string? Latest, IReadOnlyList<string> Versions) ParseVersions(string packumentJson)
+    {
+        using var doc = JsonDocument.Parse(packumentJson);
+        var root = doc.RootElement;
+
+        string? latest = null;
+        if (root.TryGetProperty("dist-tags", out var tags) &&
+            tags.TryGetProperty("latest", out var l) &&
+            l.ValueKind == JsonValueKind.String)
+        {
+            latest = l.GetString();
+        }
+
+        var versions = new List<string>();
+        if (root.TryGetProperty("versions", out var vs) && vs.ValueKind == JsonValueKind.Object)
+        {
+            versions.AddRange(vs.EnumerateObject().Select(p => p.Name));
+        }
+        return (latest, versions);
+    }
+
+    private static async Task<string> FetchPackumentAsync(
+        HttpClient http,
+        string registry,
+        System.Net.Http.Headers.AuthenticationHeaderValue? auth,
+        string packageId,
+        CancellationToken cancellationToken)
+    {
+        var packumentUrl = $"{registry.TrimEnd('/')}/{EscapePackageId(packageId)}";
+        using var request = new HttpRequestMessage(HttpMethod.Get, packumentUrl);
+        if (auth is not null) request.Headers.Authorization = auth;
+
+        using var response = await http.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(
+                $"Failed to fetch packument for '{packageId}' from {registry}: HTTP {(int)response.StatusCode}");
+        }
+        return await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────

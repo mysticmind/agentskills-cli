@@ -5,7 +5,7 @@ Remove installed skills.
 ## Synopsis
 
 ```
-agentskills-cli remove [<target>...] [-g] [-a agent...] [-y]
+agentskills-cli remove [<target>...] [-g] [-p] [-a agent...] [-y]
 ```
 
 ## Arguments
@@ -18,8 +18,9 @@ agentskills-cli remove [<target>...] [-g] [-a agent...] [-y]
 
 | Flag | Meaning |
 |---|---|
-| `-g`, `--global` | Remove from the global scope. Default removes from both scopes. |
-| `-a`, `--agent <NAME>` | Limit removal to specific agents. By default all agents that have the skill get cleaned. |
+| `-g`, `--global` | Only remove from the global scope. |
+| `-p`, `--project` | Only remove from the project scope. Without `-g` or `-p`, both scopes are matched. |
+| `-a`, `--agent <NAME>` | Limit removal to specific agents. By default all agents that have the skill get cleaned. When other agents still use the skill, its shared copy and lock entry are kept. |
 | `-y`, `--yes` | Skip the "Remove N skill(s)?" confirmation. |
 
 ## Examples

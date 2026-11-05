@@ -36,7 +36,7 @@ AgentSkills CLI is a faithful .NET-native port of [`vercel-labs/skills`](https:/
 | **`--path` across every source** (NuGet, npm, git, local) | yes | only `/tree/<ref>/<path>` for GitHub |
 | **Version-aware target matching** on `list` / `remove` | yes | no concept of pinned matching |
 | **DI extension points** for custom sources + search backends | yes | procedural, no public extension contract |
-| **Runtime** | .NET 8 LTS + .NET 10 from one .nupkg | Node 18+ |
+| **Runtime** | .NET 10 LTS + .NET 8 from one .nupkg, runs on .NET 11+ | Node 18+ |
 
 [Full feature matrix →](/reference/comparison)
 
